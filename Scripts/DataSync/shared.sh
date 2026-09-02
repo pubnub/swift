@@ -8,7 +8,7 @@
 #   SDK_DS_API_KEY   metadata-plane API key authorizing class writes
 #   SDK_DS_SUB_KEY   subscribe key the classes are registered under
 
-META_BASE="https://admin-api.private.portal.pdx1.aws.int.ps.pn"
+META_BASE="https://admin-api.pubnub.com"
 CLASS_PREFIX="Swift-"
 PN_VERSION="2026-09-03"
 

@@ -26,6 +26,7 @@ meta_post "$META/entity-classes/$PATIENT/versions/1" "$ENTITY_CLASS_MT" "$(cat <
     "description": "A patient in the hospital network",
     "config": { "ttlSec": 31536000 },
     "properties": [
+      { "name": "status", "path": "/status", "valueKind": "string", "filtering": "none", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
       { "name": "mrn", "path": "/payload/mrn", "valueKind": "string", "filtering": "simple", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
       { "name": "fullName", "path": "/payload/fullName", "valueKind": "string", "filtering": "full", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
       { "name": "dateOfBirth", "path": "/payload/dateOfBirth", "valueKind": "date", "filtering": "simple", "projections": [{ "name": "clinical" }, { "name": "admin" }] },
@@ -43,6 +44,7 @@ meta_post "$META/entity-classes/$PATIENT/versions/2" "$ENTITY_CLASS_MT" "$(cat <
     "description": "A patient in the hospital network",
     "config": { "ttlSec": 31536000 },
     "properties": [
+      { "name": "status", "path": "/status", "valueKind": "string", "filtering": "none", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
       { "name": "mrn", "path": "/payload/mrn", "valueKind": "string", "filtering": "simple", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
       { "name": "fullName", "path": "/payload/fullName", "valueKind": "string", "filtering": "full", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
       { "name": "dateOfBirth", "path": "/payload/dateOfBirth", "valueKind": "date", "filtering": "simple", "projections": [{ "name": "clinical" }, { "name": "admin" }] },
@@ -61,6 +63,7 @@ meta_post "$META/entity-classes/$PRACTITIONER/versions/1" "$ENTITY_CLASS_MT" "$(
     "description": "A clinician (physician, nurse, etc.)",
     "config": { "ttlSec": 31536000 },
     "properties": [
+      { "name": "status", "path": "/status", "valueKind": "string", "filtering": "none", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
       { "name": "npi", "path": "/payload/npi", "valueKind": "string", "filtering": "simple", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
       { "name": "fullName", "path": "/payload/fullName", "valueKind": "string", "filtering": "full", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
       { "name": "specialty", "path": "/payload/specialty", "valueKind": "string", "filtering": "simple", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
@@ -79,6 +82,7 @@ meta_post "$META/entity-classes/$CARE_FACILITY/versions/1" "$ENTITY_CLASS_MT" "$
     "description": "A hospital or clinic in the network",
     "config": { "ttlSec": 31536000 },
     "properties": [
+      { "name": "status", "path": "/status", "valueKind": "string", "filtering": "none", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
       { "name": "code", "path": "/payload/code", "valueKind": "string", "filtering": "simple", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
       { "name": "name", "path": "/payload/name", "valueKind": "string", "filtering": "full", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
       { "name": "city", "path": "/payload/city", "valueKind": "string", "filtering": "simple", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
@@ -99,6 +103,7 @@ meta_post "$META/relationship-classes/$ATTENDING_PHYSICIAN/versions/1" "$RELATIO
     "entityAClass": "$PRACTITIONER",
     "entityBClass": "$PATIENT",
     "properties": [
+      { "name": "status", "path": "/status", "valueKind": "string", "filtering": "none", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
       { "name": "role", "path": "/payload/role", "valueKind": "string", "filtering": "simple", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
       { "name": "since", "path": "/payload/since", "valueKind": "date", "filtering": "simple", "projections": [{ "name": "__default__" }, { "name": "admin" }] }
     ]
@@ -117,6 +122,7 @@ meta_post "$META/relationship-classes/$FACILITY_AFFILIATION/versions/1" "$RELATI
     "entityAClass": "$CARE_FACILITY",
     "entityBClass": "$PRACTITIONER",
     "properties": [
+      { "name": "status", "path": "/status", "valueKind": "string", "filtering": "none", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
       { "name": "department", "path": "/payload/department", "valueKind": "string", "filtering": "simple", "projections": [{ "name": "__default__" }, { "name": "admin" }] }
     ]
   }

@@ -57,7 +57,7 @@ public enum Constant {
 
   static let pubnubSwiftSDKName: String = "PubNubSwift"
 
-  static let pubnubSwiftSDKVersion: String = "10.1.8"
+  static let pubnubSwiftSDKVersion: String = "10.2.0"
 
   static let appBundleId: String = {
     if let info = Bundle.main.infoDictionary,

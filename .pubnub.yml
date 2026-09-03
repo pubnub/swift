@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "10.1.8"
+version: "10.2.0"
 schema: 1
 changelog:
+  - date: 2026-09-03
+    version: 10.2.0
+    changes:
+      - type: feature
+        text: "Add an optional `pushType` property that maps to the `apns-push-type` header required for non-alert notifications such as VoIP. When omitted, the payload excludes the key, and APNs defaults to alert."
   - date: 2026-07-08
     version: 10.1.8
     changes:
@@ -818,7 +823,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/10.1.8.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/10.2.0.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

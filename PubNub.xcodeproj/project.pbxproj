@@ -457,6 +457,7 @@
 		3D867D1D2E422E6E00B03EEE /* KMPPAMToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D867D1C2E422E6E00B03EEE /* KMPPAMToken.swift */; };
 		3D8BAC102B8C96D70059A5C3 /* DependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8BAC0F2B8C96D70059A5C3 /* DependencyContainer.swift */; };
 		3D9134972A1216F7000A5124 /* PubNubPushTargetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9134962A1216F7000A5124 /* PubNubPushTargetTests.swift */; };
+		3D9134992A1216F7000A5124 /* PubNubPushConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9134982A1216F7000A5124 /* PubNubPushConfigTests.swift */; };
 		3D9DCEE92EE9AF1C00F8B43D /* KMPLogLevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9DCEE82EE9AF1C00F8B43D /* KMPLogLevel.swift */; };
 		3DA04F2A2EA8C271007F5733 /* PresenceInputTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA04F292EA8C271007F5733 /* PresenceInputTests.swift */; };
 		3DA0C7C92BFDF538000FFE6C /* KMPPubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA0C7C82BFDF538000FFE6C /* KMPPubNub.swift */; };
@@ -1122,6 +1123,7 @@
 		3D867D1C2E422E6E00B03EEE /* KMPPAMToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPPAMToken.swift; sourceTree = "<group>"; };
 		3D8BAC0F2B8C96D70059A5C3 /* DependencyContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependencyContainer.swift; sourceTree = "<group>"; };
 		3D9134962A1216F7000A5124 /* PubNubPushTargetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubPushTargetTests.swift; sourceTree = "<group>"; };
+		3D9134982A1216F7000A5124 /* PubNubPushConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubPushConfigTests.swift; sourceTree = "<group>"; };
 		3D9DCEE82EE9AF1C00F8B43D /* KMPLogLevel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPLogLevel.swift; sourceTree = "<group>"; };
 		3DA04F292EA8C271007F5733 /* PresenceInputTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresenceInputTests.swift; sourceTree = "<group>"; };
 		3DA0C7C82BFDF538000FFE6C /* KMPPubNub.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KMPPubNub.swift; sourceTree = "<group>"; };
@@ -2414,6 +2416,7 @@
 			isa = PBXGroup;
 			children = (
 				3D9134962A1216F7000A5124 /* PubNubPushTargetTests.swift */,
+				3D9134982A1216F7000A5124 /* PubNubPushConfigTests.swift */,
 			);
 			path = Push;
 			sourceTree = "<group>";
@@ -4180,6 +4183,7 @@
 				3557CDF9237F4ABB004BBACC /* PresenceRouterTests.swift in Sources */,
 				3D38A0152B35AF6B006928E7 /* LeaveEffectTests.swift in Sources */,
 				3D9134972A1216F7000A5124 /* PubNubPushTargetTests.swift in Sources */,
+				3D9134992A1216F7000A5124 /* PubNubPushConfigTests.swift in Sources */,
 				35D8D4CB22EB84B4001B07D9 /* AtomicTests.swift in Sources */,
 				3D38A0172B35AF6B006928E7 /* EffectInvocation+Equatable.swift in Sources */,
 				3D38A0102B35AF6B006928E7 /* SubscribeEffectsTests.swift in Sources */,
@@ -4398,7 +4402,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 10.1.8;
+				MARKETING_VERSION = 10.2.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -4449,7 +4453,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 10.1.8;
+				MARKETING_VERSION = 10.2.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -4557,7 +4561,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 10.1.8;
+				MARKETING_VERSION = 10.2.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -4610,7 +4614,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 10.1.8;
+				MARKETING_VERSION = 10.2.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -4731,7 +4735,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 10.1.8;
+				MARKETING_VERSION = 10.2.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -4783,7 +4787,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 10.1.8;
+				MARKETING_VERSION = 10.2.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -5263,7 +5267,7 @@
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 10.1.8;
+				MARKETING_VERSION = 10.2.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++14";
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
@@ -5306,7 +5310,7 @@
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 10.1.8;
+				MARKETING_VERSION = 10.2.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++14";
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";

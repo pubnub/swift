@@ -132,6 +132,47 @@ public extension PubNub {
     case production
   }
 
+  /// The type of a notification delivered through APNs
+  ///
+  /// This determines the value of the `apns-push-type` header, which APNs requires for watchOS 6 and later
+  /// and recommends for macOS, iOS, tvOS, and iPadOS. The value should always align with the contents of
+  /// the `aps` payload, otherwise APNs may return an error, delay the notification, or drop it altogether.
+  ///
+  /// See [Sending Notification Requests to APNs](https://developer.apple.com/documentation/usernotifications/sending-notification-requests-to-apns)
+  /// for more information.
+  enum PushType: String, CaseIterable, Codable, Hashable {
+    /// A notification that triggers an alert, sound, or badge update.
+    case alert
+    /// A notification that delivers content silently and wakes your app in the background.
+    case background
+    /// A notification that requests the location of a device.
+    ///
+    /// - Requires: A topic suffixed with `.location-query`.
+    case location
+    /// A notification that requests a VoIP call.
+    ///
+    /// - Requires: A topic suffixed with `.voip` and a VoIP-capable APNs credential.
+    case voip
+    /// A notification that updates a watchOS complication.
+    ///
+    /// - Requires: A topic suffixed with `.complication`.
+    case complication
+    /// A notification that signals changes to a File Provider extension.
+    ///
+    /// - Requires: A topic suffixed with `.pushkit.fileprovider`.
+    case fileProvider = "fileprovider"
+    /// A notification that requests a managed device respond to a Mobile Device Management request.
+    case mdm
+    /// A notification that starts or updates a Live Activity.
+    ///
+    /// - Requires: A topic suffixed with `.push-type.liveactivity`.
+    case liveActivity = "liveactivity"
+    /// A notification that delivers a Push to Talk update.
+    ///
+    /// - Requires: A topic suffixed with `.voip-ptt`.
+    case pushToTalk = "pushtotalk"
+  }
+
   /// The identifier of the Push Service being used
   enum PushService: Codable, Hashable {
     @available(*, deprecated, renamed: "fcm")

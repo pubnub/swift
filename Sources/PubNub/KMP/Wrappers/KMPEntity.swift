@@ -23,18 +23,13 @@ import Foundation
   init(entity: Subscribable) {
     self.entity = entity
   }
-
-  @objc
-  public var name: String {
-    entity.name
-  }
 }
 
 @objc
 public class KMPChannelEntity: KMPEntity {
-  let channel: ChannelRepresentation
+  let channel: Channel
 
-  init(channel: ChannelRepresentation) {
+  init(channel: Channel) {
     self.channel = channel
     super.init(entity: channel)
   }
@@ -42,9 +37,9 @@ public class KMPChannelEntity: KMPEntity {
 
 @objc
 public class KMPChannelGroupEntity: KMPEntity {
-  let channelGroup: ChannelGroupRepresentation
+  let channelGroup: ChannelGroup
 
-  init(channelGroup: ChannelGroupRepresentation) {
+  init(channelGroup: ChannelGroup) {
     self.channelGroup = channelGroup
     super.init(entity: channelGroup)
   }
@@ -52,9 +47,9 @@ public class KMPChannelGroupEntity: KMPEntity {
 
 @objc
 public class KMPUserMetadataEntity: KMPEntity {
-  let userMetadata: UserMetadataRepresentation
+  let userMetadata: UserMetadata
 
-  init(userMetadata: UserMetadataRepresentation) {
+  init(userMetadata: UserMetadata) {
     self.userMetadata = userMetadata
     super.init(entity: userMetadata)
   }
@@ -62,10 +57,101 @@ public class KMPUserMetadataEntity: KMPEntity {
 
 @objc
 public class KMPChannelMetadataEntity: KMPEntity {
-  let channelMetadata: ChannelMetadataRepresentation
+  let channelMetadata: ChannelMetadata
 
-  init(channelMetadata: ChannelMetadataRepresentation) {
+  init(channelMetadata: ChannelMetadata) {
     self.channelMetadata = channelMetadata
     super.init(entity: channelMetadata)
+  }
+}
+
+// MARK: - Data Sync
+
+@objc
+public class KMPDataSyncReference: KMPEntity {
+  @objc public let id: String
+
+  init(id: String, entity: Subscribable) {
+    self.id = id
+    super.init(entity: entity)
+  }
+
+  @objc
+  public func subscription(withProjection projection: String) -> KMPSubscription {
+    KMPSubscription(subscription: dataSyncSubscription(projection: projection))
+  }
+
+  func dataSyncSubscription(projection: String) -> Subscription {
+    fatalError("Subclasses must implement dataSyncSubscription(projection:)")
+  }
+}
+
+@objc
+public class KMPDataSyncUserReference: KMPDataSyncReference {
+  private let user: DataSyncUser
+
+  init(user: DataSyncUser) {
+    self.user = user
+    super.init(id: user.id, entity: user)
+  }
+
+  override func dataSyncSubscription(projection: String) -> Subscription {
+    user.subscription(projection: projection)
+  }
+}
+
+@objc
+public class KMPDataSyncChannelReference: KMPDataSyncReference {
+  private let channel: DataSyncChannel
+
+  init(channel: DataSyncChannel) {
+    self.channel = channel
+    super.init(id: channel.id, entity: channel)
+  }
+
+  override func dataSyncSubscription(projection: String) -> Subscription {
+    channel.subscription(projection: projection)
+  }
+}
+
+@objc
+public class KMPDataSyncMembershipReference: KMPDataSyncReference {
+  private let membership: DataSyncMembership
+
+  init(membership: DataSyncMembership) {
+    self.membership = membership
+    super.init(id: membership.id, entity: membership)
+  }
+
+  override func dataSyncSubscription(projection: String) -> Subscription {
+    membership.subscription(projection: projection)
+  }
+}
+
+@objc
+public class KMPDataSyncEntityReference: KMPDataSyncReference {
+  private let dataSyncEntity: DataSyncEntity
+
+  init(entity: DataSyncEntity) {
+    self.dataSyncEntity = entity
+    super.init(id: entity.id, entity: entity)
+  }
+
+  override func dataSyncSubscription(projection: String) -> Subscription {
+    dataSyncEntity.subscription(projection: projection)
+  }
+}
+
+@objc
+public class KMPDataSyncRelationshipReference: KMPDataSyncReference {
+  private let relationship: DataSyncRelationship
+
+  init(relationship: DataSyncRelationship) {
+    self.relationship = relationship
+    super.init(id: relationship.id, entity: relationship)
+  }
+
+  override func dataSyncSubscription(projection: String) -> Subscription {
+    relationship.subscription(projection: projection)
   }
 }

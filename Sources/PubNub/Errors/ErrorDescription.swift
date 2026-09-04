@@ -69,6 +69,22 @@ extension ErrorDescription {
   static let emptyFilenameString: String = "The required Filename `String` is empty"
 
   static let emptyFileIdString: String = "The required FileId `String` is empty"
+
+  static let emptyDataSyncId: String = "The DataSync resource id `String` cannot be empty"
+
+  static let emptyEntityClass: String = "The required `entity_class` `String` cannot be empty"
+
+  static let emptyRelationshipClass: String = "The required `relationship_class` `String` cannot be empty"
+
+  static let emptyPatchOperations: String = "The JSON Patch operations `Array` cannot be empty"
+
+  static let emptyMembershipChannelId: String = "The required `channelId` `String` cannot be empty"
+
+  static let emptyMembershipUserId: String = "The required `userId` `String` cannot be empty"
+
+  static let emptyRelationshipEntityAId: String = "The required `entityAId` `String` cannot be empty"
+
+  static let emptyRelationshipEntityBId: String = "The required `entityBId` `String` cannot be empty"
 }
 
 extension PubNubError: LocalizedError, CustomStringConvertible {
@@ -200,10 +216,16 @@ extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
       return "Insufficient permissions to perform this operation"
     case .resourceNotFound:
       return "Requested resource not found at that endpoint"
+    case .methodNotAllowed:
+      return "The request method is not supported by this endpoint"
+    case .notAcceptable:
+      return "The requested Accept media type is not supported"
     case .conflict:
       return "Object already changed by another request since last retrieval"
     case .preconditionFailed:
       return "Request payload must be in JSON format"
+    case .contentTooLarge:
+      return "The request body was too large to be processed"
     case .requestURITooLong:
       return "URI of the request was too long to be processed"
     case .tooManyRequests:

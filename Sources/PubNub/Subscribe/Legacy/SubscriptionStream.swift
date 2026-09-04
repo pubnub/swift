@@ -33,106 +33,21 @@ public enum SubscriptionChangeEvent {
   }
 }
 
-/// The header of a PubNub subscribe response for zero or more events
-@available(*, deprecated, message: "This struct will be removed in future versions")
-public struct SubscribeResponseHeader {
-  /// The channels that are actively subscribed
-  public let channels: [PubNubChannel]
-  /// The groups that are actively subscribed
-  public let groups: [PubNubChannel]
-  /// The most recent successful Timetoken used in subscriptionstatus
-  public let previous: SubscribeCursor?
-  /// Timetoken that will be used on the next subscription cycle
-  public let next: SubscribeCursor?
-
-  public init(
-    channels: [PubNubChannel],
-    groups: [PubNubChannel],
-    previous: SubscribeCursor?,
-    next: SubscribeCursor?
-  ) {
-    self.channels = channels
-    self.groups = groups
-    self.previous = previous
-    self.next = next
-  }
-}
-
 /// Local events emitted from the Subscribe method
 public enum PubNubSubscribeEvent {
-  /// A change in the Channel or Group state occured
-  @available(*, deprecated, message: "This case will be removed in future versions")
-  case subscriptionChanged(SubscriptionChangeEvent)
-  /// A subscribe response was received
-  @available(*, deprecated, message: "This case will be removed in future versions")
-  case responseReceived(SubscribeResponseHeader)
   /// The connection status of the PubNub subscription was changed
   case connectionChanged(ConnectionStatus)
   /// An error was received
   case errorReceived(PubNubError)
 }
 
-/// All the possible events related to PubNub subscription
-public typealias SubscriptionEvent = PubNubCoreEvent
-
-/// The Core PubNub Events found within the PubNub module
-public enum PubNubCoreEvent {
-  /// A message has been received
-  case messageReceived(PubNubMessage)
-  /// A signal has been received
-  case signalReceived(PubNubMessage)
-  /// A change in the subscription connection has occurred
-  case connectionStatusChanged(ConnectionStatus)
-  /// A change in the subscribed channels or groups has occurred
-  case subscriptionChanged(SubscriptionChangeEvent)
-  /// A presence change has been received
-  case presenceChanged(PubNubPresenceChange)
-  /// A User object has been updated
-  case uuidMetadataSet(PubNubUserMetadataChangeset)
-  /// A User object has been deleted
-  case uuidMetadataRemoved(metadataId: String)
-  /// A Space object has been updated
-  case channelMetadataSet(PubNubChannelMetadataChangeset)
-  /// A Space object has been deleted
-  case channelMetadataRemoved(metadataId: String)
-  /// A Membership object has been updated
-  case membershipMetadataSet(PubNubMembershipMetadata)
-  /// A Membership object has been deleted
-  case membershipMetadataRemoved(PubNubMembershipMetadata)
-  /// A MessageAction was added to a published message
-  case messageActionAdded(PubNubMessageAction)
-  /// A MessageAction was removed from a published message
-  case messageActionRemoved(PubNubMessageAction)
-  /// A File was uploaded to storage
-  case fileUploaded(PubNubFileEvent)
-  /// A subscription error has occurred
-  case subscribeError(PubNubError)
-
-  /// True if this event is an error related to cancellation otherwise false
-  var isCancellationError: Bool {
-    switch self {
-    case let .subscribeError(error):
-      return error.isCancellationError
-    default:
-      return false
-    }
-  }
-}
-
-/// Listener capable of emitting batched and single SubscriptionEvent objects
+/// Listener capable of emitting batched and single PubNubEvent objects
 public typealias SubscriptionListener = CoreListener
 
-/// Listener capable of emitting batched and single PubNubCoreEvent objects
+/// Listener capable of emitting batched and single PubNubEvent objects
 public final class CoreListener: BaseSubscriptionListener {
-  /// The type of action the Message Action event represents
-  public enum MessageActionEvent: CaseAccessible {
-    /// The Message Action was added to a message
-    case added(PubNubMessageAction)
-    /// The Message Action was removed from a message
-    case removed(PubNubMessageAction)
-  }
-
   /// All the changes that can be received for Metadata objects
+  @available(*, deprecated, message: "Use PubNubAppContextEvent via didReceiveAppContextEvent")
   public enum ObjectMetadataChangeEvents {
     /// The changeset for the UUID object that changed
     case setUUID(PubNubUserMetadataChangeset)
@@ -154,11 +69,11 @@ public final class CoreListener: BaseSubscriptionListener {
   /// Batched subscription event that possibly contains multiple message events
   ///
   /// This will also emit individual events to `didReceiveSubscription`
-  public var didReceiveBatchSubscription: (([SubscriptionEvent]) -> Void)?
+  @available(*, deprecated, message: "Use the granular callbacks (didReceiveMessage, didReceiveSignal, etc.) instead")
+  public var didReceiveBatchSubscription: (([PubNubEvent]) -> Void)?
   /// Receiver for all subscription events
-  public var didReceiveSubscription: ((SubscriptionEvent) -> Void)?
-  /// Receiver for changes in the subscribe/unsubscribe status of channels/groups
-  public var didReceiveSubscriptionChange: ((SubscriptionChangeEvent) -> Void)?
+  @available(*, deprecated, message: "Use the granular callbacks (didReceiveMessage, didReceiveSignal, etc.) instead")
+  public var didReceiveSubscription: ((PubNubEvent) -> Void)?
   /// Receiver for status (Connection & Error) events
   public var didReceiveStatus: ((StatusEvent) -> Void)?
   /// Receiver for presence events
@@ -167,83 +82,40 @@ public final class CoreListener: BaseSubscriptionListener {
   public var didReceiveMessage: ((PubNubMessage) -> Void)?
   /// Receiver for signal events
   public var didReceiveSignal: ((PubNubMessage) -> Void)?
+  /// Receiver for App Context events
+  public var didReceiveAppContextEvent: ((PubNubAppContextEvent) -> Void)?
   /// Receiver for Object Metadata Events
+  @available(*, deprecated, message: "Use didReceiveAppContextEvent with PubNubAppContextEvent")
   public var didReceiveObjectMetadataEvent: ((ObjectMetadataChangeEvents) -> Void)?
   /// Receiver for message action events
-  public var didReceiveMessageAction: ((MessageActionEvent) -> Void)?
+  public var didReceiveMessageAction: ((PubNubMessageActionEvent) -> Void)?
   /// Receiver for File Upload events
   public var didReceiveFileUpload: ((PubNubFileEvent) -> Void)?
+  /// Receiver for DataSync events
+  public var didReceiveDataSyncEvent: ((PubNubDataSyncEvent) -> Void)?
 
   // MARK: Parent Override
 
   override public func emit(subscribe event: PubNubSubscribeEvent) {
-    switch event {
-    case let .subscriptionChanged(changeEvent):
-      emitDidReceive(subscription: [.subscriptionChanged(changeEvent)])
-    case let .responseReceived(header):
-      emitDidReceive(subscription: [.subscriptionChanged(
-        .responseHeader(
-          channels: header.channels,
-          groups: header.groups,
-          previous: header.previous,
-          next: header.next
-        )
-      )])
-    case let .connectionChanged(status):
-      emitDidReceive(subscription: [.connectionStatusChanged(status)])
-    case let .errorReceived(error):
-      emitDidReceive(subscription: [.subscribeError(error)])
+    queue.async { [weak self] in
+      guard let self = self else { return }
+      switch event {
+      case let .connectionChanged(status):
+        self.didReceiveStatus?(.success(status))
+      case let .errorReceived(error):
+        if error.isCancellationError, self.supressCancellationErrors { return }
+        self.didReceiveStatus?(.failure(error))
+      }
     }
   }
 
-  // swiftlint:disable:next cyclomatic_complexity
   override public func emit(batch: [SubscribeMessagePayload]) {
-    emitDidReceive(subscription: batch.map { message in
-      switch message.messageType {
-      case .message:
-        return .messageReceived(PubNubMessageBase(from: message))
-      case .signal:
-        return .signalReceived(PubNubMessageBase(from: message))
-      case .object:
-        guard let objectAction = try? message.payload.decode(SubscribeObjectMetadataPayload.self) else {
-          return .messageReceived(PubNubMessageBase(from: message))
-        }
-        return objectAction.subscribeEvent
-      case .messageAction:
-        guard let messageAction = PubNubMessageActionBase(from: message),
-              let actionEventString = message.payload[rawValue: "event"] as? String,
-              let actionEvent = SubscribeMessageActionPayload.Action(rawValue: actionEventString)
-        else {
-          return .messageReceived(PubNubMessageBase(from: message))
-        }
-
-        switch actionEvent {
-        case .added:
-          return .messageActionAdded(messageAction)
-        case .removed:
-          return .messageActionRemoved(messageAction)
-        }
-      case .file:
-        // Attempt to decode as a File Message, then fallback to General if fails
-        guard let fileMessage = try? PubNubFileEventBase(from: message) else {
-          return .messageReceived(PubNubMessageBase(from: message))
-        }
-        return .fileUploaded(fileMessage)
-      case .presence:
-        guard let presence = PubNubPresenceChangeBase(from: message) else {
-          return .messageReceived(PubNubMessageBase(from: message))
-        }
-
-        return .presenceChanged(presence)
-      }
-    })
+    emitDidReceive(subscription: batch.map { $0.asPubNubEvent() })
   }
 
-  public func emitDidReceive(subscription batch: [SubscriptionEvent]) {
-    let supressCancellationErrors = self.supressCancellationErrors
+  public func emitDidReceive(subscription batch: [PubNubEvent]) {
     queue.async { [weak self] in
-      // We also want to filter out cancellation errors
-      self?.didReceiveBatchSubscription?(batch.filter { !($0.isCancellationError && supressCancellationErrors) })
+      self?.didReceiveBatchSubscription?(batch)
 
       for event in batch {
         self?.emitDidReceive(subscription: event)
@@ -251,49 +123,54 @@ public final class CoreListener: BaseSubscriptionListener {
     }
   }
 
-  // swiftlint:disable:next cyclomatic_complexity
-  public func emitDidReceive(subscription event: SubscriptionEvent) {
-    if event.isCancellationError, supressCancellationErrors {
-      return
-    }
-
+  public func emitDidReceive(subscription event: PubNubEvent) {
     queue.async { [weak self] in
+      guard let self = self else { return }
       // Emit Master Event
-      self?.didReceiveSubscription?(event)
+      self.didReceiveSubscription?(event)
 
       // Emit Granular Event
       switch event {
       case let .messageReceived(message):
-        self?.didReceiveMessage?(message)
+        self.didReceiveMessage?(message)
       case let .signalReceived(signal):
-        self?.didReceiveSignal?(signal)
-      case let .connectionStatusChanged(status):
-        self?.didReceiveStatus?(.success(status))
-      case let .subscriptionChanged(change):
-        self?.didReceiveSubscriptionChange?(change)
+        self.didReceiveSignal?(signal)
       case let .presenceChanged(presence):
-        self?.didReceivePresence?(presence)
-      case let .uuidMetadataSet(metadata):
-        self?.didReceiveObjectMetadataEvent?(.setUUID(metadata))
-      case let .uuidMetadataRemoved(metadataId):
-        self?.didReceiveObjectMetadataEvent?(.removedUUID(metadataId: metadataId))
-      case let .channelMetadataSet(metadata):
-        self?.didReceiveObjectMetadataEvent?(.setChannel(metadata))
-      case let .channelMetadataRemoved(channelMetadataId):
-        self?.didReceiveObjectMetadataEvent?(.removedChannel(metadataId: channelMetadataId))
-      case let .membershipMetadataSet(membership):
-        self?.didReceiveObjectMetadataEvent?(.setMembership(membership))
-      case let .membershipMetadataRemoved(membership):
-        self?.didReceiveObjectMetadataEvent?(.removedMembership(membership))
-      case let .messageActionAdded(action):
-        self?.didReceiveMessageAction?(.added(action))
-      case let .messageActionRemoved(action):
-        self?.didReceiveMessageAction?(.removed(action))
-      case let .fileUploaded(file):
-        self?.didReceiveFileUpload?(file)
-      case let .subscribeError(error):
-        self?.didReceiveStatus?(.failure(error))
+        self.didReceivePresence?(presence)
+      case let .appContextChanged(appContext):
+        self.didReceiveAppContextEvent?(appContext)
+        self.emitDeprecatedObjectMetadataEvent(from: appContext)
+      case let .messageActionChanged(action):
+        self.didReceiveMessageAction?(action)
+      case let .fileChanged(fileEvent):
+        if case let .uploaded(file) = fileEvent {
+          self.didReceiveFileUpload?(file)
+        }
+      case let .dataSyncChanged(dataSyncEvent):
+        self.didReceiveDataSyncEvent?(dataSyncEvent)
       }
+    }
+  }
+
+  // Bridges the unified `PubNubAppContextEvent` back to the deprecated `didReceiveObjectMetadataEvent` closure so existing listeners keep working.
+  @available(*, deprecated)
+  private func emitDeprecatedObjectMetadataEvent(from appContext: PubNubAppContextEvent) {
+    guard let didReceiveObjectMetadataEvent = didReceiveObjectMetadataEvent else {
+      return
+    }
+    switch appContext {
+    case let .userMetadataSet(changeset):
+      didReceiveObjectMetadataEvent(.setUUID(changeset))
+    case let .userMetadataRemoved(metadataId):
+      didReceiveObjectMetadataEvent(.removedUUID(metadataId: metadataId))
+    case let .channelMetadataSet(changeset):
+      didReceiveObjectMetadataEvent(.setChannel(changeset))
+    case let .channelMetadataRemoved(metadataId):
+      didReceiveObjectMetadataEvent(.removedChannel(metadataId: metadataId))
+    case let .membershipMetadataSet(membership):
+      didReceiveObjectMetadataEvent(.setMembership(membership))
+    case let .membershipMetadataRemoved(membership):
+      didReceiveObjectMetadataEvent(.removedMembership(membership))
     }
   }
 }
@@ -302,21 +179,23 @@ public final class CoreListener: BaseSubscriptionListener {
 open class BaseSubscriptionListener: EventStreamReceiver, Hashable {
   // EventStream
   public let uuid: UUID
-  public var queue: DispatchQueue
+  public let queue: DispatchQueue
 
   /// Whether you would like to avoid receiving cancellation errors from this listener
-  public var supressCancellationErrors: Bool = true
+  public let supressCancellationErrors: Bool
   // Keeps a mechanism to cancel a listener
   var token: ListenerToken?
 
-  public init(queue: DispatchQueue = .main) {
+  public init(queue: DispatchQueue = .main, supressCancellationErrors: Bool = true) {
     self.queue = queue
+    self.supressCancellationErrors = supressCancellationErrors
     self.uuid = UUID()
   }
 
-  init(queue: DispatchQueue = .main, uuid: UUID = UUID()) {
+  init(queue: DispatchQueue = .main, uuid: UUID = UUID(), supressCancellationErrors: Bool = true) {
     self.queue = queue
     self.uuid = uuid
+    self.supressCancellationErrors = supressCancellationErrors
   }
 
   deinit {

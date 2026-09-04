@@ -73,6 +73,9 @@ jobs:
     env:
       SDK_PUB_KEY: ${{ secrets.SDK_PUB_KEY }}
       SDK_SUB_KEY: ${{ secrets.SDK_SUB_KEY }}
+      SDK_DS_PUB_KEY: ${{ secrets.SDK_DS_PUB_KEY }}
+      SDK_DS_SUB_KEY: ${{ secrets.SDK_DS_SUB_KEY }}
+      SDK_DS_SECRET_KEY: ${{ secrets.SDK_DS_SECRET_KEY }}
     runs-on:
       group: macos-gh
     timeout-minutes: 15

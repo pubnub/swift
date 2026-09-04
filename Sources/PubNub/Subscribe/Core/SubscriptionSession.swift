@@ -45,6 +45,7 @@ class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
   var onMessageAction: ((PubNubMessageActionEvent) -> Void)?
   var onFileEvent: ((PubNubFileChangeEvent) -> Void)?
   var onAppContext: ((PubNubAppContextEvent) -> Void)?
+  var onDataSync: ((PubNubDataSyncEvent) -> Void)?
   var onConnectionStateChange: ((ConnectionStatus) -> Void)?
 
   private lazy var globalEventsListener: BaseSubscriptionListenerAdapter = .init(
@@ -114,25 +115,24 @@ class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
     and channelGroupSubscriptions: [Subscription] = [],
     at cursor: SubscribeCursor? = nil
   ) {
+    let allSubscriptions = channelSubscriptions + channelGroupSubscriptions
+
     internalSubscribe(
-      with: channelSubscriptions,
-      and: channelGroupSubscriptions,
+      with: allSubscriptions,
       at: cursor?.timetoken
     )
 
-    let channelSubsToMerge = channelSubscriptions.reduce(
-      into: [String: Subscription]()
-    ) { accumulatedValue, subscription in
-      subscription.subscriptionNames.forEach {
-        accumulatedValue[$0] = subscription
-      }
-    }
+    var channelSubsToMerge = [String: Subscription]()
+    var channelGroupSubsToMerge = [String: Subscription]()
 
-    let channelGroupSubsToMerge = channelGroupSubscriptions.reduce(
-      into: [String: Subscription]()
-    ) { accumulatedValue, subscription in
-      subscription.subscriptionNames.forEach {
-        accumulatedValue[$0] = subscription
+    for subscription in allSubscriptions {
+      let topology = subscription.subscriptionTopology
+
+      for name in topology.channels {
+        channelSubsToMerge[name] = subscription
+      }
+      for name in topology.channelGroups {
+        channelGroupSubsToMerge[name] = subscription
       }
     }
 
@@ -177,8 +177,7 @@ class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
     }
 
     internalUnsubscribe(
-      from: matchingChannelsToUnsubscribe,
-      and: matchingChannelGroupsToUnsubscribe
+      from: matchingChannelsToUnsubscribe + matchingChannelGroupsToUnsubscribe
     )
 
     globalChannelSubscriptions.lockedWrite { currentContainer in
@@ -216,44 +215,39 @@ extension SubscriptionSession {
   // Composes final PubNubChannel lists the user should subscribe to
   // according to provided raw input and forwards the result to the underlying Subscription strategy.
   func internalSubscribe(
-    with channels: [Subscription],
-    and channelGroups: [Subscription],
+    with subscriptions: [Subscription],
     at timetoken: Timetoken?
   ) {
-    if channels.isEmpty, channelGroups.isEmpty {
+    let topology = subscriptions.reduce(SubscriptionTopology.empty) {
+      $0 + $1.subscriptionTopology
+    }
+
+    if topology.isEmpty {
       return
     }
-    for channelSubscription in channels {
-      registerAdapter(channelSubscription.adapter)
-    }
-    for groupSubscription in channelGroups {
-      registerAdapter(groupSubscription.adapter)
+    for subscription in subscriptions {
+      registerAdapter(subscription.adapter)
     }
 
     strategy.subscribe(
-      to: channels.flatMap { $0.subscriptionNames },
-      and: channelGroups.flatMap { $0.subscriptionNames },
+      to: topology.channels,
+      and: topology.channelGroups,
       at: SubscribeCursor(timetoken: timetoken)
     )
   }
 
   func internalUnsubscribe(
-    from channels: [Subscription],
-    and channelGroups: [Subscription]
+    from subscriptions: [Subscription]
   ) {
-    let channelsToUnsubscribe = resolveItemsToUnsubscribe(from: channels)
-    let channelGroupsToUnsubscribe = resolveItemsToUnsubscribe(from: channelGroups)
+    let topologyToUnsubscribe = resolveTopologyToUnsubscribe(from: subscriptions)
 
-    for channelSubscription in channels {
-      remove(channelSubscription.adapter)
-    }
-    for channelGroupSubscription in channelGroups {
-      remove(channelGroupSubscription.adapter)
+    for subscription in subscriptions {
+      remove(subscription.adapter)
     }
 
     strategy.unsubscribe(
-      from: channelsToUnsubscribe,
-      and: channelGroupsToUnsubscribe
+      from: topologyToUnsubscribe.channels,
+      and: topologyToUnsubscribe.channelGroups
     )
   }
 
@@ -270,18 +264,19 @@ extension SubscriptionSession {
     let matchingSubscriptions = remainingSubscriptions.compactMap {
      $0.receiver
     }.filter {
-      !Set($0.subscriptionTopology[subscription.subscriptionType] ?? []).isDisjoint(with: subscription.subscriptionNames)
+      $0.subscriptionTopology.intersects(subscription.subscriptionTopology)
     }
 
     return !matchingSubscriptions.isEmpty
   }
 
-  private func resolveItemsToUnsubscribe(from subscriptions: [Subscription]) -> [String] {
-    return subscriptions.flatMap {
-      if !hasOverlappingSubscriptions(for: $0) {
-        return $0.subscriptionNames
+  // Returns the names that no longer have any subscription keeping them in the Subscribe loop
+  private func resolveTopologyToUnsubscribe(from subscriptions: [Subscription]) -> SubscriptionTopology {
+    return subscriptions.reduce(SubscriptionTopology.empty) { accumulatedResult, subscription in
+      if hasOverlappingSubscriptions(for: subscription) {
+        return accumulatedResult
       } else {
-        return []
+        return accumulatedResult + subscription.subscriptionTopology
       }
     }
   }
@@ -332,8 +327,8 @@ extension SubscriptionSession: Hashable, CustomStringConvertible {
 // MARK: - SubscribeMessagePayloadReceiver
 
 extension SubscriptionSession: SubscribeMessagesReceiver {
-  var subscriptionTopology: [SubscribableType: [String]] {
-    [.channel: subscribedChannels, .channelGroup: subscribedChannelGroups]
+  var subscriptionTopology: SubscriptionTopology {
+    SubscriptionTopology(channels: subscribedChannels, channelGroups: subscribedChannelGroups)
   }
 
   func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent] {

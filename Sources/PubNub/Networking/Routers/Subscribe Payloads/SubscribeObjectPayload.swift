@@ -15,7 +15,7 @@ struct SubscribeObjectMetadataPayload {
   let version: String
   let event: Action
   let type: MetadataType
-  let subscribeEvent: SubscriptionEvent
+  let subscribeEvent: PubNubAppContextEvent
 
   enum Action: String, Codable, Hashable {
     case set
@@ -52,13 +52,13 @@ extension SubscribeObjectMetadataPayload: Codable {
 
     switch (type, event) {
     case (.uuid, .set):
-      subscribeEvent = .uuidMetadataSet(
+      subscribeEvent = .userMetadataSet(
         try container.decode(PubNubUserMetadataChangeset.self, forKey: .subscribeEvent)
       )
     case (.uuid, .delete):
       let nestedContainer = try container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .subscribeEvent)
       let identifier = try nestedContainer.decode(String.self, forKey: .metadataId)
-      subscribeEvent = .uuidMetadataRemoved(metadataId: identifier)
+      subscribeEvent = .userMetadataRemoved(metadataId: identifier)
     case (.channel, .set):
       subscribeEvent = .channelMetadataSet(
         try container.decode(PubNubChannelMetadataChangeset.self, forKey: .subscribeEvent)
@@ -85,9 +85,9 @@ extension SubscribeObjectMetadataPayload: Codable {
     try container.encode(type, forKey: .type)
 
     switch subscribeEvent {
-    case let .uuidMetadataSet(changeset):
+    case let .userMetadataSet(changeset):
       try container.encode(changeset, forKey: .subscribeEvent)
-    case let .uuidMetadataRemoved(metadataId):
+    case let .userMetadataRemoved(metadataId):
       var nestedContainer = container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .subscribeEvent)
       try nestedContainer.encode(metadataId, forKey: .metadataId)
     case let .channelMetadataSet(changeset):
@@ -97,8 +97,6 @@ extension SubscribeObjectMetadataPayload: Codable {
       try nestedContainer.encode(metadataId, forKey: .metadataId)
     case let .membershipMetadataSet(membership), let .membershipMetadataRemoved(membership):
       try container.encode(try membership.transcode(into: PubNubMembershipMetadataBase.self), forKey: .subscribeEvent)
-    default:
-      break
     }
   }
 }

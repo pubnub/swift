@@ -18,7 +18,7 @@ class SubscriptionSetTests: XCTestCase {
     expectation.expectedFulfillmentCount = 2
 
     let pubnub = TestPubNubFactory.make(publishKey: "pubKey", subscribeKey: "subKey", userId: "userId")
-    let subscription = pubnub.subscription(entities: [pubnub.channel("c1"), pubnub.channel("c2")])
+    let subscription = pubnub.subscription(targets: [pubnub.channel("c1"), pubnub.channel("c2")])
 
     subscription.onMessage = { _ in
       expectation.fulfill()
@@ -36,7 +36,7 @@ class SubscriptionSetTests: XCTestCase {
     expectation.expectedFulfillmentCount = 2
 
     let pubnub = TestPubNubFactory.make(publishKey: "pubKey", subscribeKey: "subKey", userId: "userId")
-    let subscription = pubnub.subscription(entities: [pubnub.channel("c1"), pubnub.channel("c2")])
+    let subscription = pubnub.subscription(targets: [pubnub.channel("c1"), pubnub.channel("c2")])
 
     subscription.onSignal = { _ in
       expectation.fulfill()
@@ -54,7 +54,7 @@ class SubscriptionSetTests: XCTestCase {
     expectation.expectedFulfillmentCount = 2
 
     let pubnub = TestPubNubFactory.make(publishKey: "pubKey", subscribeKey: "subKey", userId: "userId")
-    let subscription = pubnub.subscription(entities: [pubnub.channel("c1"), pubnub.channel("c2")])
+    let subscription = pubnub.subscription(targets: [pubnub.channel("c1"), pubnub.channel("c2")])
 
     subscription.onPresence = { _ in
       expectation.fulfill()
@@ -72,7 +72,7 @@ class SubscriptionSetTests: XCTestCase {
     expectation.expectedFulfillmentCount = 2
 
     let pubnub = TestPubNubFactory.make(publishKey: "pubKey", subscribeKey: "subKey", userId: "userId")
-    let subscription = pubnub.subscription(entities: [pubnub.channel("c1"), pubnub.channel("c2")])
+    let subscription = pubnub.subscription(targets: [pubnub.channel("c1"), pubnub.channel("c2")])
 
     subscription.onAppContext = { _ in
       expectation.fulfill()
@@ -90,7 +90,7 @@ class SubscriptionSetTests: XCTestCase {
     expectation.expectedFulfillmentCount = 2
 
     let pubnub = TestPubNubFactory.make(publishKey: "pubKey", subscribeKey: "subKey", userId: "userId")
-    let subscription = pubnub.subscription(entities: [pubnub.channel("c1"), pubnub.channel("c2")])
+    let subscription = pubnub.subscription(targets: [pubnub.channel("c1"), pubnub.channel("c2")])
 
     subscription.onFileEvent = { _ in
       expectation.fulfill()
@@ -108,7 +108,7 @@ class SubscriptionSetTests: XCTestCase {
     expectation.expectedFulfillmentCount = 2
 
     let pubnub = TestPubNubFactory.make(publishKey: "pubKey", subscribeKey: "subKey", userId: "userId")
-    let subscription = pubnub.subscription(entities: [pubnub.channel("c1"), pubnub.channel("c2")])
+    let subscription = pubnub.subscription(targets: [pubnub.channel("c1"), pubnub.channel("c2")])
 
     subscription.onMessageAction = { _ in
       expectation.fulfill()
@@ -126,7 +126,7 @@ class SubscriptionSetTests: XCTestCase {
     expectation.expectedFulfillmentCount = 2
 
     let pubnub = TestPubNubFactory.make(publishKey: "pubKey", subscribeKey: "subKey", userId: "userId")
-    let subscription = pubnub.subscription(entities: [pubnub.channel("c1"), pubnub.channel("c2")])
+    let subscription = pubnub.subscription(targets: [pubnub.channel("c1"), pubnub.channel("c2")])
 
     subscription.onEvents = { _ in
       expectation.fulfill()
@@ -158,25 +158,24 @@ class SubscriptionSetTests: XCTestCase {
     )
 
     let subscriptionSet = pubnub.subscription(
-      entities: [
+      targets: [
         pubnub.channel("c1"),
         pubnub.channel("c2"),
         pubnub.channelGroup("g1")
       ], options: ReceivePresenceEvents()
     )
 
-    let expectedTopology: [SubscribableType: [String]] = [
-      .channel: ["c1", "c1-pnpres", "c2", "c2-pnpres"],
-      .channelGroup: ["g1", "g1-pnpres"]
-    ]
+    // The set iterates an unordered collection of subscriptions, so compare each list sorted
+    let actualTopology = subscriptionSet.subscriptionTopology
 
-    let actualChannels = try XCTUnwrap(subscriptionSet.subscriptionTopology[.channel])
-    let expectedChannels = try XCTUnwrap(expectedTopology[.channel])
-    XCTAssertEqual(actualChannels.sorted(by: <), expectedChannels.sorted(by: <))
-
-    let actualGroups = try XCTUnwrap(subscriptionSet.subscriptionTopology[.channelGroup])
-    let expectedGroups = try XCTUnwrap(expectedTopology[.channelGroup])
-    XCTAssertEqual(actualGroups.sorted(by: <), expectedGroups.sorted(by: <))
+    XCTAssertEqual(
+      actualTopology.channels.sorted(by: <),
+      ["c1", "c1-pnpres", "c2", "c2-pnpres"]
+    )
+    XCTAssertEqual(
+      actualTopology.channelGroups.sorted(by: <),
+      ["g1", "g1-pnpres"]
+    )
   }
 
   func testSubscriptionSet_WithListeners_OnMessage() {
@@ -185,7 +184,7 @@ class SubscriptionSetTests: XCTestCase {
 
     let pubnub = TestPubNubFactory.make(publishKey: "pubKey", subscribeKey: "subKey", userId: "userId")
     let channel = pubnub.channel("test-channel")
-    let subscriptionSet = pubnub.subscription(entities: [channel, pubnub.channel("test-channel2")])
+    let subscriptionSet = pubnub.subscription(targets: [channel, pubnub.channel("test-channel2")])
 
     let listener = EventListener(onMessage: { _ in
       expectation.fulfill()
@@ -205,7 +204,7 @@ class SubscriptionSetTests: XCTestCase {
 
     let pubnub = TestPubNubFactory.make(publishKey: "pubKey", subscribeKey: "subKey", userId: "userId")
     let channel = pubnub.channel("test-channel")
-    let subscriptionSet = pubnub.subscription(entities: [channel, pubnub.channel("test-channel2")])
+    let subscriptionSet = pubnub.subscription(targets: [channel, pubnub.channel("test-channel2")])
 
     let listener = EventListener(onSignal: { _ in
       expectation.fulfill()
@@ -225,7 +224,7 @@ class SubscriptionSetTests: XCTestCase {
 
     let pubnub = TestPubNubFactory.make(publishKey: "pubKey", subscribeKey: "subKey", userId: "userId")
     let channel = pubnub.channel("test-channel")
-    let subscriptionSet = pubnub.subscription(entities: [channel, pubnub.channel("test-channel2")])
+    let subscriptionSet = pubnub.subscription(targets: [channel, pubnub.channel("test-channel2")])
 
     let listener = EventListener(onPresence: { _ in
       expectation.fulfill()
@@ -245,7 +244,7 @@ class SubscriptionSetTests: XCTestCase {
 
     let pubnub = TestPubNubFactory.make(publishKey: "pubKey", subscribeKey: "subKey", userId: "userId")
     let channel = pubnub.channel("test-channel")
-    let subscriptionSet = pubnub.subscription(entities: [channel, pubnub.channel("test-channel2")])
+    let subscriptionSet = pubnub.subscription(targets: [channel, pubnub.channel("test-channel2")])
 
     let listener = EventListener(onMessageAction: { _ in
       expectation.fulfill()
@@ -265,7 +264,7 @@ class SubscriptionSetTests: XCTestCase {
 
     let pubnub = TestPubNubFactory.make(publishKey: "pubKey", subscribeKey: "subKey", userId: "userId")
     let channel = pubnub.channel("test-channel")
-    let subscriptionSet = pubnub.subscription(entities: [channel, pubnub.channel("test-channel2")])
+    let subscriptionSet = pubnub.subscription(targets: [channel, pubnub.channel("test-channel2")])
 
     let listener = EventListener(onFileEvent: { _ in
       expectation.fulfill()
@@ -285,7 +284,7 @@ class SubscriptionSetTests: XCTestCase {
 
     let pubnub = TestPubNubFactory.make(publishKey: "pubKey", subscribeKey: "subKey", userId: "userId")
     let channel = pubnub.channel("test-channel")
-    let subscriptionSet = pubnub.subscription(entities: [channel, pubnub.channel("test-channel2")])
+    let subscriptionSet = pubnub.subscription(targets: [channel, pubnub.channel("test-channel2")])
 
     let listener = EventListener(onAppContext: { _ in
       expectation.fulfill()

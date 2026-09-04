@@ -48,6 +48,7 @@ class PubNubConfigurationTests: XCTestCase {
 
     XCTAssertEqual(config.publishKey, plistPublishKeyValue)
     XCTAssertEqual(config.subscribeKey, plistSubscribeKeyValue)
+    XCTAssertEqual(config.origin, "unit-test.pndsn.com")
   }
 
   func testInit_RawValues() {

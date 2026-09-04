@@ -25,7 +25,7 @@ final class DataSyncChannelAPITests: DataSyncAPITestCase {
         XCTAssertEqual(channel.classLevel, .subKey)
         XCTAssertEqual(channel.classVersion, 1)
         XCTAssertEqual(channel.createdAt, createdAt)
-        XCTAssertNil(channel.expiresAt)
+        XCTAssertEqual(channel.expiresAt, expiresAt)
         XCTAssertPayload(channel.payload, equals: ChannelPayload(name: "General", description: "Company-wide announcements"))
       case let .failure(error):
         XCTFail("Request failed with \(error.localizedDescription)")

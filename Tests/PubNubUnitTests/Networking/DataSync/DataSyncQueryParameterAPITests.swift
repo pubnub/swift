@@ -145,30 +145,30 @@ final class DataSyncQueryParameterAPITests: DataSyncAPITestCase {
     XCTAssertEqual(try queryValue(sessions.mockSession, named: "limit"), "25")
   }
 
+  func test_GetEntities_WithFastFilter_SendsFastFilterQueryItem() throws {
+    let expectation = self.expectation(description: "getEntities fast filtered")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_entity_all_success"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.dataSync.getEntities(className: "patient", filterFast: "status=='active'") { _ in
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+    XCTAssertEqual(try fastFilterQueryValue(sessions.mockSession), "status=='active'")
+  }
+
   func test_GetEntities_WithFilter_SendsFilterQueryItem() throws {
     let expectation = self.expectation(description: "getEntities filtered")
     let sessions = try MockURLSession.mockSession(for: ["datasync_entity_all_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getEntities(className: "patient", filter: "status=='active'") { _ in
+    pubnub.dataSync.getEntities(className: "patient", filter: "a AND b") { _ in
       expectation.fulfill()
     }
 
     wait(for: [expectation], timeout: 1.0)
-    XCTAssertEqual(try filterQueryValue(sessions.mockSession), "status=='active'")
-  }
-
-  func test_GetEntities_WithAdvancedFilter_SendsAdvancedFilterQueryItem() throws {
-    let expectation = self.expectation(description: "getEntities advanced filtered")
-    let sessions = try MockURLSession.mockSession(for: ["datasync_entity_all_success"])
-    let pubnub = TestPubNubFactory.make(session: sessions.session)
-
-    pubnub.dataSync.getEntities(className: "patient", filterAdvanced: "a AND b") { _ in
-      expectation.fulfill()
-    }
-
-    wait(for: [expectation], timeout: 1.0)
-    XCTAssertEqual(try advancedFilterQueryValue(sessions.mockSession), "a AND b")
+    XCTAssertEqual(try filterQueryValue(sessions.mockSession), "a AND b")
   }
 
   func test_GetEntities_WithoutFilter_OmitsFilterQueryItems() throws {
@@ -181,8 +181,21 @@ final class DataSyncQueryParameterAPITests: DataSyncAPITestCase {
     }
 
     wait(for: [expectation], timeout: 1.0)
+    XCTAssertNil(try fastFilterQueryValue(sessions.mockSession))
     XCTAssertNil(try filterQueryValue(sessions.mockSession))
-    XCTAssertNil(try advancedFilterQueryValue(sessions.mockSession))
+  }
+
+  func test_GetUsers_WithFastFilter_SendsFastFilterQueryItem() throws {
+    let expectation = self.expectation(description: "getUsers fast filtered")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_user_all_success"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.dataSync.getUsers(filterFast: "name=='Alice'") { _ in
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+    XCTAssertEqual(try fastFilterQueryValue(sessions.mockSession), "name=='Alice'")
   }
 
   func test_GetUsers_WithFilter_SendsFilterQueryItem() throws {
@@ -190,25 +203,25 @@ final class DataSyncQueryParameterAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_user_all_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getUsers(filter: "name=='Alice'") { _ in
+    pubnub.dataSync.getUsers(filter: "a AND b") { _ in
       expectation.fulfill()
     }
 
     wait(for: [expectation], timeout: 1.0)
-    XCTAssertEqual(try filterQueryValue(sessions.mockSession), "name=='Alice'")
+    XCTAssertEqual(try filterQueryValue(sessions.mockSession), "a AND b")
   }
 
-  func test_GetUsers_WithAdvancedFilter_SendsAdvancedFilterQueryItem() throws {
-    let expectation = self.expectation(description: "getUsers advanced filtered")
-    let sessions = try MockURLSession.mockSession(for: ["datasync_user_all_success"])
+  func test_GetChannels_WithFastFilter_SendsFastFilterQueryItem() throws {
+    let expectation = self.expectation(description: "getChannels fast filtered")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_channel_fetch_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getUsers(filterAdvanced: "a AND b") { _ in
+    pubnub.dataSync.getChannels(filterFast: "name=='general'") { _ in
       expectation.fulfill()
     }
 
     wait(for: [expectation], timeout: 1.0)
-    XCTAssertEqual(try advancedFilterQueryValue(sessions.mockSession), "a AND b")
+    XCTAssertEqual(try fastFilterQueryValue(sessions.mockSession), "name=='general'")
   }
 
   func test_GetChannels_WithFilter_SendsFilterQueryItem() throws {
@@ -216,25 +229,25 @@ final class DataSyncQueryParameterAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_channel_fetch_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getChannels(filter: "name=='general'") { _ in
+    pubnub.dataSync.getChannels(filter: "a AND b") { _ in
       expectation.fulfill()
     }
 
     wait(for: [expectation], timeout: 1.0)
-    XCTAssertEqual(try filterQueryValue(sessions.mockSession), "name=='general'")
+    XCTAssertEqual(try filterQueryValue(sessions.mockSession), "a AND b")
   }
 
-  func test_GetChannels_WithAdvancedFilter_SendsAdvancedFilterQueryItem() throws {
-    let expectation = self.expectation(description: "getChannels advanced filtered")
-    let sessions = try MockURLSession.mockSession(for: ["datasync_channel_fetch_success"])
+  func test_GetMemberships_WithFastFilter_SendsFastFilterQueryItem() throws {
+    let expectation = self.expectation(description: "getMemberships fast filtered")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_membership_all_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getChannels(filterAdvanced: "a AND b") { _ in
+    pubnub.dataSync.getMemberships(channelId: "general", filterFast: "role=='admin'") { _ in
       expectation.fulfill()
     }
 
     wait(for: [expectation], timeout: 1.0)
-    XCTAssertEqual(try advancedFilterQueryValue(sessions.mockSession), "a AND b")
+    XCTAssertEqual(try fastFilterQueryValue(sessions.mockSession), "role=='admin'")
   }
 
   func test_GetMemberships_WithFilter_SendsFilterQueryItem() throws {
@@ -242,25 +255,28 @@ final class DataSyncQueryParameterAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_membership_all_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getMemberships(channelId: "general", filter: "role=='admin'") { _ in
+    pubnub.dataSync.getMemberships(channelId: "general", filter: "a AND b") { _ in
       expectation.fulfill()
     }
 
     wait(for: [expectation], timeout: 1.0)
-    XCTAssertEqual(try filterQueryValue(sessions.mockSession), "role=='admin'")
+    XCTAssertEqual(try filterQueryValue(sessions.mockSession), "a AND b")
   }
 
-  func test_GetMemberships_WithAdvancedFilter_SendsAdvancedFilterQueryItem() throws {
-    let expectation = self.expectation(description: "getMemberships advanced filtered")
-    let sessions = try MockURLSession.mockSession(for: ["datasync_membership_all_success"])
+  func test_GetRelationships_WithFastFilter_SendsFastFilterQueryItem() throws {
+    let expectation = self.expectation(description: "getRelationships fast filtered")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_relationship_all_no_meta"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getMemberships(channelId: "general", filterAdvanced: "a AND b") { _ in
+    pubnub.dataSync.getRelationships(
+      className: "attending-physician",
+      filterFast: "status=='active'"
+    ) { _ in
       expectation.fulfill()
     }
 
     wait(for: [expectation], timeout: 1.0)
-    XCTAssertEqual(try advancedFilterQueryValue(sessions.mockSession), "a AND b")
+    XCTAssertEqual(try fastFilterQueryValue(sessions.mockSession), "status=='active'")
   }
 
   func test_GetRelationships_WithFilter_SendsFilterQueryItem() throws {
@@ -270,29 +286,13 @@ final class DataSyncQueryParameterAPITests: DataSyncAPITestCase {
 
     pubnub.dataSync.getRelationships(
       className: "attending-physician",
-      filter: "status=='active'"
+      filter: "a AND b"
     ) { _ in
       expectation.fulfill()
     }
 
     wait(for: [expectation], timeout: 1.0)
-    XCTAssertEqual(try filterQueryValue(sessions.mockSession), "status=='active'")
-  }
-
-  func test_GetRelationships_WithAdvancedFilter_SendsAdvancedFilterQueryItem() throws {
-    let expectation = self.expectation(description: "getRelationships advanced filtered")
-    let sessions = try MockURLSession.mockSession(for: ["datasync_relationship_all_no_meta"])
-    let pubnub = TestPubNubFactory.make(session: sessions.session)
-
-    pubnub.dataSync.getRelationships(
-      className: "attending-physician",
-      filterAdvanced: "a AND b"
-    ) { _ in
-      expectation.fulfill()
-    }
-
-    wait(for: [expectation], timeout: 1.0)
-    XCTAssertEqual(try advancedFilterQueryValue(sessions.mockSession), "a AND b")
+    XCTAssertEqual(try filterQueryValue(sessions.mockSession), "a AND b")
   }
 
   func test_DataSyncSortField_DefaultsToAscending() {

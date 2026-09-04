@@ -49,7 +49,7 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
       }
 
       XCTAssertEqual(entity.id, "swift-patient-alice")
-      XCTAssertEqual(entity.className, "patient")
+      XCTAssertEqual(entity.className, HealthcareClass.patient.name)
       XCTAssertFalse(entity.eTag.isEmpty)
       XCTAssertNotNil(entity.payload)
       createExpect.fulfill()
@@ -111,7 +111,7 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
       }
 
       XCTAssertEqual(entity.id, "swift-patient-alice")
-      XCTAssertEqual(entity.className, "patient")
+      XCTAssertEqual(entity.className, HealthcareClass.patient.name)
       XCTAssertFalse(entity.eTag.isEmpty)
       XCTAssertNotNil(entity.payload)
       updateExpect.fulfill()
@@ -169,7 +169,7 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
       }
 
       XCTAssertEqual(removed.id, "swift-patient-alice")
-      XCTAssertEqual(removed.className, "patient")
+      XCTAssertEqual(removed.className, HealthcareClass.patient.name)
       deleteExpect.fulfill()
     }
 
@@ -223,7 +223,7 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
       }
 
       XCTAssertEqual(relationship.id, "swift-rel-attending-carter-alice")
-      XCTAssertEqual(relationship.className, "attending-physician")
+      XCTAssertEqual(relationship.className, HealthcareClass.attendingPhysician.name)
       XCTAssertEqual(relationship.entityAId, "swift-practitioner-carter")
       XCTAssertEqual(relationship.entityBId, "swift-patient-alice")
       XCTAssertFalse(relationship.eTag.isEmpty)
@@ -303,7 +303,7 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
       }
 
       XCTAssertEqual(relationship.id, "swift-rel-attending-carter-alice")
-      XCTAssertEqual(relationship.className, "attending-physician")
+      XCTAssertEqual(relationship.className, HealthcareClass.attendingPhysician.name)
       XCTAssertEqual(relationship.entityAId, "swift-practitioner-carter")
       XCTAssertEqual(relationship.entityBId, "swift-patient-alice")
       XCTAssertFalse(relationship.eTag.isEmpty)
@@ -378,7 +378,7 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
       }
 
       XCTAssertEqual(removed.id, "swift-rel-attending-carter-alice")
-      XCTAssertEqual(removed.className, "attending-physician")
+      XCTAssertEqual(removed.className, HealthcareClass.attendingPhysician.name)
       deleteExpect.fulfill()
     }
 

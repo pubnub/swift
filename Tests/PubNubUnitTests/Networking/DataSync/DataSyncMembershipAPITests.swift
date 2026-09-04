@@ -29,7 +29,7 @@ final class DataSyncMembershipAPITests: DataSyncAPITestCase {
         XCTAssertEqual(memberships[0].createdAt, createdAt)
         XCTAssertEqual(memberships[0].updatedAt, updatedAt)
         XCTAssertEqual(memberships[0].status, "active")
-        XCTAssertNil(memberships[0].expiresAt)
+        XCTAssertEqual(memberships[0].expiresAt, expiresAt)
         XCTAssertPayload(memberships[0].payload, equals: MembershipPayload(role: "admin"))
 
         XCTAssertEqual(next?.cursor, "TjQw")

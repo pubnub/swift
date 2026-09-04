@@ -14,7 +14,7 @@ struct DataSyncMembershipRouter: DataSyncRouting {
   enum Endpoint: CustomStringConvertible {
     case all(
       userId: String?, channelId: String?, relationshipClassVersion: Int?,
-      cursor: String?, limit: Int?, filter: String?, filterAdvanced: String?, sort: String?
+      cursor: String?, limit: Int?, filterFast: String?, filter: String?, sort: String?
     )
     case fetch(id: String)
     case create(body: CreateBody)
@@ -120,14 +120,14 @@ struct DataSyncMembershipRouter: DataSyncRouting {
     var query = defaultQueryItems
 
     switch endpoint {
-    case let .all(userId, channelId, relationshipClassVersion, cursor, limit, filter, filterAdvanced, sort):
+    case let .all(userId, channelId, relationshipClassVersion, cursor, limit, filterFast, filter, sort):
       query.appendIfPresent(key: .userId, value: userId)
       query.appendIfPresent(key: .channelId, value: channelId)
       query.appendIfPresent(key: .relationshipClassVersion, value: relationshipClassVersion?.description)
       query.appendIfPresent(key: .cursor, value: cursor)
       query.appendIfPresent(key: .limit, value: limit?.description)
+      query.appendIfPresent(key: .filterFast, value: filterFast)
       query.appendIfPresent(key: .filter, value: filter)
-      query.appendIfPresent(key: .filterAdvanced, value: filterAdvanced)
       query.appendIfPresent(key: .sort, value: sort)
     default:
       break

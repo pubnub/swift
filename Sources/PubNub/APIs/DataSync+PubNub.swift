@@ -69,8 +69,7 @@ extension PubNubDataSyncPatchOperation: CustomStringConvertible {
 public extension PubNub {
   /// The property and direction to sort a paged DataSync response
   ///
-  /// Only properties declared by the class the results conform to can be sorted on. Sorting on anything
-  /// else, including system fields such as `createdAt` or `status`, fails the request.
+  /// Only properties the class marks as filterable can be sorted on. Sorting on anything else fails the request.
   struct DataSyncSortField: Hashable {
     /// The name of the property to sort by
     public let property: String
@@ -133,8 +132,8 @@ public extension PubNub.DataSyncAPI {
   ///   - classLevel: The level to resolve the class name at. If omitted, the first level declaring it wins, searching `subKey`, `account`, then `global`
   ///   - cursor: The ``PubNubDataSyncPage/cursor`` of a previous page, or `nil` for the first page
   ///   - limit: The number of entities to retrieve, between 1 and 100. Defaults to 20
-  ///   - filter: Expression used to filter the results. Mutually exclusive with `filterAdvanced`
-  ///   - filterAdvanced: Advanced expression used to filter the results. Mutually exclusive with `filter`
+  ///   - filterFast: Filters the latest data, including changes made immediately before the request. Supports a limited number of filter conditions. Mutually exclusive with `filter`
+  ///   - filter: Supports more flexible filtering, but recent changes may take a short time to appear in the results. Mutually exclusive with `filterFast`
   ///   - sort: List of properties to sort the results by
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
@@ -146,8 +145,8 @@ public extension PubNub.DataSyncAPI {
     classLevel: PubNubDataSyncClassLevel? = nil,
     cursor: String? = nil,
     limit: Int? = nil,
+    filterFast: String? = nil,
     filter: String? = nil,
-    filterAdvanced: String? = nil,
     sort: [PubNub.DataSyncSortField] = [],
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
     completion: ((Result<(entities: [PubNubDataSyncEntity], next: PubNubDataSyncPage?), Error>) -> Void)?
@@ -161,8 +160,8 @@ public extension PubNub.DataSyncAPI {
         ("classLevel", classLevel?.stringValue),
         ("cursor", cursor),
         ("limit", limit),
+        ("filterFast", filterFast),
         ("filter", filter),
-        ("filterAdvanced", filterAdvanced),
         ("sort", sort),
         ("custom", requestConfig)
       ]
@@ -175,8 +174,8 @@ public extension PubNub.DataSyncAPI {
         entityClassLevel: classLevel?.stringValue,
         cursor: cursor,
         limit: limit,
+        filterFast: filterFast,
         filter: filter,
-        filterAdvanced: filterAdvanced,
         sort: sort.urlValue
       ),
       configuration: configuration(from: requestConfig)
@@ -439,8 +438,8 @@ public extension PubNub.DataSyncAPI {
   ///     - **Provided**: only that level is searched
   ///   - cursor: The ``PubNubDataSyncPage/cursor`` of a previous page, or `nil` for the first page
   ///   - limit: The number of users to retrieve, between 1 and 100. Defaults to 20
-  ///   - filter: Expression used to filter the results. Mutually exclusive with `filterAdvanced`
-  ///   - filterAdvanced: Advanced expression used to filter the results. Mutually exclusive with `filter`
+  ///   - filterFast: Filters the latest data, including changes made immediately before the request. Supports a limited number of filter conditions. Mutually exclusive with `filter`
+  ///   - filter: Supports more flexible filtering, but recent changes may take a short time to appear in the results. Mutually exclusive with `filterFast`
   ///   - sort: List of properties to sort the results by
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
@@ -452,8 +451,8 @@ public extension PubNub.DataSyncAPI {
     classLevel: PubNubDataSyncClassLevel? = nil,
     cursor: String? = nil,
     limit: Int? = nil,
+    filterFast: String? = nil,
     filter: String? = nil,
-    filterAdvanced: String? = nil,
     sort: [PubNub.DataSyncSortField] = [],
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
     completion: ((Result<(users: [PubNubDataSyncEntity], next: PubNubDataSyncPage?), Error>) -> Void)?
@@ -467,8 +466,8 @@ public extension PubNub.DataSyncAPI {
         ("classLevel", classLevel?.stringValue),
         ("cursor", cursor),
         ("limit", limit),
+        ("filterFast", filterFast),
         ("filter", filter),
-        ("filterAdvanced", filterAdvanced),
         ("sort", sort),
         ("custom", requestConfig)
       ]
@@ -481,8 +480,8 @@ public extension PubNub.DataSyncAPI {
         entityClassLevel: classLevel?.stringValue,
         cursor: cursor,
         limit: limit,
+        filterFast: filterFast,
         filter: filter,
-        filterAdvanced: filterAdvanced,
         sort: sort.urlValue
       ),
       configuration: configuration(from: requestConfig)
@@ -749,8 +748,8 @@ public extension PubNub.DataSyncAPI {
   ///     - **Provided**: only that level is searched
   ///   - cursor: The ``PubNubDataSyncPage/cursor`` of a previous page, or `nil` for the first page
   ///   - limit: The number of channels to retrieve, between 1 and 100. Defaults to 20
-  ///   - filter: Expression used to filter the results. Mutually exclusive with `filterAdvanced`
-  ///   - filterAdvanced: Advanced expression used to filter the results. Mutually exclusive with `filter`
+  ///   - filterFast: Filters the latest data, including changes made immediately before the request. Supports a limited number of filter conditions. Mutually exclusive with `filter`
+  ///   - filter: Supports more flexible filtering, but recent changes may take a short time to appear in the results. Mutually exclusive with `filterFast`
   ///   - sort: List of properties to sort the results by
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
@@ -762,8 +761,8 @@ public extension PubNub.DataSyncAPI {
     classLevel: PubNubDataSyncClassLevel? = nil,
     cursor: String? = nil,
     limit: Int? = nil,
+    filterFast: String? = nil,
     filter: String? = nil,
-    filterAdvanced: String? = nil,
     sort: [PubNub.DataSyncSortField] = [],
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
     completion: ((Result<(channels: [PubNubDataSyncEntity], next: PubNubDataSyncPage?), Error>) -> Void)?
@@ -777,8 +776,8 @@ public extension PubNub.DataSyncAPI {
         ("classLevel", classLevel?.stringValue),
         ("cursor", cursor),
         ("limit", limit),
+        ("filterFast", filterFast),
         ("filter", filter),
-        ("filterAdvanced", filterAdvanced),
         ("sort", sort),
         ("custom", requestConfig)
       ]
@@ -791,8 +790,8 @@ public extension PubNub.DataSyncAPI {
         entityClassLevel: classLevel?.stringValue,
         cursor: cursor,
         limit: limit,
+        filterFast: filterFast,
         filter: filter,
-        filterAdvanced: filterAdvanced,
         sort: sort.urlValue
       ),
       configuration: configuration(from: requestConfig)
@@ -1055,8 +1054,8 @@ public extension PubNub.DataSyncAPI {
   ///   - classVersion: Restricts results to a single version of the `Membership` class. If omitted, every version is returned
   ///   - cursor: The ``PubNubDataSyncPage/cursor`` of a previous page, or `nil` for the first page
   ///   - limit: The number of memberships to retrieve, between 1 and 100. Defaults to 20
-  ///   - filter: Expression used to filter the results. Mutually exclusive with `filterAdvanced`
-  ///   - filterAdvanced: Advanced expression used to filter the results. Mutually exclusive with `filter`
+  ///   - filterFast: Filters the latest data, including changes made immediately before the request. Supports a limited number of filter conditions. Mutually exclusive with `filter`
+  ///   - filter: Supports more flexible filtering, but recent changes may take a short time to appear in the results. Mutually exclusive with `filterFast`
   ///   - sort: List of properties to sort the results by
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
@@ -1068,8 +1067,8 @@ public extension PubNub.DataSyncAPI {
     classVersion: Int? = nil,
     cursor: String? = nil,
     limit: Int? = nil,
+    filterFast: String? = nil,
     filter: String? = nil,
-    filterAdvanced: String? = nil,
     sort: [PubNub.DataSyncSortField] = [],
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
     completion: ((Result<(memberships: [PubNubDataSyncMembership], next: PubNubDataSyncPage?), Error>) -> Void)?
@@ -1083,8 +1082,8 @@ public extension PubNub.DataSyncAPI {
         ("classVersion", classVersion),
         ("cursor", cursor),
         ("limit", limit),
+        ("filterFast", filterFast),
         ("filter", filter),
-        ("filterAdvanced", filterAdvanced),
         ("sort", sort),
         ("custom", requestConfig)
       ]
@@ -1097,8 +1096,8 @@ public extension PubNub.DataSyncAPI {
         relationshipClassVersion: classVersion,
         cursor: cursor,
         limit: limit,
+        filterFast: filterFast,
         filter: filter,
-        filterAdvanced: filterAdvanced,
         sort: sort.urlValue
       ),
       configuration: configuration(from: requestConfig)
@@ -1357,8 +1356,8 @@ public extension PubNub.DataSyncAPI {
   ///   - entityBId: Restricts results to relationships whose side B is this entity
   ///   - cursor: The ``PubNubDataSyncPage/cursor`` of a previous page, or `nil` for the first page
   ///   - limit: The number of relationships to retrieve, between 1 and 100. Defaults to 20
-  ///   - filter: Expression used to filter the results. Mutually exclusive with `filterAdvanced`
-  ///   - filterAdvanced: Advanced expression used to filter the results. Mutually exclusive with `filter`
+  ///   - filterFast: Filters the latest data, including changes made immediately before the request. Supports a limited number of filter conditions. Mutually exclusive with `filter`
+  ///   - filter: Supports more flexible filtering, but recent changes may take a short time to appear in the results. Mutually exclusive with `filterFast`
   ///   - sort: List of properties to sort the results by
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
@@ -1371,8 +1370,8 @@ public extension PubNub.DataSyncAPI {
     entityBId: String? = nil,
     cursor: String? = nil,
     limit: Int? = nil,
+    filterFast: String? = nil,
     filter: String? = nil,
-    filterAdvanced: String? = nil,
     sort: [PubNub.DataSyncSortField] = [],
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
     completion: ((Result<(relationships: [PubNubDataSyncRelationship], next: PubNubDataSyncPage?), Error>) -> Void)?
@@ -1387,8 +1386,8 @@ public extension PubNub.DataSyncAPI {
         ("entityBId", entityBId),
         ("cursor", cursor),
         ("limit", limit),
+        ("filterFast", filterFast),
         ("filter", filter),
-        ("filterAdvanced", filterAdvanced),
         ("sort", sort),
         ("custom", requestConfig)
       ]
@@ -1402,8 +1401,8 @@ public extension PubNub.DataSyncAPI {
         relationshipClassVersion: classVersion,
         cursor: cursor,
         limit: limit,
+        filterFast: filterFast,
         filter: filter,
-        filterAdvanced: filterAdvanced,
         sort: sort.urlValue
       ),
       configuration: configuration(from: requestConfig)

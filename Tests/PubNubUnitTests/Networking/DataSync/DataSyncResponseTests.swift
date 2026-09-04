@@ -18,7 +18,8 @@ final class DataSyncResponseTests: XCTestCase {
       "data": {
         "id": "alice", "status": "active", "entityClassVersion": 1,
         "createdAt": "2021-01-01T00:00:00.000Z", "updatedAt": "2021-01-01T00:00:00.000Z",
-        "eTag": "1", "payload": { "name": "Alice", "email": "alice@example.com" }
+        "eTag": "1", "expiresAt": "2027-08-07T00:00:00Z",
+        "payload": { "name": "Alice", "email": "alice@example.com" }
       }
     }
     """
@@ -32,13 +33,14 @@ final class DataSyncResponseTests: XCTestCase {
     XCTAssertEqual(response.data.status, "active")
     XCTAssertEqual(response.data.entityClassVersion, 1)
     XCTAssertEqual(response.data.eTag, "1")
+    XCTAssertEqual(response.data.expiresAt, "2027-08-07T00:00:00Z")
   }
 
   func test_DecodeListEnvelopeWithMeta() throws {
     let json = """
     {
       "data": [
-        { "id": "alice", "entityClassVersion": 1, "eTag": "1" }
+        { "id": "alice", "entityClassVersion": 1, "eTag": "1", "expiresAt": "2027-08-07T00:00:00Z" }
       ],
       "links": { "self": "/users?limit=20", "next": "/users?cursor=TjIw" },
       "meta": { "has_next": true, "next_cursor": "TjIw", "limit": 20 }
@@ -64,7 +66,8 @@ final class DataSyncResponseTests: XCTestCase {
       "data": {
         "id": "r-123", "entityAId": "u123", "entityBId": "s456",
         "relationshipClass": "ProductOwner", "relationshipClassVersion": 1,
-        "status": "active", "eTag": "1", "payload": { "custom": "fields" }
+        "status": "active", "eTag": "1", "expiresAt": "2027-08-07T00:00:00Z",
+        "payload": { "custom": "fields" }
       }
     }
     """
@@ -94,7 +97,8 @@ final class DataSyncResponseTests: XCTestCase {
       classVersion: 1,
       createdAt: date,
       updatedAt: date,
-      eTag: "etag"
+      eTag: "etag",
+      expiresAt: date
     )
 
     XCTAssertEqual(membership.relationship.entityAId, membership.channelId)

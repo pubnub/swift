@@ -84,7 +84,7 @@ struct DataSyncResource: Codable, Equatable {
   let createdAt: String?
   let updatedAt: String?
   let eTag: String?
-  let expiresAt: String?
+  let expiresAt: String
   let payload: AnyJSON?
 }
 

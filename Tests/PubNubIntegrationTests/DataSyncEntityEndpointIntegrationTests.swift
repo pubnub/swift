@@ -300,7 +300,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     client.dataSync.getEntities(
       className: patientClass.name,
       classVersion: patientClass.version,
-      filter: ownEntitiesOnly
+      filterFast: ownEntitiesOnly
     ) { result in
       switch result {
       case let .success((v1Entities, _)):
@@ -333,7 +333,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     client.dataSync.getEntities(
       className: patientClass.name,
       limit: 100,
-      filter: "mrn LIKE '\(Constants.prefix)*'"
+      filterFast: "mrn LIKE '\(Constants.prefix)*'"
     ) { result in
       switch result {
       case let .success((entities, _)):
@@ -392,7 +392,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     client.dataSync.getEntities(
       className: patientClass.name,
       limit: 1,
-      filter: ownEntitiesOnly
+      filterFast: ownEntitiesOnly
     ) { [unowned client] firstResult in
       switch firstResult {
       case let .success((firstPage, next)):
@@ -403,7 +403,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
         client.dataSync.getEntities(
           className: self.patientClass.name,
           cursor: next?.cursor,
-          filter: ownEntitiesOnly
+          filterFast: ownEntitiesOnly
         ) { secondResult in
           switch secondResult {
           case let .success((secondPage, secondNext)):

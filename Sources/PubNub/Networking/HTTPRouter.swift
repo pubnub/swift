@@ -132,7 +132,7 @@ enum QueryKey: String {
   case eventEngine = "ee"
   case next = "next"
   case cursor
-  case filterAdvanced = "filter_advanced"
+  case filterFast = "filter_fast"
   case entityClass = "entity_class"
   case entityClassVersion = "entity_class_version"
   case entityClassLevel = "entity_class_level"

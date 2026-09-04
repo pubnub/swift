@@ -15,7 +15,7 @@ struct DataSyncRelationshipRouter: DataSyncRouting {
     case all(
       relationshipClass: String, entityAId: String?, entityBId: String?,
       relationshipClassVersion: Int?, cursor: String?, limit: Int?,
-      filter: String?, filterAdvanced: String?, sort: String?
+      filterFast: String?, filter: String?, sort: String?
     )
     case fetch(id: String)
     case create(body: CreateBody)
@@ -126,7 +126,7 @@ struct DataSyncRelationshipRouter: DataSyncRouting {
     switch endpoint {
     case let .all(
       relationshipClass, entityAId, entityBId, relationshipClassVersion,
-      cursor, limit, filter, filterAdvanced, sort
+      cursor, limit, filterFast, filter, sort
     ):
       query.appendIfPresent(key: .relationshipClass, value: relationshipClass)
       query.appendIfPresent(key: .entityAId, value: entityAId)
@@ -134,8 +134,8 @@ struct DataSyncRelationshipRouter: DataSyncRouting {
       query.appendIfPresent(key: .relationshipClassVersion, value: relationshipClassVersion?.description)
       query.appendIfPresent(key: .cursor, value: cursor)
       query.appendIfPresent(key: .limit, value: limit?.description)
+      query.appendIfPresent(key: .filterFast, value: filterFast)
       query.appendIfPresent(key: .filter, value: filter)
-      query.appendIfPresent(key: .filterAdvanced, value: filterAdvanced)
       query.appendIfPresent(key: .sort, value: sort)
     default:
       break

@@ -1153,7 +1153,7 @@ public extension PubNub.DataSyncAPI {
   /// - Parameters:
   ///   - channelId: The unique identifier of the channel to join
   ///   - userId: The unique identifier of the user to join
-  ///   - classVersion: The version of the `Membership` class the payload conforms to
+  ///   - classVersion: The version of the `Membership` class the payload conforms to. Pass `1` unless a later version exists
   ///   - id: The unique identifier to create the membership with, or `nil` to let the service assign one
   ///   - status: An arbitrary status to store with the membership
   ///   - payload: The membership fields
@@ -1215,7 +1215,7 @@ public extension PubNub.DataSyncAPI {
   ///
   /// - Parameters:
   ///   - id: The unique identifier of the membership
-  ///   - classVersion: The version of the `Membership` class the payload conforms to
+  ///   - classVersion: The version of the `Membership` class the payload conforms to. Pass `1` unless a later version exists
   ///   - status: An arbitrary status to store with the membership
   ///   - payload: The replacement membership fields
   ///   - ifMatchesEtag: The membership's last known ``PubNubDataSyncMembership/eTag``, used to prevent modifying a newer revision

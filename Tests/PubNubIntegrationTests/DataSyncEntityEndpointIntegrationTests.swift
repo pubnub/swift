@@ -524,6 +524,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     defaultClient.dataSync.getEntity(id: patientId) { fetchResult in
       switch fetchResult {
       case let .success(entity):
+        XCTAssertEqual(entity.status, "active")
         XCTAssertPayload(
           entity.payload,
           equals: TestPatientPayload(
@@ -531,8 +532,6 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
             fullName: "Swift ITest Patient"
           )
         )
-        // `status` is a system field rather than a projected property, so it stays visible under any projection
-        XCTAssertEqual(entity.status, "active")
       case let .failure(error):
         XCTFail("Failed due to error: \(error)")
       }

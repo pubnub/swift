@@ -24,6 +24,9 @@ struct SubscribeDataSyncPayload {
   enum ObjectType: String, Codable, Hashable {
     case entity
     case relationship
+    case user
+    case channel
+    case membership
   }
 }
 
@@ -54,6 +57,8 @@ extension SubscribeDataSyncPayload: Decodable {
     case payload
     case entityAId
     case entityBId
+    case channelId
+    case userId
   }
 
   init(from decoder: Decoder) throws {
@@ -73,7 +78,7 @@ extension SubscribeDataSyncPayload: Decodable {
     let identifier = try data.decode(String.self, forKey: .id)
 
     switch (type, action) {
-    case (.entity, .create), (.entity, .update):
+    case (.entity, .create), (.entity, .update), (.user, .create), (.user, .update), (.channel, .create), (.channel, .update):
       let entity = PubNubDataSyncEntity(
         id: identifier,
         className: className,
@@ -87,13 +92,17 @@ extension SubscribeDataSyncPayload: Decodable {
         payload: try data.decodeIfPresent(AnyJSON.self, forKey: .payload)
       )
       event = action == .create ? .entityCreated(entity) : .entityUpdated(entity)
-    case (.relationship, .create), (.relationship, .update):
+    case (.relationship, .create), (.relationship, .update), (.membership, .create), (.membership, .update):
+      // A membership frames its two sides as `channelId` and `userId`
+      let entityAKey: DataCodingKeys = type == .membership ? .channelId : .entityAId
+      let entityBKey: DataCodingKeys = type == .membership ? .userId : .entityBId
+
       let relationship = PubNubDataSyncRelationship(
         id: identifier,
         className: className,
         classVersion: classVersion,
-        entityAId: try data.decode(String.self, forKey: .entityAId),
-        entityBId: try data.decode(String.self, forKey: .entityBId),
+        entityAId: try data.decode(String.self, forKey: entityAKey),
+        entityBId: try data.decode(String.self, forKey: entityBKey),
         createdAt: try data.decode(Date.self, forKey: .createdAt),
         updatedAt: try data.decode(Date.self, forKey: .updatedAt),
         eTag: try data.decode(String.self, forKey: .eTag),
@@ -102,7 +111,7 @@ extension SubscribeDataSyncPayload: Decodable {
         payload: try data.decodeIfPresent(AnyJSON.self, forKey: .payload)
       )
       event = action == .create ? .relationshipCreated(relationship) : .relationshipUpdated(relationship)
-    case (.entity, .delete):
+    case (.entity, .delete), (.user, .delete), (.channel, .delete):
       let removed = PubNubDataSyncRemovedObject(
         id: identifier,
         className: className,
@@ -111,7 +120,7 @@ extension SubscribeDataSyncPayload: Decodable {
         deletedAt: try data.decode(Date.self, forKey: .deletedAt)
       )
       event = .entityDeleted(removed)
-    case (.relationship, .delete):
+    case (.relationship, .delete), (.membership, .delete):
       event = .relationshipDeleted(
         PubNubDataSyncRemovedRelationship(
           id: identifier,

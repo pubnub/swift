@@ -21,7 +21,7 @@
           "metadata": {
             "event": "delete",
             "source": "data-sync",
-            "type": "entity",
+            "type": "channel",
             "className": "Channel",
             "classLevel": "Global",
             "classVersion": 1

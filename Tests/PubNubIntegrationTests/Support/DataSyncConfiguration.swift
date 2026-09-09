@@ -31,6 +31,11 @@ func dataSyncHealthcareSubscribeConfiguration(from bundle: Bundle) throws -> Pub
   try dataSyncConfiguration(granting: .healthcareSubscribe, from: bundle)
 }
 
+/// The configuration authorizing a subscribe to the DataSync built-in object channels
+func dataSyncSubscribeConfiguration(from bundle: Bundle) throws -> PubNubConfiguration {
+  try dataSyncConfiguration(granting: .userChannelMembershipSubscribe, from: bundle)
+}
+
 /// A configuration carrying a freshly granted token for `grant`.
 private func dataSyncConfiguration(granting grant: DataSyncGrant, from bundle: Bundle) throws -> PubNubConfiguration {
   let credentials = DataSyncTestCredentials(

@@ -115,16 +115,11 @@ public class KMPDataSyncChannelReference: KMPDataSyncReference {
 }
 
 @objc
-public class KMPDataSyncMembershipReference: KMPDataSyncReference {
+public class KMPDataSyncMembershipReference: NSObject {
   private let membership: DataSyncMembership
 
   init(membership: DataSyncMembership) {
     self.membership = membership
-    super.init(id: membership.id, entity: membership)
-  }
-
-  override func dataSyncSubscription(projection: String) -> Subscription {
-    membership.subscription(projection: projection)
   }
 }
 
@@ -143,15 +138,10 @@ public class KMPDataSyncEntityReference: KMPDataSyncReference {
 }
 
 @objc
-public class KMPDataSyncRelationshipReference: KMPDataSyncReference {
+public class KMPDataSyncRelationshipReference: NSObject {
   private let relationship: DataSyncRelationship
 
   init(relationship: DataSyncRelationship) {
     self.relationship = relationship
-    super.init(id: relationship.id, entity: relationship)
-  }
-
-  override func dataSyncSubscription(projection: String) -> Subscription {
-    relationship.subscription(projection: projection)
   }
 }

@@ -212,6 +212,24 @@ struct SubscribeDecoder: ResponseDecoder {
   }
 }
 
+/// Indicates the `e` field of a subscribe message held a value this SDK version doesn't recognize.
+struct UnrecognizedSubscribeMessageTypeError: Error {
+  let messageType: Int
+}
+
+/// Decodes a single element of the subscribe response's `m` array, absorbing unrecognized message types.
+private struct SubscribeMessageEnvelope: Decodable {
+  let message: SubscribeMessagePayload?
+
+  init(from decoder: Decoder) throws {
+    do {
+      message = try SubscribeMessagePayload(from: decoder)
+    } catch is UnrecognizedSubscribeMessageTypeError {
+      message = nil
+    }
+  }
+}
+
 struct SubscribeResponse: Codable, Hashable {
   let cursor: SubscribeCursor
   let messages: [SubscribeMessagePayload]
@@ -233,7 +251,7 @@ struct SubscribeResponse: Codable, Hashable {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     cursor = try container.decode(SubscribeCursor.self, forKey: .cursor)
-    messages = try container.decodeIfPresent([SubscribeMessagePayload].self, forKey: .messages) ?? []
+    messages = (try container.decodeIfPresent([SubscribeMessageEnvelope].self, forKey: .messages) ?? []).compactMap { $0.message }
   }
 
   // Synthesized `public func encode(to encoder: Encoder) throws`
@@ -388,7 +406,12 @@ public struct SubscribeMessagePayload: Codable, Hashable, CustomStringConvertibl
     let pubNubMessageType = try container.decodeIfPresent(Int.self, forKey: .messageType)
     let fullChannel = try container.decode(String.self, forKey: .channel)
 
-    if let pubNubMessageType = pubNubMessageType, let action = Action(rawValue: pubNubMessageType) {
+    if let pubNubMessageType = pubNubMessageType {
+      // A type this SDK version doesn't know about can't be mapped onto any known event,
+      // so the message is rejected and dropped instead of being misinterpreted as a regular message
+      guard let action = Action(rawValue: pubNubMessageType) else {
+        throw UnrecognizedSubscribeMessageTypeError(messageType: pubNubMessageType)
+      }
       self.messageType = action
     } else {
       // If channel endswith -pnpres we assume it's a presence event

@@ -314,9 +314,7 @@ class SubscriptionTests: XCTestCase {
     let subscriptions = [
       pubnub.dataSyncUser("user-id").subscription(),
       pubnub.dataSyncChannel("channel-id").subscription(),
-      pubnub.dataSyncMembership("membership-id").subscription(),
-      pubnub.dataSyncEntity("entity-id").subscription(),
-      pubnub.dataSyncRelationship("relationship-id").subscription()
+      pubnub.dataSyncEntity("entity-id").subscription()
     ]
 
     XCTAssertEqual(
@@ -324,9 +322,7 @@ class SubscriptionTests: XCTestCase {
       [
         SubscriptionTopology(channels: ["user-id"]),
         SubscriptionTopology(channels: ["channel-id"]),
-        SubscriptionTopology(channels: ["membership-id"]),
-        SubscriptionTopology(channels: ["entity-id"]),
-        SubscriptionTopology(channels: ["relationship-id"])
+        SubscriptionTopology(channels: ["entity-id"])
       ]
     )
   }
@@ -340,9 +336,7 @@ class SubscriptionTests: XCTestCase {
     let subscriptions = [
       pubnub.dataSyncUser("user-id").subscription(projection: "details"),
       pubnub.dataSyncChannel("channel-id").subscription(projection: "details"),
-      pubnub.dataSyncMembership("membership-id").subscription(projection: "details"),
-      pubnub.dataSyncEntity("entity-id").subscription(projection: "details"),
-      pubnub.dataSyncRelationship("relationship-id").subscription(projection: "details")
+      pubnub.dataSyncEntity("entity-id").subscription(projection: "details")
     ]
 
     XCTAssertEqual(
@@ -350,9 +344,7 @@ class SubscriptionTests: XCTestCase {
       [
         SubscriptionTopology(channels: ["__details__user-id"]),
         SubscriptionTopology(channels: ["__details__channel-id"]),
-        SubscriptionTopology(channels: ["__details__membership-id"]),
-        SubscriptionTopology(channels: ["__details__entity-id"]),
-        SubscriptionTopology(channels: ["__details__relationship-id"])
+        SubscriptionTopology(channels: ["__details__entity-id"])
       ]
     )
   }
@@ -362,9 +354,7 @@ class SubscriptionTests: XCTestCase {
     let subscriptions = [
       pubnub.dataSyncUser("user-id").subscription(projection: "default"),
       pubnub.dataSyncChannel("channel-id").subscription(projection: "default"),
-      pubnub.dataSyncMembership("membership-id").subscription(projection: "default"),
-      pubnub.dataSyncEntity("entity-id").subscription(projection: "default"),
-      pubnub.dataSyncRelationship("relationship-id").subscription(projection: "default")
+      pubnub.dataSyncEntity("entity-id").subscription(projection: "default")
     ]
 
     XCTAssertEqual(
@@ -372,9 +362,7 @@ class SubscriptionTests: XCTestCase {
       [
         SubscriptionTopology(channels: ["user-id"]),
         SubscriptionTopology(channels: ["channel-id"]),
-        SubscriptionTopology(channels: ["membership-id"]),
-        SubscriptionTopology(channels: ["entity-id"]),
-        SubscriptionTopology(channels: ["relationship-id"])
+        SubscriptionTopology(channels: ["entity-id"])
       ]
     )
   }
@@ -385,9 +373,7 @@ class SubscriptionTests: XCTestCase {
     let references: [KMPDataSyncReference] = [
       kmpPubNub.dataSyncUser(with: "user-id"),
       kmpPubNub.dataSyncChannel(with: "channel-id"),
-      kmpPubNub.dataSyncMembership(with: "membership-id"),
-      kmpPubNub.dataSyncEntity(with: "entity-id"),
-      kmpPubNub.dataSyncRelationship(with: "relationship-id")
+      kmpPubNub.dataSyncEntity(with: "entity-id")
     ]
 
     XCTAssertEqual(

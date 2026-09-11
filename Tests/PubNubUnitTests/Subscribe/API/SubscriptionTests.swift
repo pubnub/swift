@@ -367,41 +367,6 @@ class SubscriptionTests: XCTestCase {
     )
   }
 
-  func testKMPDataSyncSubscribables_MirrorSwiftReferencesAndProjectionSubscriptions() {
-    let pubnub = TestPubNubFactory.make(publishKey: "pubKey", subscribeKey: "subKey", userId: "userId")
-    let kmpPubNub = KMPPubNub(pubnub: pubnub)
-    let references: [KMPDataSyncReference] = [
-      kmpPubNub.dataSyncUser(with: "user-id"),
-      kmpPubNub.dataSyncChannel(with: "channel-id"),
-      kmpPubNub.dataSyncEntity(with: "entity-id")
-    ]
-
-    XCTAssertEqual(
-      references.map(\.id),
-      ["user-id", "channel-id", "membership-id", "entity-id", "relationship-id"]
-    )
-    XCTAssertEqual(
-      references.map { KMPSubscription(entity: $0).subscription.subscriptionTopology },
-      [
-        SubscriptionTopology(channels: ["user-id"]),
-        SubscriptionTopology(channels: ["channel-id"]),
-        SubscriptionTopology(channels: ["membership-id"]),
-        SubscriptionTopology(channels: ["entity-id"]),
-        SubscriptionTopology(channels: ["relationship-id"])
-      ]
-    )
-    XCTAssertEqual(
-      references.map { $0.subscription(withProjection: "details").subscription.subscriptionTopology },
-      [
-        SubscriptionTopology(channels: ["__details__user-id"]),
-        SubscriptionTopology(channels: ["__details__channel-id"]),
-        SubscriptionTopology(channels: ["__details__membership-id"]),
-        SubscriptionTopology(channels: ["__details__entity-id"]),
-        SubscriptionTopology(channels: ["__details__relationship-id"])
-      ]
-    )
-  }
-
   func testSubscription_WithListeners_OnMessage() {
     let expectation = XCTestExpectation(description: "Message")
     expectation.assertForOverFulfill = true

@@ -21,7 +21,7 @@
           "metadata": {
             "event": "delete",
             "source": "data-sync",
-            "type": "relationship",
+            "type": "membership",
             "className": "Membership",
             "classLevel": "Global",
             "classVersion": 1

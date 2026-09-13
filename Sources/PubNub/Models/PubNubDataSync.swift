@@ -232,6 +232,10 @@ public struct PubNubDataSyncMembership: Hashable {
 
   var concretePayload: AnyJSON? { relationship.concretePayload }
 
+  init(relationship: PubNubDataSyncRelationship) {
+    self.relationship = relationship
+  }
+
   init(
     id: String,
     channelId: String,
@@ -308,5 +312,16 @@ extension PubNubDataSyncMembership: Codable {
     try container.encode(expiresAt, forKey: .expiresAt)
     try container.encodeIfPresent(status, forKey: .status)
     try container.encodeIfPresent(concretePayload, forKey: .concretePayload)
+  }
+}
+
+// MARK: - Membership interpretation
+
+public extension PubNubDataSyncRelationship {
+  /// The relationship read as a membership, taking side A as the channel and side B as the user.
+  ///
+  /// - Important: Only meaningful for a relationship of the built-in `Membership` class.
+  var asMembership: PubNubDataSyncMembership {
+    PubNubDataSyncMembership(relationship: self)
   }
 }

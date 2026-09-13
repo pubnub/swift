@@ -75,6 +75,16 @@ extension DataSyncGrant {
       "channels": [projectionChannelPattern: .read]
     ]
   )
+
+  /// Authorizes subscribing to the DataSync built-in User, Channel, and Membership objects.
+  ///
+  /// Built-in objects publish their events on a channel named after the object itself, unlike
+  /// custom entities and relationships, which use their `__<projection>__<id>` channel.
+  static let userChannelMembershipSubscribe = DataSyncGrant(
+    patterns: [
+      "channels": [testPattern: .read]
+    ]
+  )
 }
 
 // MARK: - Request body

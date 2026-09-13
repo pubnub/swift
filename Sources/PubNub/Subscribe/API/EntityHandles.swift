@@ -1,5 +1,5 @@
 //
-//  Subscribables.swift
+//  EntityHandles.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.
@@ -129,26 +129,15 @@ public class DataSyncChannel: Subscribable {
 }
 
 /// A reference to a Data Sync membership by identifier.
-public class DataSyncMembership: Subscribable {
+public class DataSyncMembership {
   /// The identifier of the Data Sync membership
   public let id: String
+  /// The PubNub instance that references this membership
+  weak var pubnub: PubNub?
 
   init(id: String, pubnub: PubNub) {
     self.id = id
-    super.init(pubnub: pubnub)
-  }
-
-  override func subscriptionTopology(includingPresence: Bool) -> SubscriptionTopology {
-    SubscriptionTopology(channels: [id])
-  }
-
-  /// Creates a subscription to a projection of this Data Sync membership.
-  public func subscription(
-    projection projectionName: String,
-    queue: DispatchQueue = .main,
-    options: SubscriptionOptions = SubscriptionOptions.empty()
-  ) -> Subscription {
-    makeProjectionSubscription(projectionName, id: id, queue: queue, options: options)
+    self.pubnub = pubnub
   }
 }
 
@@ -177,26 +166,15 @@ public class DataSyncEntity: Subscribable {
 }
 
 /// A reference to a Data Sync relationship by identifier.
-public class DataSyncRelationship: Subscribable {
+public class DataSyncRelationship {
   /// The identifier of the Data Sync relationship
   public let id: String
+  /// The PubNub instance that references this membership
+  weak var pubnub: PubNub?
 
   init(id: String, pubnub: PubNub) {
     self.id = id
-    super.init(pubnub: pubnub)
-  }
-
-  override func subscriptionTopology(includingPresence: Bool) -> SubscriptionTopology {
-    SubscriptionTopology(channels: [id])
-  }
-
-  /// Creates a subscription to a projection of this Data Sync relationship.
-  public func subscription(
-    projection projectionName: String,
-    queue: DispatchQueue = .main,
-    options: SubscriptionOptions = SubscriptionOptions.empty()
-  ) -> Subscription {
-    makeProjectionSubscription(projectionName, id: id, queue: queue, options: options)
+    self.pubnub = pubnub
   }
 }
 

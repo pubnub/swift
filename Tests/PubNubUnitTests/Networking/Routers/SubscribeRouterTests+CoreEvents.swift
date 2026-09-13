@@ -51,6 +51,59 @@ extension SubscribeRouterTests {
   }
 }
 
+// MARK: - Unrecognized Message Types
+
+extension SubscribeRouterTests {
+  func test_Subscribe_WithUnrecognizedMessageType_DropsMessageAndKeepsRestOfBatch() throws {
+    let response = try decodeSubscribeResponse(from: "subscription_unknownMessageType_success")
+
+    XCTAssertEqual(response.messages.map { $0.messageType }, [.message, .signal])
+    XCTAssertEqual(response.messages.map { $0.payload.stringOptional }, ["Test Message", "Test Signal"])
+    XCTAssertEqual(response.cursor, SubscribeCursor(timetoken: 15_614_817_397_807_903, region: 2))
+  }
+
+  func test_Subscribe_WithMissingMessageType_InfersTypeFromChannel() throws {
+    let response = try decodeSubscribeResponse(from: "subscription_mixed_success")
+
+    // The first message of the batch omits `e` entirely, and the last one arrives on a presence channel without `e`
+    XCTAssertEqual(response.messages.map { $0.messageType }, [.message, .signal, .presence])
+  }
+
+  func test_Subscribe_WithUnrecognizedMessageType_EmitsNoMessageEvent() throws {
+    let messageExpect = XCTestExpectation(description: "Message Event")
+    messageExpect.assertForOverFulfill = true
+    messageExpect.expectedFulfillmentCount = 1
+
+    let mockResponses = [
+      "subscription_handshake_success",
+      "subscription_unknownMessageType_success",
+      "cancelled"
+    ]
+    let container = DependencyContainer(configuration: config).register(
+      value: try XCTUnwrap(MockURLSession.mockSession(for: mockResponses).session),
+      forKey: HTTPSubscribeSessionDependencyKey.self
+    )
+
+    let pubnub = PubNub(container: container)
+    let listener = SubscriptionListener()
+
+    // Unrecognized message types would otherwise be delivered as regular messages,
+    // over-fulfilling this expectation
+    listener.didReceiveMessage = { [weak self, unowned pubnub] message in
+      XCTAssertEqual(message.channel, self?.testChannel)
+      XCTAssertEqual(message.payload.stringOptional, "Test Message")
+      pubnub.unsubscribeAll()
+      messageExpect.fulfill()
+    }
+
+    pubnub.add(listener)
+    pubnub.subscribe(to: [testChannel])
+
+    defer { listener.cancel() }
+    wait(for: [messageExpect], timeout: 1.0)
+  }
+}
+
 // MARK: Helpers
 
 private extension PubNubEvent {

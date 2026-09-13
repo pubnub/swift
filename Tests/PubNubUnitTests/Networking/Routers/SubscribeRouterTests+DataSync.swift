@@ -285,7 +285,7 @@ extension SubscribeRouterTests {
   }
 
   func test_Subscribe_WithUnrecognizedDataSyncObjectType_ReceivesMessage() {
-    XCTAssertNotNil(mockDataSyncPayload(type: "membership").asPubNubEvent().message)
+    XCTAssertNotNil(mockDataSyncPayload(type: "organization").asPubNubEvent().message)
   }
 
   func test_DataSyncAction_MapsToUnknownMessageType() {

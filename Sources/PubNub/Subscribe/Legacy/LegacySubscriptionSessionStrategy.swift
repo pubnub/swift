@@ -104,7 +104,7 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
       )
     }
     if subscribeChange.didChange {
-      notify { $0.emit(subscribe: .subscriptionChanged(subscribeChange)) }
+      notifySubscriptionChanged()
     }
     if subscribeChange.didChange || !connectionStatus.isActive {
       reconnect(at: cursor)
@@ -179,38 +179,6 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
           self?.registerHeartbeatTimer()
           // Ensure that we're connected now the response has been processed
           self?.connectionStatus = .connected
-
-          // Emit the header of the reponse
-          self?.notify { listener in
-            var pubnubChannels = [String: PubNubChannel]()
-            channels.forEach {
-              if $0.isPresenceChannelName {
-                let channel = PubNubChannel(channel: $0)
-                pubnubChannels[channel.id] = channel
-              } else if pubnubChannels[$0] == nil {
-                pubnubChannels[$0] = PubNubChannel(channel: $0)
-              }
-            }
-
-            var pubnubGroups = [String: PubNubChannel]()
-            groups.forEach {
-              if $0.isPresenceChannelName {
-                let group = PubNubChannel(channel: $0)
-                pubnubGroups[group.id] = group
-              } else if pubnubChannels[$0] == nil {
-                pubnubGroups[$0] = PubNubChannel(channel: $0)
-              }
-            }
-
-            listener.emit(subscribe: .responseReceived(
-              SubscribeResponseHeader(
-                channels: pubnubChannels.values.map { $0 },
-                groups: pubnubGroups.values.map { $0 },
-                previous: cursor,
-                next: response.payload.cursor
-              ))
-            )
-          }
 
           // Attempt to detect missed messages due to queue overflow
           if response.payload.messages.count >= 100 {
@@ -292,9 +260,7 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
       )
     }
     if subscribeChange.didChange {
-      notify {
-        $0.emit(subscribe: .subscriptionChanged(subscribeChange))
-      }
+      notifySubscriptionChanged()
       // Call unsubscribe to cleanup remaining state items
       unsubscribeCleanup(subscribeChange: subscribeChange)
     }
@@ -318,9 +284,7 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
     }
 
     if subscribeChange.didChange {
-      notify {
-        $0.emit(subscribe: .subscriptionChanged(subscribeChange))
-      }
+      notifySubscriptionChanged()
       // Cancel previous subscribe request.
       stopSubscribeLoop(.longPollingReset)
       // Call unsubscribe to cleanup remaining state items
@@ -360,5 +324,16 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
 
   private func notify(listeners closure: (BaseSubscriptionListener) -> Void) {
     listeners.allObjects.forEach { closure($0) }
+  }
+
+  // Emits the current set of subscribed channels and groups through the connection
+  // status channel, matching the Event Engine strategy's `ConnectionStatus.subscriptionChanged`.
+  private func notifySubscriptionChanged() {
+    let (channels, groups) = internalState.lockedRead {
+      ($0.allSubscribedChannels, $0.allSubscribedGroups)
+    }
+    notify {
+      $0.emit(subscribe: .connectionChanged(.subscriptionChanged(channels: channels, groups: groups)))
+    }
   }
 }

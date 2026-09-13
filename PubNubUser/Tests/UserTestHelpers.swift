@@ -37,6 +37,7 @@ class MockSession: SessionReplaceable {
   var sessionQueue: DispatchQueue = .main
   var defaultRequestOperator: RequestOperator?
   var sessionStream: SessionStream?
+  var logger: PubNubLogger = .defaultLogger()
 
   init() {}
 
@@ -76,6 +77,7 @@ class MockRequest: RequestReplaceable {
   var urlResponse: HTTPURLResponse?
   var retryCount: Int = 0
   var isCancelled: Bool = false
+  var logger: PubNubLogger = .defaultLogger()
 
   init(
     router: HTTPRouter

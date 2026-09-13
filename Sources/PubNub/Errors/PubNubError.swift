@@ -172,8 +172,11 @@ public struct PubNubError: Error {
     case serviceNotEnabled = 402
     case forbidden = 403
     case resourceNotFound = 404
+    case methodNotAllowed = 405
+    case notAcceptable = 406
     case conflict = 409
     case preconditionFailed = 412
+    case contentTooLarge = 413
     case requestURITooLong = 414
     case tooManyRequests = 429
     case unsupportedType = 415
@@ -209,7 +212,8 @@ public struct PubNubError: Error {
            .requestContainedInvalidJSON, .serviceUnavailable, .messageCountExceededMaximum,
            .badRequest, .conflict, .preconditionFailed, .tooManyRequests, .unsupportedType,
            .unauthorized, .forbidden, .resourceNotFound, .requestURITooLong, .malformedFilterExpression,
-           .internalServiceError, .messageTooLong, .invalidUUID, .nothingToDelete, .failedToPublish, .serviceNotEnabled:
+           .internalServiceError, .messageTooLong, .invalidUUID, .nothingToDelete, .failedToPublish,
+           .serviceNotEnabled, .methodNotAllowed, .notAcceptable, .contentTooLarge:
         return .endpointResponse
       case .pushNotEnabled, .messageDeletionNotEnabled, .messageHistoryNotEnabled, .multiplexingNotEnabled:
         return .serviceNotEnabled

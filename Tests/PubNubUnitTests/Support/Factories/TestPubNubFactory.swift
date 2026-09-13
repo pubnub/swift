@@ -21,17 +21,16 @@ enum TestPubNubFactory {
     enableEventEngine: Bool = true,
     heartbeatInterval: UInt = 0
   ) -> PubNubConfiguration {
-    var config = PubNubConfiguration(
+    PubNubConfiguration(
       publishKey: publishKey,
       subscribeKey: subscribeKey,
       userId: userId,
+      cryptoModule: cryptoModule,
       authKey: authKey,
       authToken: authToken,
       heartbeatInterval: heartbeatInterval,
       enableEventEngine: enableEventEngine
     )
-    config.cryptoModule = cryptoModule
-    return config
   }
 
   static func make(
@@ -55,6 +54,9 @@ enum TestPubNubFactory {
       enableEventEngine: enableEventEngine,
       heartbeatInterval: heartbeatInterval
     )
-    return PubNub(configuration: config, session: session)
+    return PubNub(
+      configuration: config,
+      session: session
+    )
   }
 }

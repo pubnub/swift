@@ -1,0 +1,11 @@
+{
+  "code": 409,
+  "body": {
+    "errors": [
+      {
+        "errorCode": "SYN-0301",
+        "message": "Entity with id 'hcn-patient-dup-probe' already exists in this keyset"
+      }
+    ]
+  }
+}

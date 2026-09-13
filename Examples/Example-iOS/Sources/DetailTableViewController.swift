@@ -232,97 +232,114 @@ class DetailTableViewController: UITableViewController {
     pubnub.add(spaceEvents)
     pubnub.add(membershipEvents)
 
-    self.listener?.didReceiveBatchSubscription = { events in
-      for event in events {
-        switch event {
-        case let .messageReceived(message):
-          print("The \(message.channel) channel received a message at \(message.published)")
-          if let subscription = message.subscription {
-            print("The channel-group or wildcard that matched this channel was \(subscription)")
-          }
-          print("The message is \(message.payload) and was sent by \(message.publisher ?? "")")
-        case let .signalReceived(signal):
-          print("The \(signal.channel) channel received a message at \(signal.published)")
-          if let subscription = signal.subscription {
-            print("The channel-group or wildcard that matched this channel was \(subscription)")
-          }
-          print("The signal is \(signal.payload) and was sent by \(signal.publisher ?? "")")
-        case let .connectionStatusChanged(connectionChange):
-          switch connectionChange {
-          case .connected:
-            print("Status connected!")
-          case .subscriptionChanged:
-            print("Subscription changed")
-          case .disconnected:
-            print("Status disconnected")
-          case .disconnectedUnexpectedly:
-            print("Status disconnected unexpectedly!")
-          case .connectionError:
-            print("Cannot establish initial conection to the remote system")
-          }
-        case let .subscriptionChanged(subscribeChange):
-          switch subscribeChange {
-          case let .subscribed(channels, groups):
-            print("\(channels) and \(groups) were added to subscription")
-          case let .responseHeader(channels, groups, previous, next):
-            print("\(channels) and \(groups) recevied a response at \(previous?.timetoken ?? 0)")
-            print("\(next?.timetoken ?? 0) will be used as the new timetoken")
-          case let .unsubscribed(channels, groups):
-            print("\(channels) and \(groups) were removed from subscription")
-          }
-        case let .presenceChanged(presenceChange):
-          print("The channel \(presenceChange.channel) has an updated occupancy of \(presenceChange.occupancy)")
-          for action in presenceChange.actions {
-            switch action {
-            case let .join(uuids):
-              print("The following list of occupants joined at \(presenceChange.timetoken): \(uuids)")
-            case let .leave(uuids):
-              print("The following list of occupants left at \(presenceChange.timetoken): \(uuids)")
-            case let .timeout(uuids):
-              print("The following list of occupants timed-out at \(presenceChange.timetoken): \(uuids)")
-            case let .stateChange(uuid, state):
-              print("\(uuid) changed their presence state to \(state) at \(presenceChange.timetoken)")
-            }
-          }
+    self.listener?.didReceiveMessage = { message in
+      print("The \(message.channel) channel received a message at \(message.published)")
+      print("The channel group or wildcard subscription match (if exists): \(String(describing: message.subscription)).")
+      print("The message is \(message.payload) and was sent by \(message.publisher ?? "")")
+    }
 
-        case let .uuidMetadataSet(uuidMetadataChange):
-          print("Changes were made to \(uuidMetadataChange.metadataId) at \(uuidMetadataChange.updated)")
-          print("To apply the change, fetch a matching object and call uuidMetadataChange.apply(to: otherUUIDMetadata)")
-        case let .uuidMetadataRemoved(metadataId):
-          print("Metadata for the uuid \(metadataId) has been removed")
-        case let .channelMetadataSet(channelMetadata):
-          print("Changes were made to \(channelMetadata.metadataId) at \(channelMetadata.updated)")
-          print("To apply the change, fetch a matching object and call channelMetadata.apply(to: otherUUIDMetadata)")
-        case let .channelMetadataRemoved(metadataId):
-          print("Metadata for the channel \(metadataId) has been removed")
-        case let .membershipMetadataSet(membership):
-          print("A membership was set between \(membership.uuidMetadataId) and \(membership.channelMetadataId)")
-        case let .membershipMetadataRemoved(membership):
-          print("A membership was removed between \(membership.uuidMetadataId) and \(membership.channelMetadataId)")
+    self.listener?.didReceiveSignal = { signal in
+      print("The \(signal.channel) channel received a message at \(signal.published)")
+      print("The channel group or wildcard subscription match (if exists): \(String(describing: signal.subscription)).")
+      print("The signal is \(signal.payload) and was sent by \(signal.publisher ?? "")")
+    }
 
-        case let .messageActionAdded(messageAction):
-          print("The \(messageAction.channel) channel received a message at \(messageAction.messageTimetoken)")
-          print("This action was created at \(messageAction.actionTimetoken)")
-          print("This action has a type of \(messageAction.actionType) and has a value of \(messageAction.actionValue)")
-        case let .messageActionRemoved(messageAction):
-          print("The \(messageAction.channel) channel received a message at \(messageAction.messageTimetoken)")
-          print("A message action with the timetoken of \(messageAction.actionTimetoken) has been removed")
-        case let .fileUploaded(file):
-          print("A file was uplaoded \(file)")
-        case let .subscribeError(error):
-          print("The following error was generated during subscription \(error.localizedDescription)")
-          error.affected.forEach {
-            switch $0 {
-            case let .channels(affectedChannels):
-              print("Affected channels: \(affectedChannels)")
-            case let .channelGroups(affectedChannelGroups):
-              print("Affected channel groups: \(affectedChannelGroups)")
-            default:
-              break
-            }
-          }
-          print("If `disconnectedUnexpectedly` also occurred then subscription has stopped, and needs to be restarted")
+    self.listener?.didReceiveStatus = { status in
+      switch status {
+      case let .success(connectionChange):
+        switch connectionChange {
+        case .connected:
+          print("Status connected!")
+        case let .subscriptionChanged(channels, groups):
+          print("\(channels) and \(groups) are now subscribed")
+        case .disconnected:
+          print("Status disconnected")
+        case .disconnectedUnexpectedly:
+          print("Status disconnected unexpectedly!")
+        case .connectionError:
+          print("Cannot establish initial conection to the remote system")
         }
+      case let .failure(error):
+        print("The following error was generated during subscription \(error.localizedDescription)")
+
+        error.affected.forEach {
+          switch $0 {
+          case let .channels(affectedChannels):
+            print("Affected channels: \(affectedChannels)")
+          case let .channelGroups(affectedChannelGroups):
+            print("Affected channel groups: \(affectedChannelGroups)")
+          default:
+            break
+          }
+        }
+        print("If `disconnectedUnexpectedly` also occurred then subscription has stopped, and needs to be restarted")
+      }
+    }
+
+    self.listener?.didReceivePresence = { presenceChange in
+      print("The channel \(presenceChange.channel) has an updated occupancy of \(presenceChange.occupancy)")
+      for action in presenceChange.actions {
+        switch action {
+        case let .join(uuids):
+          print("The following list of occupants joined at \(presenceChange.timetoken): \(uuids)")
+        case let .leave(uuids):
+          print("The following list of occupants left at \(presenceChange.timetoken): \(uuids)")
+        case let .timeout(uuids):
+          print("The following list of occupants timed-out at \(presenceChange.timetoken): \(uuids)")
+        case let .stateChange(uuid, state):
+          print("\(uuid) changed their presence state to \(state) at \(presenceChange.timetoken)")
+        }
+      }
+    }
+
+    self.listener?.didReceiveAppContextEvent = { event in
+      switch event {
+      case let .userMetadataSet(uuidMetadataChange):
+        print("Changes were made to \(uuidMetadataChange.metadataId) at \(uuidMetadataChange.updated)")
+        print("To apply the change, fetch a matching object and call uuidMetadataChange.apply(to: otherUUIDMetadata)")
+      case let .userMetadataRemoved(metadataId):
+        print("Metadata for the uuid \(metadataId) has been removed")
+      case let .channelMetadataSet(channelMetadata):
+        print("Changes were made to \(channelMetadata.metadataId) at \(channelMetadata.updated)")
+        print("To apply the change, fetch a matching object and call channelMetadata.apply(to: otherUUIDMetadata)")
+      case let .channelMetadataRemoved(metadataId):
+        print("Metadata for the channel \(metadataId) has been removed")
+      case let .membershipMetadataSet(membership):
+        print("A membership was set between \(membership.uuidMetadataId) and \(membership.channelMetadataId)")
+      case let .membershipMetadataRemoved(membership):
+        print("A membership was removed between \(membership.uuidMetadataId) and \(membership.channelMetadataId)")
+      }
+    }
+
+    self.listener?.didReceiveMessageAction = { event in
+      switch event {
+      case let .added(messageAction):
+        print("The \(messageAction.channel) channel received a message at \(messageAction.messageTimetoken)")
+        print("This action was created at \(messageAction.actionTimetoken)")
+        print("This action has a type of \(messageAction.actionType) and has a value of \(messageAction.actionValue)")
+      case let .removed(messageAction):
+        print("The \(messageAction.channel) channel received a message at \(messageAction.messageTimetoken)")
+        print("A message action with the timetoken of \(messageAction.actionTimetoken) has been removed")
+      }
+    }
+
+    self.listener?.didReceiveFileUpload = { file in
+      print("A file was uplaoded \(file)")
+    }
+
+    self.listener?.didReceiveDataSyncEvent = { dataSyncEvent in
+      switch dataSyncEvent {
+      case let .entityCreated(entity), let .entityUpdated(entity):
+        print("The \(entity.className) entity \(entity.id) was created or updated at \(entity.updatedAt)")
+        print("Its revision is \(entity.eTag) and it expires at \(entity.expiresAt)")
+        print("Payload: \(entity.payload ?? "none")")
+      case let .relationshipCreated(relationship), let .relationshipUpdated(relationship):
+        print("The \(relationship.className) relationship \(relationship.id) was created or updated")
+        print("It connects entity \(relationship.entityAId) to entity \(relationship.entityBId)")
+      case let .entityDeleted(removed):
+        print("The \(removed.className) entity \(removed.id) was deleted at \(removed.deletedAt)")
+      case let .relationshipDeleted(removed):
+        print("The \(removed.className) relationship \(removed.id) was deleted at \(removed.deletedAt)")
       }
     }
 

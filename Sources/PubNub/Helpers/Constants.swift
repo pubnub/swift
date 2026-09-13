@@ -103,6 +103,7 @@ public enum Constant {
       let date = DateFormatter.iso8601.date(
         from: dateString
       ) ?? DateFormatter.iso8601_noMilliseconds.date(from: dateString)
+        ?? DateFormatter.iso8601_dateOnly.date(from: dateString)
 
       guard let decodedDate = date else {
         throw DecodingError.typeMismatch(

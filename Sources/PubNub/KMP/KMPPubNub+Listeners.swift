@@ -26,7 +26,8 @@ extension KMPPubNub {
       onPresence: { listener.onPresence?(KMPPresenceChange.from(change: $0)) },
       onMessageAction: { listener.onMessageAction?(KMPMessageAction(action: $0)) },
       onFileEvent: { [weak pubnub] in listener.onFile?(KMPFileChangeEvent.from(event: $0, with: pubnub)) },
-      onAppContext: { listener.onAppContext?(KMPAppContextEventResult.from(event: $0)) }
+      onAppContext: { listener.onAppContext?(KMPAppContextEventResult.from(event: $0)) },
+      onDataSync: { listener.onDataSync?(KMPDataSyncEvent.from(event: $0)) }
     )
 
     // Establishes an association to infer which Swift listener

@@ -249,6 +249,7 @@ class PubNubMembershipInterfaceTests: XCTestCase {
         set: [.init(
           metadataId: testMembership.space.id,
           status: testMembership.status,
+          type: nil,
           custom: testMembership.custom?.flatJSON
         )],
         delete: []
@@ -300,6 +301,7 @@ class PubNubMembershipInterfaceTests: XCTestCase {
         set: [.init(
           metadataId: testMembership.space.id,
           status: testMembership.status,
+          type: nil,
           custom: testMembership.custom?.flatJSON
         )],
         delete: []
@@ -352,6 +354,7 @@ class PubNubMembershipInterfaceTests: XCTestCase {
         set: [.init(
           metadataId: testMembership.user.id,
           status: testMembership.status,
+          type: nil,
           custom: testMembership.custom?.flatJSON
         )],
         delete: []
@@ -404,6 +407,7 @@ class PubNubMembershipInterfaceTests: XCTestCase {
         set: [.init(
           metadataId: testMembership.space.id,
           status: testMembership.status,
+          type: nil,
           custom: testMembership.custom?.flatJSON
         )],
         delete: []
@@ -455,6 +459,7 @@ class PubNubMembershipInterfaceTests: XCTestCase {
         set: [.init(
           metadataId: testMembership.space.id,
           status: testMembership.status,
+          type: nil,
           custom: testMembership.custom?.flatJSON
         )],
         delete: []
@@ -507,6 +512,7 @@ class PubNubMembershipInterfaceTests: XCTestCase {
         set: [.init(
           metadataId: testMembership.user.id,
           status: testMembership.status,
+          type: nil,
           custom: testMembership.custom?.flatJSON
         )],
         delete: []
@@ -560,6 +566,7 @@ class PubNubMembershipInterfaceTests: XCTestCase {
         delete: [.init(
           metadataId: testMembership.space.id,
           status: nil,
+          type: nil,
           custom: nil
         )]
       ),
@@ -609,6 +616,7 @@ class PubNubMembershipInterfaceTests: XCTestCase {
         delete: [.init(
           metadataId: testMembership.space.id,
           status: nil,
+          type: nil,
           custom: nil
         )]
       ),
@@ -659,6 +667,7 @@ class PubNubMembershipInterfaceTests: XCTestCase {
         delete: [.init(
           metadataId: testMembership.user.id,
           status: nil,
+          type: nil,
           custom: nil
         )]
       ),

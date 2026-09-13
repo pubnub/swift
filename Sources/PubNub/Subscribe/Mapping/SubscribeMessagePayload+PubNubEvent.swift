@@ -22,22 +22,7 @@ extension SubscribeMessagePayload {
       guard let objectAction = try? payload.decode(SubscribeObjectMetadataPayload.self) else {
         return .messageReceived(PubNubMessageBase(from: self))
       }
-      switch objectAction.subscribeEvent {
-      case .channelMetadataRemoved(let metadataId):
-        return .appContextChanged(.channelMetadataRemoved(metadataId: metadataId))
-      case .channelMetadataSet(let changes):
-        return .appContextChanged(.channelMetadataSet(changes))
-      case .uuidMetadataSet(let changes):
-        return .appContextChanged(.userMetadataSet(changes))
-      case .uuidMetadataRemoved(let metadataId):
-        return .appContextChanged(.userMetadataRemoved(metadataId: metadataId))
-      case .membershipMetadataSet(let metadata):
-        return .appContextChanged(.membershipMetadataSet(metadata))
-      case .membershipMetadataRemoved(let metadata):
-        return .appContextChanged(.membershipMetadataRemoved(metadata))
-      default:
-        return .messageReceived(PubNubMessageBase(from: self))
-      }
+      return .appContextChanged(objectAction.subscribeEvent)
     case .messageAction:
       guard
         let messageAction = PubNubMessageActionBase(from: self),
@@ -57,6 +42,11 @@ extension SubscribeMessagePayload {
         return .messageReceived(PubNubMessageBase(from: self))
       }
       return .fileChanged(.uploaded(fileMessage))
+    case .dataSync:
+      guard let dataSyncEvent = asDataSyncEvent() else {
+        return .messageReceived(PubNubMessageBase(from: self))
+      }
+      return .dataSyncChanged(dataSyncEvent)
     case .presence:
       guard let presence = PubNubPresenceChangeBase(from: self) else {
         return .messageReceived(PubNubMessageBase(from: self))

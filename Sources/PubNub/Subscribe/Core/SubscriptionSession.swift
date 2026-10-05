@@ -333,7 +333,7 @@ extension SubscriptionSession: SubscribeMessagesReceiver {
 
   func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent] {
     // Translates payloads into PubNub Subscibe Loop events
-    let events = payloads.map { $0.asPubNubEvent() }
+    let events = payloads.compactMap { $0.asPubNubEvent() }
     // Emits events from the SubscriptionSession
     emit(events: events)
     // Emits events to the underlying attached listeners

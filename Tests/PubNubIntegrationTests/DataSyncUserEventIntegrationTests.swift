@@ -36,16 +36,19 @@ final class DataSyncUserEventIntegrationTests: XCTestCase {
       .subscription()
 
     subscription.onDataSync = { event in
-      guard case let .entityCreated(entity) = event, entity.id == userId else {
+      guard case let .entityCreated(entityEvent) = event, entityEvent.entity.id == userId else {
         return
       }
 
+      let entity = entityEvent.entity
+      XCTAssertEqual(entityEvent.kind, .user)
       XCTAssertEqual(entity.className, "User")
       XCTAssertEqual(entity.classLevel, .global)
       XCTAssertEqual(entity.classVersion, self.userClassVersion)
       XCTAssertEqual(entity.status, "active")
       XCTAssertFalse(entity.eTag.isEmpty)
       XCTAssertNotNil(entity.payload)
+
       createExpect.fulfill()
     }
 
@@ -99,15 +102,18 @@ final class DataSyncUserEventIntegrationTests: XCTestCase {
       .subscription()
 
     subscription.onDataSync = { event in
-      guard case let .entityUpdated(entity) = event, entity.id == userId else {
+      guard case let .entityUpdated(entityEvent) = event, entityEvent.entity.id == userId else {
         return
       }
 
+      let entity = entityEvent.entity
+      XCTAssertEqual(entityEvent.kind, .user)
       XCTAssertEqual(entity.className, "User")
       XCTAssertEqual(entity.classLevel, .global)
       XCTAssertEqual(entity.classVersion, self.userClassVersion)
       XCTAssertFalse(entity.eTag.isEmpty)
       XCTAssertNotNil(entity.payload)
+
       updateExpect.fulfill()
     }
 
@@ -159,13 +165,16 @@ final class DataSyncUserEventIntegrationTests: XCTestCase {
       .subscription()
 
     subscription.onDataSync = { event in
-      guard case let .entityDeleted(removed) = event, removed.id == userId else {
+      guard case let .entityDeleted(entityEvent) = event, entityEvent.removed.id == userId else {
         return
       }
 
+      let removed = entityEvent.removed
+      XCTAssertEqual(entityEvent.kind, .user)
       XCTAssertEqual(removed.className, "User")
       XCTAssertEqual(removed.classLevel, .global)
       XCTAssertEqual(removed.classVersion, self.userClassVersion)
+
       deleteExpect.fulfill()
     }
 

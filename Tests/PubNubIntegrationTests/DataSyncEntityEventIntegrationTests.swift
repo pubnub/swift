@@ -44,14 +44,17 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
       .subscription()
 
     subscription.onDataSync = { event in
-      guard case let .entityCreated(entity) = event, entity.id == self.patientId else {
+      guard case let .entityCreated(entityEvent) = event, entityEvent.entity.id == self.patientId else {
         return
       }
 
+      let entity = entityEvent.entity
+      XCTAssertEqual(entityEvent.kind, .custom)
       XCTAssertEqual(entity.id, "swift-patient-alice")
       XCTAssertEqual(entity.className, HealthcareClass.patient.name)
       XCTAssertFalse(entity.eTag.isEmpty)
       XCTAssertNotNil(entity.payload)
+
       createExpect.fulfill()
     }
 
@@ -106,14 +109,17 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
       .subscription()
 
     subscription.onDataSync = { event in
-      guard case let .entityUpdated(entity) = event, entity.id == self.patientId else {
+      guard case let .entityUpdated(entityEvent) = event, entityEvent.entity.id == self.patientId else {
         return
       }
 
+      let entity = entityEvent.entity
+      XCTAssertEqual(entityEvent.kind, .custom)
       XCTAssertEqual(entity.id, "swift-patient-alice")
       XCTAssertEqual(entity.className, HealthcareClass.patient.name)
       XCTAssertFalse(entity.eTag.isEmpty)
       XCTAssertNotNil(entity.payload)
+
       updateExpect.fulfill()
     }
 
@@ -164,12 +170,15 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
       .subscription()
 
     subscription.onDataSync = { event in
-      guard case let .entityDeleted(removed) = event, removed.id == self.patientId else {
+      guard case let .entityDeleted(entityEvent) = event, entityEvent.removed.id == self.patientId else {
         return
       }
 
+      let removed = entityEvent.removed
+      XCTAssertEqual(entityEvent.kind, .custom)
       XCTAssertEqual(removed.id, "swift-patient-alice")
       XCTAssertEqual(removed.className, HealthcareClass.patient.name)
+
       deleteExpect.fulfill()
     }
 
@@ -218,10 +227,12 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
       .subscription()
 
     subscription.onDataSync = { event in
-      guard case let .relationshipCreated(relationship) = event, relationship.id == self.relationshipId else {
+      guard case let .relationshipCreated(relEvent) = event, relEvent.relationship.id == self.relationshipId else {
         return
       }
 
+      let relationship = relEvent.relationship
+      XCTAssertEqual(relEvent.kind, .custom)
       XCTAssertEqual(relationship.id, "swift-rel-attending-carter-alice")
       XCTAssertEqual(relationship.className, HealthcareClass.attendingPhysician.name)
       XCTAssertEqual(relationship.entityAId, "swift-practitioner-carter")
@@ -298,16 +309,19 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
       .subscription()
 
     subscription.onDataSync = { event in
-      guard case let .relationshipUpdated(relationship) = event, relationship.id == self.relationshipId else {
+      guard case let .relationshipUpdated(relEvent) = event, relEvent.relationship.id == self.relationshipId else {
         return
       }
 
+      let relationship = relEvent.relationship
+      XCTAssertEqual(relEvent.kind, .custom)
       XCTAssertEqual(relationship.id, "swift-rel-attending-carter-alice")
       XCTAssertEqual(relationship.className, HealthcareClass.attendingPhysician.name)
       XCTAssertEqual(relationship.entityAId, "swift-practitioner-carter")
       XCTAssertEqual(relationship.entityBId, "swift-patient-alice")
       XCTAssertFalse(relationship.eTag.isEmpty)
       XCTAssertNotNil(relationship.payload)
+
       updateExpect.fulfill()
     }
 
@@ -373,12 +387,15 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
       .subscription()
 
     subscription.onDataSync = { event in
-      guard case let .relationshipDeleted(removed) = event, removed.id == self.relationshipId else {
+      guard case let .relationshipDeleted(relationshipEvent) = event, relationshipEvent.removed.id == self.relationshipId else {
         return
       }
 
+      let removed = relationshipEvent.removed
+      XCTAssertEqual(relationshipEvent.kind, .custom)
       XCTAssertEqual(removed.id, "swift-rel-attending-carter-alice")
       XCTAssertEqual(removed.className, HealthcareClass.attendingPhysician.name)
+
       deleteExpect.fulfill()
     }
 

@@ -91,7 +91,13 @@ extension SubscribeDataSyncPayload: Decodable {
         status: try data.decodeIfPresent(String.self, forKey: .status),
         payload: try data.decodeIfPresent(AnyJSON.self, forKey: .payload)
       )
-      event = action == .create ? .entityCreated(entity) : .entityUpdated(entity)
+      let entityEvent = PubNubDataSyncEntityEvent(
+        kind: type.entityKind,
+        entity: entity
+      )
+
+      event = action == .create ? .entityCreated(entityEvent) : .entityUpdated(entityEvent)
+
     case (.relationship, .create), (.relationship, .update), (.membership, .create), (.membership, .update):
       // A membership frames its two sides as `channelId` and `userId`
       let entityAKey: DataCodingKeys = type == .membership ? .channelId : .entityAId
@@ -110,31 +116,72 @@ extension SubscribeDataSyncPayload: Decodable {
         status: try data.decodeIfPresent(String.self, forKey: .status),
         payload: try data.decodeIfPresent(AnyJSON.self, forKey: .payload)
       )
-      event = action == .create ? .relationshipCreated(relationship) : .relationshipUpdated(relationship)
+      let relationshipEvent = PubNubDataSyncRelationshipEvent(
+        kind: type.relationshipKind,
+        relationship: relationship
+      )
+
+      event = action == .create ? .relationshipCreated(relationshipEvent) : .relationshipUpdated(relationshipEvent)
+
     case (.entity, .delete), (.user, .delete), (.channel, .delete):
-      let removed = PubNubDataSyncRemovedObject(
+      let removed = PubNubDataSyncRemovedEntity(
         id: identifier,
         className: className,
         classLevel: classLevel,
         classVersion: classVersion,
         deletedAt: try data.decode(Date.self, forKey: .deletedAt)
       )
-      event = .entityDeleted(removed)
+      event = .entityDeleted(
+        PubNubDataSyncEntityDeletedEvent(
+          kind: type.entityKind,
+          removed: removed
+        )
+      )
+
     case (.relationship, .delete), (.membership, .delete):
       event = .relationshipDeleted(
-        PubNubDataSyncRemovedRelationship(
-          id: identifier,
-          className: className,
-          classVersion: classVersion,
-          deletedAt: try data.decode(Date.self, forKey: .deletedAt)
+        PubNubDataSyncRelationshipDeletedEvent(
+          kind: type.relationshipKind,
+          removed: PubNubDataSyncRemovedRelationship(
+            id: identifier,
+            className: className,
+            classVersion: classVersion,
+            deletedAt: try data.decode(Date.self, forKey: .deletedAt)
+          )
         )
       )
     }
   }
 }
 
+private extension SubscribeDataSyncPayload.ObjectType {
+  var entityKind: PubNubDataSyncEntityKind {
+    switch self {
+    case .entity:
+      return .custom
+    case .user:
+      return .user
+    case .channel:
+      return .channel
+    case .relationship, .membership:
+      preconditionFailure("A relationship type cannot be converted to an entity kind")
+    }
+  }
+
+  var relationshipKind: PubNubDataSyncRelationshipKind {
+    switch self {
+    case .relationship:
+      return .custom
+    case .membership:
+      return .membership
+    case .entity, .user, .channel:
+      preconditionFailure("An entity type cannot be converted to a relationship kind")
+    }
+  }
+}
+
 extension SubscribeMessagePayload {
-  func asDataSyncEvent() -> PubNubDataSyncEvent? {
-    try? payload.decode(SubscribeDataSyncPayload.self).event
+  func decodeDataSyncEvent() throws -> PubNubDataSyncEvent {
+    try payload.decode(SubscribeDataSyncPayload.self).event
   }
 }

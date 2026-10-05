@@ -496,7 +496,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
         patchExpect.fulfill()
       case let .failure(error):
         XCTAssertNotNil(error.pubNubError)
-        XCTAssertEqual(error.pubNubError?.reason, .badRequest)
+        XCTAssertEqual(error.pubNubError?.reason, .conflict)
 
         client.dataSync.getRelationship(id: relationshipId) { fetchResult in
           switch fetchResult {

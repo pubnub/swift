@@ -36,16 +36,19 @@ final class DataSyncChannelEventIntegrationTests: XCTestCase {
       .subscription()
 
     subscription.onDataSync = { event in
-      guard case let .entityCreated(entity) = event, entity.id == channelId else {
+      guard case let .entityCreated(entityEvent) = event, entityEvent.entity.id == channelId else {
         return
       }
 
+      let entity = entityEvent.entity
+      XCTAssertEqual(entityEvent.kind, .channel)
       XCTAssertEqual(entity.className, "Channel")
       XCTAssertEqual(entity.classLevel, .global)
       XCTAssertEqual(entity.classVersion, self.channelClassVersion)
       XCTAssertEqual(entity.status, "active")
       XCTAssertFalse(entity.eTag.isEmpty)
       XCTAssertNotNil(entity.payload)
+
       createExpect.fulfill()
     }
 
@@ -102,15 +105,18 @@ final class DataSyncChannelEventIntegrationTests: XCTestCase {
       .subscription()
 
     subscription.onDataSync = { event in
-      guard case let .entityUpdated(entity) = event, entity.id == channelId else {
+      guard case let .entityUpdated(entityEvent) = event, entityEvent.entity.id == channelId else {
         return
       }
 
+      let entity = entityEvent.entity
+      XCTAssertEqual(entityEvent.kind, .channel)
       XCTAssertEqual(entity.className, "Channel")
       XCTAssertEqual(entity.classLevel, .global)
       XCTAssertEqual(entity.classVersion, self.channelClassVersion)
       XCTAssertFalse(entity.eTag.isEmpty)
       XCTAssertNotNil(entity.payload)
+
       updateExpect.fulfill()
     }
 
@@ -162,13 +168,16 @@ final class DataSyncChannelEventIntegrationTests: XCTestCase {
       .subscription()
 
     subscription.onDataSync = { event in
-      guard case let .entityDeleted(removed) = event, removed.id == channelId else {
+      guard case let .entityDeleted(entityEvent) = event, entityEvent.removed.id == channelId else {
         return
       }
 
+      let removed = entityEvent.removed
+      XCTAssertEqual(entityEvent.kind, .channel)
       XCTAssertEqual(removed.className, "Channel")
       XCTAssertEqual(removed.classLevel, .global)
       XCTAssertEqual(removed.classVersion, self.channelClassVersion)
+
       deleteExpect.fulfill()
     }
 

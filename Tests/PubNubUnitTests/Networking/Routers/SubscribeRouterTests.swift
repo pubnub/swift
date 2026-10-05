@@ -220,7 +220,7 @@ extension SubscribeRouterTests {
   func decodeEvent(from resource: String) throws -> PubNubEvent {
     let payload = try XCTUnwrap(decodeSubscribeResponse(from: resource).messages.first)
 
-    return payload.asPubNubEvent()
+    return try XCTUnwrap(payload.asPubNubEvent())
   }
 }
 

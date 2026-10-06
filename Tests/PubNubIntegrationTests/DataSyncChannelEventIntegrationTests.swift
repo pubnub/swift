@@ -36,7 +36,7 @@ final class DataSyncChannelEventIntegrationTests: XCTestCase {
       .subscription()
 
     subscription.onDataSync = { event in
-      guard case let .entityCreated(entityEvent) = event, entityEvent.entity.id == channelId else {
+      guard case let .entityCreated(entityEvent) = event.change, entityEvent.entity.id == channelId else {
         return
       }
 
@@ -105,7 +105,7 @@ final class DataSyncChannelEventIntegrationTests: XCTestCase {
       .subscription()
 
     subscription.onDataSync = { event in
-      guard case let .entityUpdated(entityEvent) = event, entityEvent.entity.id == channelId else {
+      guard case let .entityUpdated(entityEvent) = event.change, entityEvent.entity.id == channelId else {
         return
       }
 
@@ -168,7 +168,7 @@ final class DataSyncChannelEventIntegrationTests: XCTestCase {
       .subscription()
 
     subscription.onDataSync = { event in
-      guard case let .entityDeleted(entityEvent) = event, entityEvent.removed.id == channelId else {
+      guard case let .entityDeleted(entityEvent) = event.change, entityEvent.removed.id == channelId else {
         return
       }
 

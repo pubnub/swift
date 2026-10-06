@@ -36,7 +36,7 @@ final class DataSyncUserEventIntegrationTests: XCTestCase {
       .subscription()
 
     subscription.onDataSync = { event in
-      guard case let .entityCreated(entityEvent) = event, entityEvent.entity.id == userId else {
+      guard case let .entityCreated(entityEvent) = event.change, entityEvent.entity.id == userId else {
         return
       }
 
@@ -102,7 +102,7 @@ final class DataSyncUserEventIntegrationTests: XCTestCase {
       .subscription()
 
     subscription.onDataSync = { event in
-      guard case let .entityUpdated(entityEvent) = event, entityEvent.entity.id == userId else {
+      guard case let .entityUpdated(entityEvent) = event.change, entityEvent.entity.id == userId else {
         return
       }
 
@@ -165,7 +165,7 @@ final class DataSyncUserEventIntegrationTests: XCTestCase {
       .subscription()
 
     subscription.onDataSync = { event in
-      guard case let .entityDeleted(entityEvent) = event, entityEvent.removed.id == userId else {
+      guard case let .entityDeleted(entityEvent) = event.change, entityEvent.removed.id == userId else {
         return
       }
 

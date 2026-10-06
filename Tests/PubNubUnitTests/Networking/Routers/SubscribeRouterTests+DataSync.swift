@@ -283,12 +283,68 @@ extension SubscribeRouterTests {
     XCTAssertNil(payload.asPubNubEvent())
   }
 
-  func test_Subscribe_WithUnrecognizedDataSyncObjectType_DropsEvent() {
-    XCTAssertNil(mockDataSyncPayload(type: "organization").asPubNubEvent())
+  func test_Subscribe_WithUnrecognizedDataSyncObjectType_ReportsUnknownChange() throws {
+    let event = try XCTUnwrap(mockDataSyncPayload(type: "organization").asPubNubEvent())
+    let unknown = try XCTUnwrap(event.dataSyncEvent?.unknown)
+
+    XCTAssertEqual(unknown.type, "organization")
+    XCTAssertEqual(unknown.event, "create")
+    XCTAssertEqual(unknown.className, "patient")
+    XCTAssertEqual(unknown.classLevel, .subKey)
+    XCTAssertEqual(unknown.classVersion, 1)
   }
 
-  func test_Subscribe_WithUnrecognizedDataSyncAction_DropsEvent() {
-    XCTAssertNil(mockDataSyncPayload(event: "archive").asPubNubEvent())
+  func test_Subscribe_WithUnrecognizedDataSyncAction_ReportsUnknownChange() throws {
+    let event = try XCTUnwrap(mockDataSyncPayload(event: "archive").asPubNubEvent())
+    let unknown = try XCTUnwrap(event.dataSyncEvent?.unknown)
+
+    XCTAssertEqual(unknown.type, "entity")
+    XCTAssertEqual(unknown.event, "archive")
+  }
+
+  func test_Subscribe_WithUnknownDataSyncChange_PreservesRawEnvelope() throws {
+    let event = try XCTUnwrap(mockDataSyncPayload(type: "organization").asPubNubEvent())
+    let unknown = try XCTUnwrap(event.dataSyncEvent?.unknown)
+
+    XCTAssertEqual(unknown.metadata?.codableValue[rawValue: "type"] as? String, "organization")
+    XCTAssertEqual(unknown.payload?.codableValue[rawValue: "id"] as? String, "hcn-patient-alice")
+  }
+
+  func test_Subscribe_WithNonDataSyncSource_DropsEvent() {
+    XCTAssertNil(mockDataSyncPayload(source: "objects").asPubNubEvent())
+  }
+
+  func test_Subscribe_WithEmptyDataSyncDiscriminators_DropsEvent() {
+    XCTAssertNil(mockDataSyncPayload(event: "").asPubNubEvent())
+    XCTAssertNil(mockDataSyncPayload(type: "").asPubNubEvent())
+  }
+
+  func test_Subscribe_WithDataSyncEvent_ReportsChannelAndTimetoken() throws {
+    let payload = mockDataSyncPayload(channel: "__audit__alice")
+    let event = try XCTUnwrap(payload.asPubNubEvent()?.dataSyncEvent)
+
+    XCTAssertEqual(event.channel, "__audit__alice")
+    XCTAssertEqual(event.timetoken, 122412)
+    XCTAssertNil(event.subscription)
+    XCTAssertNotNil(event.createdEntity)
+  }
+
+  func test_Subscribe_WithChannelGroupSubscription_DeliversDataSyncEventWithSubscription() {
+    let pubnub = PubNub(configuration: config)
+    let subscription = pubnub.channelGroup("patient-refs").subscription()
+    let dataSyncExpectation = expectation(description: "Group-delivered DataSync event")
+
+    subscription.onDataSync = { event in
+      XCTAssertEqual(event.channel, "alice")
+      XCTAssertEqual(event.subscription, "patient-refs")
+      dataSyncExpectation.fulfill()
+    }
+
+    subscription.onPayloadsReceived(payloads: [
+      mockDataSyncPayload(channel: "alice", subscription: "patient-refs")
+    ])
+
+    wait(for: [dataSyncExpectation], timeout: 0.1)
   }
 
   func test_Subscribe_WithDataSyncEntityKinds_PreservesMetadataTypeForExtendedClasses() throws {
@@ -310,8 +366,8 @@ extension SubscribeRouterTests {
     XCTAssertEqual(PubNubDataSyncRelationshipKind.custom.rawValue, "custom")
   }
 
-  func test_DataSyncAction_MapsToUnknownMessageType() {
-    XCTAssertEqual(SubscribeMessagePayload.Action.dataSync.asPubNubMessageType, .unknown)
+  func test_DataSyncAction_MapsToDataSyncMessageType() {
+    XCTAssertEqual(SubscribeMessagePayload.Action.dataSync.asPubNubMessageType, .dataSync)
   }
 }
 
@@ -502,10 +558,11 @@ extension SubscribeRouterTests {
 // MARK: - DataSync Delivery Through The Subscribe Loop
 
 extension SubscribeRouterTests {
-  func test_Subscribe_WithUnsupportedDataSyncEvent_DropsItFromModernDelivery() {
+  func test_Subscribe_WithBrokenDataSyncEnvelope_DropsItFromModernDelivery() {
     let pubnub = PubNub(configuration: config)
     let subscription = pubnub.channel("test-channel").subscription()
     let dataSyncExpectation = expectation(description: "Valid DataSync event")
+
     let messageExpectation = expectation(description: "No fallback message")
     messageExpectation.isInverted = true
 
@@ -517,7 +574,7 @@ extension SubscribeRouterTests {
     }
 
     let events = subscription.onPayloadsReceived(payloads: [
-      mockDataSyncPayload(channel: "test-channel", type: "organization"),
+      generateMessage(with: .dataSync, channel: "test-channel", payload: MalformedDataSyncPayload().codableValue),
       mockDataSyncPayload(channel: "test-channel")
     ])
 
@@ -525,7 +582,7 @@ extension SubscribeRouterTests {
     wait(for: [dataSyncExpectation, messageExpectation], timeout: 0.1)
   }
 
-  func test_Subscribe_WithUnsupportedDataSyncEvent_DropsItFromLegacyDelivery() {
+  func test_Subscribe_WithBrokenDataSyncEnvelope_DropsItFromLegacyDelivery() {
     let listener = SubscriptionListener(queue: .main)
     let dataSyncExpectation = expectation(description: "Valid DataSync event")
     let messageExpectation = expectation(description: "No fallback message")
@@ -539,9 +596,52 @@ extension SubscribeRouterTests {
     }
 
     listener.emit(batch: [
-      mockDataSyncPayload(type: "organization"),
+      generateMessage(with: .dataSync, payload: MalformedDataSyncPayload().codableValue),
       mockDataSyncPayload()
     ])
+
+    wait(for: [dataSyncExpectation, messageExpectation], timeout: 0.1)
+  }
+
+  func test_Subscribe_WithUnknownDataSyncChange_DeliversItToModernListener() {
+    let pubnub = PubNub(configuration: config)
+    let subscription = pubnub.channel("test-channel").subscription()
+    let dataSyncExpectation = expectation(description: "Unknown DataSync change")
+    let messageExpectation = expectation(description: "No fallback message")
+    messageExpectation.isInverted = true
+
+    subscription.onDataSync = { event in
+      if case .unknown = event.change {
+        dataSyncExpectation.fulfill()
+      }
+    }
+    subscription.onMessage = { _ in
+      messageExpectation.fulfill()
+    }
+
+    subscription.onPayloadsReceived(payloads: [
+      mockDataSyncPayload(channel: "test-channel", type: "organization")
+    ])
+
+    wait(for: [dataSyncExpectation, messageExpectation], timeout: 0.1)
+  }
+
+  func test_Subscribe_WithUnknownDataSyncChange_DeliversItToLegacyListener() {
+    let listener = SubscriptionListener(queue: .main)
+    let dataSyncExpectation = expectation(description: "Unknown DataSync change")
+    let messageExpectation = expectation(description: "No fallback message")
+    messageExpectation.isInverted = true
+
+    listener.didReceiveDataSyncEvent = { event in
+      if case .unknown = event.change {
+        dataSyncExpectation.fulfill()
+      }
+    }
+    listener.didReceiveMessage = { _ in
+      messageExpectation.fulfill()
+    }
+
+    listener.emit(batch: [mockDataSyncPayload(event: "archive")])
 
     wait(for: [dataSyncExpectation, messageExpectation], timeout: 0.1)
   }
@@ -812,50 +912,60 @@ private extension SubscribeRouterTests {
 
 private extension PubNubDataSyncEvent {
   var createdEntity: PubNubDataSyncEntity? {
-    guard case let .entityCreated(entityEvent) = self else { return nil }
+    guard case let .entityCreated(entityEvent) = change else { return nil }
     return entityEvent.entity
   }
 
   var updatedEntity: PubNubDataSyncEntity? {
-    guard case let .entityUpdated(entityEvent) = self else { return nil }
+    guard case let .entityUpdated(entityEvent) = change else { return nil }
     return entityEvent.entity
   }
 
   var deletedEntity: PubNubDataSyncRemovedEntity? {
-    guard case let .entityDeleted(entityEvent) = self else { return nil }
+    guard case let .entityDeleted(entityEvent) = change else { return nil }
     return entityEvent.removed
   }
 
   var createdRelationship: PubNubDataSyncRelationship? {
-    guard case let .relationshipCreated(relationshipEvent) = self else { return nil }
+    guard case let .relationshipCreated(relationshipEvent) = change else { return nil }
     return relationshipEvent.relationship
   }
 
   var updatedRelationship: PubNubDataSyncRelationship? {
-    guard case let .relationshipUpdated(relationshipEvent) = self else { return nil }
+    guard case let .relationshipUpdated(relationshipEvent) = change else { return nil }
     return relationshipEvent.relationship
   }
 
   var deletedRelationship: PubNubDataSyncRemovedRelationship? {
-    guard case let .relationshipDeleted(relationshipEvent) = self else { return nil }
+    guard case let .relationshipDeleted(relationshipEvent) = change else { return nil }
     return relationshipEvent.removed
+  }
+
+  var unknown: PubNubDataSyncUnknownEvent? {
+    guard case let .unknown(unknownEvent) = change else { return nil }
+    return unknownEvent
   }
 }
 
 // MARK: Helpers
 
 private extension PubNubEvent {
+  var dataSyncEvent: PubNubDataSyncEvent? {
+    guard case let .dataSyncChanged(dataSyncEvent) = self else { return nil }
+    return dataSyncEvent
+  }
+
   var createdDataSyncEntity: PubNubDataSyncEntity? {
     createdDataSyncEntityEvent?.entity
   }
 
   var updatedDataSyncEntity: PubNubDataSyncEntity? {
-    guard case let .dataSyncChanged(.entityUpdated(entityEvent)) = self else { return nil }
+    guard case let .entityUpdated(entityEvent)? = dataSyncEvent?.change else { return nil }
     return entityEvent.entity
   }
 
   var deletedDataSyncEntity: PubNubDataSyncRemovedEntity? {
-    guard case let .dataSyncChanged(.entityDeleted(entityEvent)) = self else { return nil }
+    guard case let .entityDeleted(entityEvent)? = dataSyncEvent?.change else { return nil }
     return entityEvent.removed
   }
 
@@ -864,22 +974,22 @@ private extension PubNubEvent {
   }
 
   var updatedDataSyncRelationship: PubNubDataSyncRelationship? {
-    guard case let .dataSyncChanged(.relationshipUpdated(relationshipEvent)) = self else { return nil }
+    guard case let .relationshipUpdated(relationshipEvent)? = dataSyncEvent?.change else { return nil }
     return relationshipEvent.relationship
   }
 
   var deletedDataSyncRelationship: PubNubDataSyncRemovedRelationship? {
-    guard case let .dataSyncChanged(.relationshipDeleted(relationshipEvent)) = self else { return nil }
+    guard case let .relationshipDeleted(relationshipEvent)? = dataSyncEvent?.change else { return nil }
     return relationshipEvent.removed
   }
 
   var createdDataSyncEntityEvent: PubNubDataSyncEntityEvent? {
-    guard case let .dataSyncChanged(.entityCreated(entityEvent)) = self else { return nil }
+    guard case let .entityCreated(entityEvent)? = dataSyncEvent?.change else { return nil }
     return entityEvent
   }
 
   var createdDataSyncRelationshipEvent: PubNubDataSyncRelationshipEvent? {
-    guard case let .dataSyncChanged(.relationshipCreated(relationshipEvent)) = self else { return nil }
+    guard case let .relationshipCreated(relationshipEvent)? = dataSyncEvent?.change else { return nil }
     return relationshipEvent
   }
 }

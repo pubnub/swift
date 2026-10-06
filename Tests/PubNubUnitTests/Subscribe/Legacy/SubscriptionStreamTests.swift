@@ -110,7 +110,7 @@ class SubscriptionListenerTests: XCTestCase {
     let listener = SubscriptionListener()
 
     listener.didReceiveDataSyncEvent = { event in
-      if case .entityCreated = event {
+      if case .entityCreated = event.change {
         expectation.fulfill()
       }
     }

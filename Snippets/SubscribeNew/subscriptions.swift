@@ -201,7 +201,9 @@ subscription.onAppContext = { appContextEvent in
 // snippet.on-data-sync
 // Add a listener to receive Data Sync entity and relationship events
 dataSyncSubscription.onDataSync = { dataSyncEvent in
-  switch dataSyncEvent {
+  print("Received on \(dataSyncEvent.channel) at \(dataSyncEvent.timetoken)")
+
+  switch dataSyncEvent.change {
   case let .entityCreated(entityEvent):
     let entity = entityEvent.entity
     print("Entity \(entity.id) was created.")
@@ -226,6 +228,9 @@ dataSyncSubscription.onDataSync = { dataSyncEvent in
     let removedRelationship = relationshipEvent.removed
     print("Relationship \(removedRelationship.id) was deleted.")
     print("Relationship kind: \(relationshipEvent.kind)")
+  case let .unknown(unknownEvent):
+    // An object type or action this SDK version doesn't recognize
+    print("Unrecognized \(unknownEvent.type) change: \(unknownEvent.event)")
   }
 }
 // snippet.end

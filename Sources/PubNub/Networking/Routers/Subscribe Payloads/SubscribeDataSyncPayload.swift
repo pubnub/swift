@@ -11,9 +11,7 @@
 import Foundation
 
 struct SubscribeDataSyncPayload {
-  let version: String
-  let source: String
-  let event: PubNubDataSyncEvent
+  let change: PubNubDataSyncEvent.Change
 
   enum Action: String, Codable, Hashable {
     case create
@@ -32,7 +30,6 @@ struct SubscribeDataSyncPayload {
 
 extension SubscribeDataSyncPayload: Decodable {
   enum CodingKeys: String, CodingKey {
-    case version
     case metadata
     case data
   }
@@ -61,15 +58,44 @@ extension SubscribeDataSyncPayload: Decodable {
     case userId
   }
 
+  // swiftlint:disable:next function_body_length
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     let metadata = try container.nestedContainer(keyedBy: MetadataCodingKeys.self, forKey: .metadata)
 
-    version = try container.decode(String.self, forKey: .version)
-    source = try metadata.decode(String.self, forKey: .source)
+    let source = try metadata.decode(String.self, forKey: .source)
+    let rawAction = try metadata.decode(String.self, forKey: .event)
+    let rawType = try metadata.decode(String.self, forKey: .type)
 
-    let action = try metadata.decode(Action.self, forKey: .event)
-    let type = try metadata.decode(ObjectType.self, forKey: .type)
+    // Anything that isn't recognizably a DataSync envelope is discarded rather than reported
+    // as an unknown change, so `PubNubDataSyncUnknownEvent` only ever describes a DataSync change
+    guard source == "data-sync", !rawAction.isEmpty, !rawType.isEmpty else {
+      throw DecodingError.dataCorruptedError(
+        forKey: .metadata,
+        in: container,
+        debugDescription: "Not a DataSync envelope: source '\(source)', event '\(rawAction)', type '\(rawType)'"
+      )
+    }
+
+    // An object type or action added to the service after this SDK version was released is
+    // surfaced with its envelope intact instead of being dropped
+    guard let action = Action(rawValue: rawAction), let type = ObjectType(rawValue: rawType) else {
+      change = .unknown(
+        PubNubDataSyncUnknownEvent(
+          type: rawType,
+          event: rawAction,
+          className: try metadata.decodeIfPresent(String.self, forKey: .className),
+          classLevel: try metadata.decodeIfPresent(String.self, forKey: .classLevel).map {
+            PubNubDataSyncClassLevel(stringValue: $0)
+          },
+          classVersion: try metadata.decodeIfPresent(Int.self, forKey: .classVersion),
+          metadata: try container.decodeIfPresent(AnyJSON.self, forKey: .metadata),
+          payload: try container.decodeIfPresent(AnyJSON.self, forKey: .data)
+        )
+      )
+      return
+    }
+
     let className = try metadata.decode(String.self, forKey: .className)
     let classLevel = PubNubDataSyncClassLevel(stringValue: try metadata.decode(String.self, forKey: .classLevel))
     let classVersion = try metadata.decode(Int.self, forKey: .classVersion)
@@ -96,7 +122,7 @@ extension SubscribeDataSyncPayload: Decodable {
         entity: entity
       )
 
-      event = action == .create ? .entityCreated(entityEvent) : .entityUpdated(entityEvent)
+      change = action == .create ? .entityCreated(entityEvent) : .entityUpdated(entityEvent)
 
     case (.relationship, .create), (.relationship, .update), (.membership, .create), (.membership, .update):
       // A membership frames its two sides as `channelId` and `userId`
@@ -121,7 +147,7 @@ extension SubscribeDataSyncPayload: Decodable {
         relationship: relationship
       )
 
-      event = action == .create ? .relationshipCreated(relationshipEvent) : .relationshipUpdated(relationshipEvent)
+      change = action == .create ? .relationshipCreated(relationshipEvent) : .relationshipUpdated(relationshipEvent)
 
     case (.entity, .delete), (.user, .delete), (.channel, .delete):
       let removed = PubNubDataSyncRemovedEntity(
@@ -131,7 +157,7 @@ extension SubscribeDataSyncPayload: Decodable {
         classVersion: classVersion,
         deletedAt: try data.decode(Date.self, forKey: .deletedAt)
       )
-      event = .entityDeleted(
+      change = .entityDeleted(
         PubNubDataSyncEntityDeletedEvent(
           kind: type.entityKind,
           removed: removed
@@ -139,7 +165,7 @@ extension SubscribeDataSyncPayload: Decodable {
       )
 
     case (.relationship, .delete), (.membership, .delete):
-      event = .relationshipDeleted(
+      change = .relationshipDeleted(
         PubNubDataSyncRelationshipDeletedEvent(
           kind: type.relationshipKind,
           removed: PubNubDataSyncRemovedRelationship(
@@ -182,6 +208,11 @@ private extension SubscribeDataSyncPayload.ObjectType {
 
 extension SubscribeMessagePayload {
   func decodeDataSyncEvent() throws -> PubNubDataSyncEvent {
-    try payload.decode(SubscribeDataSyncPayload.self).event
+    PubNubDataSyncEvent(
+      channel: channel,
+      subscription: subscription,
+      timetoken: publishTimetoken.timetoken,
+      change: try payload.decode(SubscribeDataSyncPayload.self).change
+    )
   }
 }

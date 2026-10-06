@@ -44,12 +44,12 @@ final class DataSyncMembershipEventIntegrationTests: XCTestCase {
     )
 
     subscription.onDataSync = { event in
-      guard case let .relationshipCreated(relationshipEvent) = event, relationshipEvent.relationship.id == membershipId else {
+      guard case let .relationshipCreated(relEvent) = event.change, relEvent.relationship.id == membershipId else {
         return
       }
 
-      let relationship = relationshipEvent.relationship
-      XCTAssertEqual(relationshipEvent.kind, .membership)
+      let relationship = relEvent.relationship
+      XCTAssertEqual(relEvent.kind, .membership)
       XCTAssertEqual(relationship.className, "Membership")
       XCTAssertEqual(relationship.classVersion, self.membershipClassVersion)
       XCTAssertEqual(relationship.entityAId, channelId)
@@ -125,13 +125,12 @@ final class DataSyncMembershipEventIntegrationTests: XCTestCase {
     )
 
     subscription.onDataSync = { event in
-      guard case let .relationshipUpdated(relationshipEvent) = event,
-            relationshipEvent.relationship.id == membershipId else {
+      guard case let .relationshipUpdated(relEvent) = event.change, relEvent.relationship.id == membershipId else {
         return
       }
 
-      let relationship = relationshipEvent.relationship
-      XCTAssertEqual(relationshipEvent.kind, .membership)
+      let relationship = relEvent.relationship
+      XCTAssertEqual(relEvent.kind, .membership)
       XCTAssertEqual(relationship.className, "Membership")
       XCTAssertEqual(relationship.classVersion, self.membershipClassVersion)
       XCTAssertEqual(relationship.entityAId, channelId)
@@ -202,7 +201,7 @@ final class DataSyncMembershipEventIntegrationTests: XCTestCase {
     )
 
     subscription.onDataSync = { event in
-      guard case let .relationshipDeleted(relationshipEvent) = event, relationshipEvent.removed.id == membershipId else {
+      guard case let .relationshipDeleted(relationshipEvent) = event.change, relationshipEvent.removed.id == membershipId else {
         return
       }
 

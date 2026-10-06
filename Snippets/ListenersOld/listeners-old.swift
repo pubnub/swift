@@ -134,7 +134,9 @@ listener.didReceiveBatchSubscription = { events in
       }
 
     case .dataSyncChanged(let dataSyncEvent):
-      switch dataSyncEvent {
+      print("Received on \(dataSyncEvent.channel) at \(dataSyncEvent.timetoken)")
+
+      switch dataSyncEvent.change {
       case let .entityCreated(entityEvent):
         let entity = entityEvent.entity
         print("Entity \(entity.id) was created.")
@@ -159,6 +161,9 @@ listener.didReceiveBatchSubscription = { events in
         let removedRelationship = relationshipEvent.removed
         print("Relationship \(removedRelationship.id) was deleted.")
         print("Relationship kind: \(relationshipEvent.kind)")
+      case let .unknown(unknownEvent):
+        // An object type or action this SDK version doesn't recognize
+        print("Unrecognized \(unknownEvent.type) change: \(unknownEvent.event)")
       }
     }
   }

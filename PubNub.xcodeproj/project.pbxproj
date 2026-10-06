@@ -253,7 +253,6 @@
 		35C6B6DD22F501780054F242 /* Encodable+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C6B6DC22F501780054F242 /* Encodable+PubNub.swift */; };
 		35C6B6E322F515760054F242 /* SubscribeRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350EFBD722C926C300FA33AA /* SubscribeRouter.swift */; };
 		35C6B6E422F516040054F242 /* subscription_mixed_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 35C6B6DF22F513D80054F242 /* subscription_mixed_success.json */; };
-		DA7A5C000000000000000201 /* subscription_unknownMessageType_success.json in Resources */ = {isa = PBXBuildFile; fileRef = DA7A5C000000000000000200 /* subscription_unknownMessageType_success.json */; };
 		35C6B6E622F51A060054F242 /* AnyJSONType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C6B6E522F51A060054F242 /* AnyJSONType.swift */; };
 		35C829DC23147AC000F59D3C /* SubscriptionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C829DB23147AC000F59D3C /* SubscriptionState.swift */; };
 		35C8FDC625000BC80069E89E /* FileManagementRouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AE6A3525000AC700BBFA37 /* FileManagementRouterTests.swift */; };
@@ -635,6 +634,7 @@
 		DA7A5C00000000000000004C /* DataSyncQueryParameterAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7A5C00000000000000004D /* DataSyncQueryParameterAPITests.swift */; };
 		DA7A5C00000000000000004E /* DataSyncErrorAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7A5C00000000000000004F /* DataSyncErrorAPITests.swift */; };
 		DA7A5C000000000000000060 /* Subscribable+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7A5C000000000000000061 /* Subscribable+PubNub.swift */; };
+		DA7A5C000000000000000201 /* subscription_unknownMessageType_success.json in Resources */ = {isa = PBXBuildFile; fileRef = DA7A5C000000000000000200 /* subscription_unknownMessageType_success.json */; };
 		DC1FB72D98DF046B1FA1EED0 /* subscription_dataSyncEntityDelete_success.json in Resources */ = {isa = PBXBuildFile; fileRef = F663C27813A8D0288A85B9E3 /* subscription_dataSyncEntityDelete_success.json */; };
 		F56167435CA49717E3E0A5A3 /* subscription_dataSyncUserUpdate_success.json in Resources */ = {isa = PBXBuildFile; fileRef = EB86FDD4F6AE4E75660509FA /* subscription_dataSyncUserUpdate_success.json */; };
 		FEECFED552025EE3D7897E0C /* subscription_dataSyncRelationshipUpdate_success.json in Resources */ = {isa = PBXBuildFile; fileRef = BCCCA408812B8BD920DE6401 /* subscription_dataSyncRelationshipUpdate_success.json */; };
@@ -1013,7 +1013,6 @@
 		35B6FBB122F357A7005EE490 /* publish_invalid_json.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = publish_invalid_json.json; sourceTree = "<group>"; };
 		35C6B6DC22F501780054F242 /* Encodable+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Encodable+PubNub.swift"; sourceTree = "<group>"; };
 		35C6B6DF22F513D80054F242 /* subscription_mixed_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_mixed_success.json; sourceTree = "<group>"; };
-		DA7A5C000000000000000200 /* subscription_unknownMessageType_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_unknownMessageType_success.json; sourceTree = "<group>"; };
 		35C6B6E522F51A060054F242 /* AnyJSONType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyJSONType.swift; sourceTree = "<group>"; };
 		35C829DB23147AC000F59D3C /* SubscriptionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionState.swift; sourceTree = "<group>"; };
 		35C8FDCA25003A9F0069E89E /* file_generateURL_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = file_generateURL_success.json; sourceTree = "<group>"; };
@@ -1394,6 +1393,7 @@
 		DA7A5C00000000000000004D /* DataSyncQueryParameterAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncQueryParameterAPITests.swift; sourceTree = "<group>"; };
 		DA7A5C00000000000000004F /* DataSyncErrorAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncErrorAPITests.swift; sourceTree = "<group>"; };
 		DA7A5C000000000000000061 /* Subscribable+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Subscribable+PubNub.swift"; sourceTree = "<group>"; };
+		DA7A5C000000000000000200 /* subscription_unknownMessageType_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_unknownMessageType_success.json; sourceTree = "<group>"; };
 		DA7B5C000000000000000065 /* data-sync-users.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "data-sync-users.swift"; sourceTree = "<group>"; };
 		DA7B5C000000000000000066 /* data-sync-channels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "data-sync-channels.swift"; sourceTree = "<group>"; };
 		DA7B5C000000000000000067 /* data-sync-memberships.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "data-sync-memberships.swift"; sourceTree = "<group>"; };

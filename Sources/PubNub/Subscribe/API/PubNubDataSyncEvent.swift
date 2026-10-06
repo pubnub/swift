@@ -60,20 +60,75 @@ public struct PubNubDataSyncRelationshipDeletedEvent: Hashable {
   public let removed: PubNubDataSyncRemovedRelationship
 }
 
-/// Possible subevents for DataSync
-public enum PubNubDataSyncEvent: Hashable {
-  /// An entity was created
-  case entityCreated(PubNubDataSyncEntityEvent)
-  /// An entity was updated
-  case entityUpdated(PubNubDataSyncEntityEvent)
-  /// An entity was deleted
-  case entityDeleted(PubNubDataSyncEntityDeletedEvent)
-  /// A relationship was created
-  case relationshipCreated(PubNubDataSyncRelationshipEvent)
-  /// A relationship was updated
-  case relationshipUpdated(PubNubDataSyncRelationshipEvent)
-  /// A relationship was deleted
-  case relationshipDeleted(PubNubDataSyncRelationshipDeletedEvent)
+/// A DataSync change received over subscribe.
+public struct PubNubDataSyncEvent: Hashable {
+  /// The channel the event was received on
+  public let channel: String
+  /// The channel group or wildcard subscription match (if exists)
+  public let subscription: String?
+  /// The `Timetoken` for when the event was published
+  public let timetoken: Timetoken
+  /// The change the event describes
+  public let change: Change
+
+  /// Possible DataSync changes
+  public enum Change: Hashable {
+    /// An entity was created
+    case entityCreated(PubNubDataSyncEntityEvent)
+    /// An entity was updated
+    case entityUpdated(PubNubDataSyncEntityEvent)
+    /// An entity was deleted
+    case entityDeleted(PubNubDataSyncEntityDeletedEvent)
+    /// A relationship was created
+    case relationshipCreated(PubNubDataSyncRelationshipEvent)
+    /// A relationship was updated
+    case relationshipUpdated(PubNubDataSyncRelationshipEvent)
+    /// A relationship was deleted
+    case relationshipDeleted(PubNubDataSyncRelationshipDeletedEvent)
+    /// A change this version of the SDK doesn't recognize.
+    case unknown(PubNubDataSyncUnknownEvent)
+  }
+}
+
+/// A DataSync change whose object type or action this version of the SDK doesn't recognize.
+///
+/// A change that is recognized but malformed isn't reported here; it's discarded.
+public struct PubNubDataSyncUnknownEvent: Hashable {
+  /// The object type received from the server, taken from `metadata.type`
+  public let type: String
+  /// The action received from the server, taken from `metadata.event`
+  public let event: String
+  /// The name of the object's class, if the server sent one
+  public let className: String?
+  /// The level the object's class is registered at, if the server sent one
+  public let classLevel: PubNubDataSyncClassLevel?
+  /// The version of the object's class, if the server sent one
+  public let classVersion: Int?
+  /// The unmodified `metadata` object
+  public var metadata: JSONCodable? { concreteMetadata }
+  /// The unmodified `data` object, if the server sent one
+  public var payload: JSONCodable? { concretePayload }
+
+  let concreteMetadata: AnyJSON?
+  let concretePayload: AnyJSON?
+
+  init(
+    type: String,
+    event: String,
+    className: String? = nil,
+    classLevel: PubNubDataSyncClassLevel? = nil,
+    classVersion: Int? = nil,
+    metadata: JSONCodable? = nil,
+    payload: JSONCodable? = nil
+  ) {
+    self.type = type
+    self.event = event
+    self.className = className
+    self.classLevel = classLevel
+    self.classVersion = classVersion
+    self.concreteMetadata = metadata?.codableValue
+    self.concretePayload = payload?.codableValue
+  }
 }
 
 /// A DataSync entity that was deleted.

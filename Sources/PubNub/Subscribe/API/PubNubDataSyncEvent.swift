@@ -91,8 +91,6 @@ public struct PubNubDataSyncEvent: Hashable {
 }
 
 /// A DataSync change whose object type or action this version of the SDK doesn't recognize.
-///
-/// A change that is recognized but malformed isn't reported here; it's discarded.
 public struct PubNubDataSyncUnknownEvent: Hashable {
   /// The object type received from the server, taken from `metadata.type`
   public let type: String

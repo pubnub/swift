@@ -67,8 +67,8 @@ extension SubscribeDataSyncPayload: Decodable {
     let rawAction = try metadata.decode(String.self, forKey: .event)
     let rawType = try metadata.decode(String.self, forKey: .type)
 
-    // Anything that isn't recognizably a DataSync envelope is discarded rather than reported
-    // as an unknown change, so `PubNubDataSyncUnknownEvent` only ever describes a DataSync change
+    // Anything that isn't recognizably a DataSync envelope is rejected rather than reported as an
+    // unknown change, so `PubNubDataSyncUnknownEvent` only ever describes a DataSync change
     guard source == "data-sync", !rawAction.isEmpty, !rawType.isEmpty else {
       throw DecodingError.dataCorruptedError(
         forKey: .metadata,
@@ -78,7 +78,7 @@ extension SubscribeDataSyncPayload: Decodable {
     }
 
     // An object type or action added to the service after this SDK version was released is
-    // surfaced with its envelope intact instead of being dropped
+    // surfaced as a DataSync change with its envelope intact, rather than falling back to a message
     guard let action = Action(rawValue: rawAction), let type = ObjectType(rawValue: rawType) else {
       change = .unknown(
         PubNubDataSyncUnknownEvent(

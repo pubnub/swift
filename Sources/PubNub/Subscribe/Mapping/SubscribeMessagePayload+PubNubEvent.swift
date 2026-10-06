@@ -43,9 +43,10 @@ extension SubscribeMessagePayload {
       }
       return .fileChanged(.uploaded(fileMessage))
     case .dataSync:
-      // Discard DataSync envelopes this SDK cannot decode, including events
-      // with metadata types or actions this SDK version does not recognize
-      return try? .dataSyncChanged(decodeDataSyncEvent())
+      guard let event = try? decodeDataSyncEvent() else {
+        return .messageReceived(PubNubMessageBase(from: self))
+      }
+      return .dataSyncChanged(event)
     case .presence:
       guard let presence = PubNubPresenceChangeBase(from: self) else {
         return .messageReceived(PubNubMessageBase(from: self))

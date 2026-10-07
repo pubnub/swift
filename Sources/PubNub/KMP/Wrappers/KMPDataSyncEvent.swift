@@ -67,11 +67,11 @@ public class KMPDataSyncEntityUpdatedResult: KMPDataSyncEvent {
 @objc
 public class KMPDataSyncEntityDeletedResult: KMPDataSyncEvent {
   @objc public let kind: String
-  @objc public let removedEntity: KMPDataSyncRemovedEntity
+  @objc public let removedObject: KMPDataSyncRemovedObject
 
   init(entityEvent: PubNubDataSyncEntityDeletedEvent, channel: String, subscription: String?, timetoken: Timetoken) {
     self.kind = entityEvent.kind.rawValue
-    self.removedEntity = KMPDataSyncRemovedEntity(removedEntity: entityEvent.removed)
+    self.removedObject = KMPDataSyncRemovedObject(removedObject: entityEvent.removed)
 
     super.init(channel: channel, subscription: subscription, timetoken: timetoken)
   }
@@ -112,11 +112,11 @@ public class KMPDataSyncRelationshipUpdatedResult: KMPDataSyncEvent {
 @objc
 public class KMPDataSyncRelationshipDeletedResult: KMPDataSyncEvent {
   @objc public let kind: String
-  @objc public let removedRelationship: KMPDataSyncRemovedRelationship
+  @objc public let removedObject: KMPDataSyncRemovedObject
 
   init(relationshipEvent: PubNubDataSyncRelationshipDeletedEvent, channel: String, subscription: String?, timetoken: Timetoken) {
     self.kind = relationshipEvent.kind.rawValue
-    self.removedRelationship = KMPDataSyncRemovedRelationship(removedRelationship: relationshipEvent.removed)
+    self.removedObject = KMPDataSyncRemovedObject(removedObject: relationshipEvent.removed)
 
     super.init(channel: channel, subscription: subscription, timetoken: timetoken)
   }
@@ -148,10 +148,10 @@ public class KMPDataSyncUnknownResult: KMPDataSyncEvent {
   }
 }
 
-// MARK: - KMPDataSyncRemovedEntity
+// MARK: - KMPDataSyncRemovedObject
 
 @objc
-public class KMPDataSyncRemovedEntity: NSObject {
+public class KMPDataSyncRemovedObject: NSObject {
   @objc public let id: String
   // Named `objectClass` rather than `className` because `NSObject` already exposes a `className` selector
   @objc public let objectClass: String
@@ -159,30 +159,12 @@ public class KMPDataSyncRemovedEntity: NSObject {
   @objc public let classVersion: Int
   @objc public let deletedAt: Date
 
-  init(removedEntity: PubNubDataSyncRemovedEntity) {
-    self.id = removedEntity.id
-    self.objectClass = removedEntity.className
-    self.classLevel = removedEntity.classLevel.stringValue
-    self.classVersion = removedEntity.classVersion
-    self.deletedAt = removedEntity.deletedAt
-  }
-}
-
-// MARK: - KMPDataSyncRemovedRelationship
-
-@objc
-public class KMPDataSyncRemovedRelationship: NSObject {
-  @objc public let id: String
-  // Named `objectClass` rather than `className` because `NSObject` already exposes a `className` selector
-  @objc public let objectClass: String
-  @objc public let classVersion: Int
-  @objc public let deletedAt: Date
-
-  init(removedRelationship: PubNubDataSyncRemovedRelationship) {
-    self.id = removedRelationship.id
-    self.objectClass = removedRelationship.className
-    self.classVersion = removedRelationship.classVersion
-    self.deletedAt = removedRelationship.deletedAt
+  init(removedObject: PubNubDataSyncRemovedObject) {
+    self.id = removedObject.id
+    self.objectClass = removedObject.className
+    self.classLevel = removedObject.classLevel.stringValue
+    self.classVersion = removedObject.classVersion
+    self.deletedAt = removedObject.deletedAt
   }
 }
 

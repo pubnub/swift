@@ -41,7 +41,7 @@ public struct PubNubDataSyncEntityDeletedEvent: Hashable {
   /// The entity type
   public let kind: PubNubDataSyncEntityKind
   /// Information identifying the deleted entity
-  public let removed: PubNubDataSyncRemovedEntity
+  public let removed: PubNubDataSyncRemovedObject
 }
 
 /// A created or updated DataSync relationship event.
@@ -57,7 +57,7 @@ public struct PubNubDataSyncRelationshipDeletedEvent: Hashable {
   /// The relationship type
   public let kind: PubNubDataSyncRelationshipKind
   /// Information identifying the deleted relationship
-  public let removed: PubNubDataSyncRemovedRelationship
+  public let removed: PubNubDataSyncRemovedObject
 }
 
 /// A DataSync change received over subscribe.
@@ -129,28 +129,16 @@ public struct PubNubDataSyncUnknownEvent: Hashable {
   }
 }
 
-/// A DataSync entity that was deleted.
-public struct PubNubDataSyncRemovedEntity: Hashable {
-  /// The unique identifier of the deleted entity
+/// A DataSync object, either an entity or a relationship, that was deleted.
+public struct PubNubDataSyncRemovedObject: Hashable {
+  /// The unique identifier of the deleted object
   public let id: String
-  /// The name of the deleted entity's class
+  /// The name of the deleted object's class
   public let className: String
-  /// The level the deleted entity's class is registered at
+  /// The level the deleted object's class is registered at
   public let classLevel: PubNubDataSyncClassLevel
-  /// The version of the deleted entity's class
+  /// The version of the deleted object's class
   public let classVersion: Int
-  /// The date the entity was deleted
-  public let deletedAt: Date
-}
-
-/// A DataSync relationship that was deleted.
-public struct PubNubDataSyncRemovedRelationship: Hashable {
-  /// The unique identifier of the deleted relationship
-  public let id: String
-  /// The name of the deleted relationship's class
-  public let className: String
-  /// The version of the deleted relationship's class
-  public let classVersion: Int
-  /// The date the relationship was deleted
+  /// The date the object was deleted
   public let deletedAt: Date
 }

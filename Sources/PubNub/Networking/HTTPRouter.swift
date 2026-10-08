@@ -81,6 +81,7 @@ public enum HTTPMethod: String, Codable {
 
 public enum PubNubService: String {
   case channelGroup = "Channel Group"
+  case dataSync = "Data Sync"
   case fileManagement = "File Management"
   case history = "History"
   case messageActions = "Message Actions"
@@ -130,6 +131,17 @@ enum QueryKey: String {
   case descending = "desc"
   case eventEngine = "ee"
   case next = "next"
+  case cursor
+  case filterFast = "filter_fast"
+  case entityClass = "entity_class"
+  case entityClassVersion = "entity_class_version"
+  case entityClassLevel = "entity_class_level"
+  case relationshipClass = "relationship_class"
+  case relationshipClassVersion = "relationship_class_version"
+  case userId = "user_id"
+  case channelId = "channel_id"
+  case entityAId = "entity_a_id"
+  case entityBId = "entity_b_id"
 }
 
 /// The PubNub Key requirement for a given Endpoint
@@ -315,7 +327,10 @@ public extension HTTPRouter {
         request.httpMethod = method.rawValue
         request.httpBody = data
 
-        if data != nil, [.post, .patch, .put, .delete, .options].contains(method) {
+        let hasContentType = additionalHeaders.keys.contains {
+          $0.caseInsensitiveCompare(Constant.contentTypeHeaderKey) == .orderedSame
+        }
+        if data != nil, !hasContentType, [.post, .patch, .put, .delete, .options].contains(method) {
           request.setValue(Constant.defaultContentTypeHeader, forHTTPHeaderField: Constant.contentTypeHeaderKey)
         }
 

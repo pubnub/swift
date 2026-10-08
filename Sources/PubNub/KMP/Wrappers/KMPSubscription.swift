@@ -27,18 +27,23 @@ public class KMPSubscription: NSObject {
   @objc public var onMessageAction: ((KMPMessageAction) -> Void)?
   @objc public var onAppContext: ((KMPAppContextEventResult) -> Void)?
   @objc public var onFile: ((KMPFileChangeEvent) -> Void)?
+  @objc public var onDataSync: ((KMPDataSyncEvent) -> Void)?
+
+  init(subscription: Subscription) {
+    self.subscription = subscription
+  }
 
   @objc
   public init(entity: KMPEntity, receivePresenceEvents: Bool) {
     self.subscription = Subscription(
-      entity: entity.entity,
+      target: entity.entity,
       options: receivePresenceEvents ? ReceivePresenceEvents() : .empty()
     )
   }
 
   @objc
   public init(entity: KMPEntity) {
-    self.subscription = Subscription(entity: entity.entity)
+    self.subscription = Subscription(target: entity.entity)
   }
 
   @objc
@@ -64,10 +69,13 @@ public class KMPSubscription: NSObject {
       listener.onMessageAction?(KMPMessageAction(action: $0))
     }
     eventListener.onFileEvent = { [weak self] in
-      listener.onFile?(KMPFileChangeEvent.from(event: $0, with: self?.subscription.entity.pubnub))
+      listener.onFile?(KMPFileChangeEvent.from(event: $0, with: self?.subscription.target.pubnub))
     }
     eventListener.onAppContext = {
       listener.onAppContext?(KMPAppContextEventResult.from(event: $0))
+    }
+    eventListener.onDataSync = {
+      listener.onDataSync?(KMPDataSyncEvent.from(event: $0))
     }
 
     subscription.addEventListener(eventListener)
@@ -98,7 +106,7 @@ public class KMPSubscription: NSObject {
   @objc
   public func append(subscription: KMPSubscription) -> KMPSubscriptionSet {
     let underlyingSubscription = Subscription(
-      entity: subscription.subscription.entity
+      target: subscription.subscription.target
     )
 
     underlyingSubscription.onMessage = {
@@ -118,6 +126,9 @@ public class KMPSubscription: NSObject {
     }
     underlyingSubscription.onAppContext = {
       subscription.onAppContext?(KMPAppContextEventResult.from(event: $0))
+    }
+    underlyingSubscription.onDataSync = {
+      subscription.onDataSync?(KMPDataSyncEvent.from(event: $0))
     }
 
     return KMPSubscriptionSet(
@@ -139,6 +150,7 @@ public class KMPSubscriptionSet: NSObject {
   @objc public var onMessageAction: ((KMPMessageAction) -> Void)?
   @objc public var onAppContext: ((KMPAppContextEventResult) -> Void)?
   @objc public var onFile: ((KMPFileChangeEvent) -> Void)?
+  @objc public var onDataSync: ((KMPDataSyncEvent) -> Void)?
 
   init(subscriptionSet: SubscriptionSet) {
     self.subscriptionSet = subscriptionSet
@@ -156,7 +168,7 @@ public class KMPSubscriptionSet: NSObject {
 
   @objc
   public func addListener(_ listener: KMPEventListener) {
-    let pubnub = subscriptionSet.currentSubscriptions.lockedRead { $0.first }?.entity.pubnub
+    let pubnub = subscriptionSet.currentSubscriptions.lockedRead { $0.first }?.target.pubnub
     let eventListener = EventListener(uuid: listener.uuid)
 
     eventListener.onMessage = {
@@ -176,6 +188,9 @@ public class KMPSubscriptionSet: NSObject {
     }
     eventListener.onAppContext = {
       listener.onAppContext?(KMPAppContextEventResult.from(event: $0))
+    }
+    eventListener.onDataSync = {
+      listener.onDataSync?(KMPDataSyncEvent.from(event: $0))
     }
 
     subscriptionSet.addEventListener(eventListener)
@@ -205,7 +220,7 @@ public class KMPSubscriptionSet: NSObject {
 
   @objc
   public func append(subscription: KMPSubscription) {
-    let underlyingSubscription = Subscription(entity: subscription.subscription.entity)
+    let underlyingSubscription = Subscription(target: subscription.subscription.target)
 
     underlyingSubscription.onMessage = {
       subscription.onMessage?(KMPMessage(message: $0))
@@ -224,6 +239,9 @@ public class KMPSubscriptionSet: NSObject {
     }
     underlyingSubscription.onAppContext = {
       subscription.onAppContext?(KMPAppContextEventResult.from(event: $0))
+    }
+    underlyingSubscription.onDataSync = {
+      subscription.onDataSync?(KMPDataSyncEvent.from(event: $0))
     }
 
     subscriptionSet.add(subscription: underlyingSubscription)

@@ -89,16 +89,6 @@ private class SubscribeEffect: EffectHandler {
       guard let selfRef = self else { return }
       switch $0 {
       case .success(let response):
-        selfRef.subscriptions.forEach {
-          $0.emit(subscribe: .responseReceived(
-            SubscribeResponseHeader(
-              channels: selfRef.request.channels.map { PubNubChannel(channel: $0) },
-              groups: selfRef.request.groups.map { PubNubChannel(channel: $0) },
-              previous: SubscribeCursor(timetoken: selfRef.request.timetoken, region: selfRef.request.region),
-              next: response.cursor
-            ))
-          )
-        }
         completionBlock([selfRef.onResponseReceived(response)])
       case .failure(let error):
         completionBlock([selfRef.onErrorReceived(error)])

@@ -20,7 +20,7 @@ import Foundation
 // MARK: - Publish
 
 extension KMPPubNub {
-  private func asOptionalCodable(_ object: Any?) -> JSONCodable? {
+  func asOptionalCodable(_ object: Any?) -> JSONCodable? {
     if let object {
       return asCodable(object)
     } else {
@@ -28,7 +28,7 @@ extension KMPPubNub {
     }
   }
 
-  private func asCodable(_ object: Any) -> JSONCodable {
+  func asCodable(_ object: Any) -> JSONCodable {
     if let codableValue = object as? JSONCodable {
       return codableValue
     } else {

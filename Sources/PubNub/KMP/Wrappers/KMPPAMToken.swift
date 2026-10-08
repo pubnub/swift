@@ -41,11 +41,17 @@ import Foundation
   @objc public let channels: [String: KMPPAMPermission]
   @objc public let channelGroups: [String: KMPPAMPermission]
   @objc public let uuids: [String: KMPPAMPermission]
+  @objc public let dataSyncEntities: [String: KMPPAMPermission]
+  @objc public let dataSyncMemberships: [String: KMPPAMPermission]
+  @objc public let dataSyncRelationships: [String: KMPPAMPermission]
 
   init(from resource: PAMTokenResource) {
     channels = resource.channels.compactMapValues { KMPPAMPermission(from: $0) }
     channelGroups = resource.groups.compactMapValues { KMPPAMPermission(from: $0) }
     uuids = resource.uuids.compactMapValues { KMPPAMPermission(from: $0) }
+    dataSyncEntities = resource.dataSyncEntities.compactMapValues { KMPPAMPermission(from: $0) }
+    dataSyncMemberships = resource.dataSyncMemberships.compactMapValues { KMPPAMPermission(from: $0) }
+    dataSyncRelationships = resource.dataSyncRelationships.compactMapValues { KMPPAMPermission(from: $0) }
   }
 }
 
@@ -54,6 +60,7 @@ import Foundation
   @objc public let write: Bool
   @objc public let manage: Bool
   @objc public let delete: Bool
+  @objc public let create: Bool
   @objc public let get: Bool
   @objc public let update: Bool
   @objc public let join: Bool
@@ -63,6 +70,7 @@ import Foundation
     write = permission.contains(.write)
     manage = permission.contains(.manage)
     delete = permission.contains(.delete)
+    create = permission.contains(.create)
     get = permission.contains(.get)
     update = permission.contains(.update)
     join = permission.contains(.join)

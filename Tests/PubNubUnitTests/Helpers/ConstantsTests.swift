@@ -40,10 +40,14 @@ class ConstantsTests: XCTestCase {
     XCTAssertEqual(Constant.pubnubSwiftSDKName, "PubNubSwift")
   }
 
-  func test_Constant_PubnubSwiftSDKVersion_MatchesBundleVersion() {
-    let ver = Bundle(for: HTTPSession.self).infoDictionary?["CFBundleShortVersionString"]
+  func test_Constant_PubnubSwiftSDKVersion_MatchesBundleVersion() throws {
+    let bundleVersion = Bundle(for: HTTPSession.self).infoDictionary?["CFBundleShortVersionString"] as? String
 
-    XCTAssertEqual(Constant.pubnubSwiftSDKVersion, "\(ver ?? "")")
+    // Only Xcode builds carry `MARKETING_VERSION` in an Info.plist. SwiftPM builds a
+    // static library without one, leaving no bundle version to compare against.
+    try XCTSkipIf(bundleVersion?.isEmpty ?? true, "No bundle version available in this build system")
+
+    XCTAssertEqual(Constant.pubnubSwiftSDKVersion, bundleVersion)
   }
 
   func test_Constant_AppBundleId_ReturnsXCTestBundleId() {

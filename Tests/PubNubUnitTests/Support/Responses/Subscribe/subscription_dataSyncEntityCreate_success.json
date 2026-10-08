@@ -1,0 +1,59 @@
+{
+  "code": 200,
+  "body": {
+    "t": {
+      "t": "17852298777511998",
+      "r": 21
+    },
+    "m": [
+      {
+        "a": "2",
+        "f": 0,
+        "e": 5,
+        "p": {
+          "t": "17852298777511998",
+          "r": 21
+        },
+        "k": "demo",
+        "c": "__admin__hcn-patient-alice",
+        "d": {
+          "version": "1.0",
+          "metadata": {
+            "event": "create",
+            "source": "data-sync",
+            "type": "entity",
+            "className": "patient",
+            "classLevel": "SubKey",
+            "classVersion": 1
+          },
+          "data": {
+            "id": "hcn-patient-alice",
+            "updatedAt": "2026-07-28T09:11:17.077390Z",
+            "createdAt": "2026-07-28T09:11:17.077390Z",
+            "eTag": "3w5e111hppk83",
+            "expiresAt": "2027-07-29T00:00:00Z",
+            "status": "active",
+            "payload": {
+              "mrn": "MRN-100001",
+              "fullName": "Alice Summers",
+              "dateOfBirth": "1985-04-12",
+              "heightCm": 167,
+              "weightKg": 61.5,
+              "isSmoker": false,
+              "dischargedAt": null,
+              "allergies": [
+                "penicillin",
+                "latex"
+              ],
+              "emergencyContact": {
+                "name": "Mark Summers",
+                "phone": "+1-555-0142"
+              }
+            }
+          }
+        },
+        "b": "__admin__hcn-patient-alice"
+      }
+    ]
+  }
+}

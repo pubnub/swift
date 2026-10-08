@@ -42,7 +42,7 @@ You have several options to set up your project. We provide instructions here fo
 1. Create or open your project inside of Xcode
 2. Navigate to **File** > **Add Package Dependencies...**
 3. Enter the package URL: `https://github.com/pubnub/swift.git`
-4. Use the `Up to Next Major Version` rule spanning from `10.0.0` < `11.0.0`
+4. Use the `Up to Next Major Version` rule spanning from `11.0.0` < `12.0.0`
 5. Click `Add Package`
 6. From the list of package products, assign `PubNubSDK` to your target application
 
@@ -55,7 +55,7 @@ For more information see Apple's guide on [Adding Package Dependencies to Your A
 use_frameworks!
 
 target 'YOUR_TARGET_NAME' do
-  pod 'PubNubSwift', '~> 10.0'
+  pod 'PubNubSwift', '~> 11.0'
 end
 ```
 
@@ -74,7 +74,7 @@ Officially supported: Carthage 0.39.1 and up.
 Add the following to `Cartfile`:
 
 ```ruby
-github "pubnub/swift" ~> 10.0
+github "pubnub/swift" ~> 11.0
 ```
 
 Then in the directory containing your `Cartfile`, execute the following:

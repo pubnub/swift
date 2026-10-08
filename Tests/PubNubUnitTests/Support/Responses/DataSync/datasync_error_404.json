@@ -1,0 +1,11 @@
+{
+  "code": 404,
+  "body": {
+    "errors": [
+      {
+        "errorCode": "SYN-0302",
+        "message": "Entity with id 'missing-entity' was not found in this keyset"
+      }
+    ]
+  }
+}

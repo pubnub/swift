@@ -68,6 +68,30 @@ class AnyJSONTests: XCTestCase {
     XCTAssertNotEqual(json, otherJson)
   }
 
+  func test_DictionarySubsetComparedToSuperset_ReturnsNotEqual() {
+    let subset = AnyJSON(["one": 1, "two": 2])
+    let superset = AnyJSON(["one": 1, "two": 2, "three": 3])
+
+    XCTAssertNotEqual(subset, superset)
+    XCTAssertNotEqual(superset, subset)
+  }
+
+  func test_NestedDictionarySubsetComparedToSuperset_ReturnsNotEqual() {
+    let subset = AnyJSON(["outer": ["one": 1]])
+    let superset = AnyJSON(["outer": ["one": 1, "two": 2]])
+
+    XCTAssertNotEqual(subset, superset)
+    XCTAssertNotEqual(superset, subset)
+  }
+
+  func test_DictionaryWithMatchingKeysAndValues_ReturnsEqual() {
+    let json = AnyJSON(["one": 1, "two": 2, "three": 3])
+    let otherJson = AnyJSON(["three": 3, "two": 2, "one": 1])
+
+    XCTAssertEqual(json, otherJson)
+    XCTAssertEqual(json.hashValue, otherJson.hashValue)
+  }
+
   // MARK: ExpressibleBy...
 
   func test_ExpressibleByArrayLiteral_MatchesArrayInit() {

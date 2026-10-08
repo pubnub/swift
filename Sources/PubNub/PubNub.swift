@@ -435,8 +435,7 @@ extension PubNub {
   }
 
   func internalSubscribe(
-    with channels: [Subscription],
-    and groups: [Subscription],
+    with subscriptions: [Subscription],
     at timetoken: Timetoken?
   ) {
     logger.debug(
@@ -445,8 +444,8 @@ extension PubNub {
           operation: "internalSubscribe",
           details: "Triggering subscribe operation from Subscription objects",
           arguments: [
-            ("channels", channels.flatMap { $0.subscriptionNames }),
-            ("channelGroups", groups.flatMap { $0.subscriptionNames }),
+            ("channels", subscriptions.flatMap { $0.subscriptionTopology.channels }),
+            ("channelGroups", subscriptions.flatMap { $0.subscriptionTopology.channelGroups }),
             ("timetoken", timetoken)
           ]
         )
@@ -454,40 +453,15 @@ extension PubNub {
     )
 
     subscription.internalSubscribe(
-      with: channels,
-      and: groups,
+      with: subscriptions,
       at: timetoken
     )
   }
 
   func internalUnsubscribe(
-    from channels: [Subscription],
-    and groups: [Subscription]
+    from subscriptions: [Subscription]
   ) {
-    subscription.internalUnsubscribe(
-      from: channels,
-      and: groups
-    )
-  }
-}
-
-// MARK: - EntityCreator
-
-extension PubNub: EntityCreator {
-  public func channel(_ name: String) -> ChannelRepresentation {
-    ChannelRepresentation(name: name, pubnub: self)
-  }
-
-  public func channelGroup(_ name: String) -> ChannelGroupRepresentation {
-    ChannelGroupRepresentation(name: name, pubnub: self)
-  }
-
-  public func userMetadata(_ name: String) -> UserMetadataRepresentation {
-    UserMetadataRepresentation(id: name, pubnub: self)
-  }
-
-  public func channelMetadata(_ name: String) -> ChannelMetadataRepresentation {
-    ChannelMetadataRepresentation(id: name, pubnub: self)
+    subscription.internalUnsubscribe(from: subscriptions)
   }
 }
 
@@ -542,11 +516,13 @@ extension PubNub: EventListenerInterface {
     subscription.uuid
   }
 
+  @available(*, deprecated, message: "Use the granular callbacks (onMessage, onSignal, onPresence, etc.) instead")
   public var onEvent: ((PubNubEvent) -> Void)? {
     get { subscription.onEvent }
     set { subscription.onEvent = newValue }
   }
 
+  @available(*, deprecated, message: "Use the granular callbacks (onMessage, onSignal, onPresence, etc.) instead")
   public var onEvents: (([PubNubEvent]) -> Void)? {
     get { subscription.onEvents }
     set { subscription.onEvents = newValue }
@@ -580,6 +556,11 @@ extension PubNub: EventListenerInterface {
   public var onAppContext: ((PubNubAppContextEvent) -> Void)? {
     get { subscription.onAppContext }
     set { subscription.onAppContext = newValue }
+  }
+
+  public var onDataSync: ((PubNubDataSyncEvent) -> Void)? {
+    get { subscription.onDataSync }
+    set { subscription.onDataSync = newValue }
   }
 }
 

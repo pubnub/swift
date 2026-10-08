@@ -1,5 +1,5 @@
 //
-//  ListenersPOC.swift
+//  Subscribable.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.
@@ -30,63 +30,89 @@ public extension SubscribeCapable {
   }
 }
 
-/// A base class for entities that can be subscribed to and unsubscribed from using the PubNub service.
-public class Subscribable: Subscriber {
-  /// An entity name
-  public let name: String
-  /// The PubNub client associated with this channel.
+/// The base class for references you can create a `Subscription` from.
+public class Subscribable {
   weak var pubnub: PubNub?
-  /// An underlying subscription type
-  let subscriptionType: SubscribableType
 
-  init(name: String, subscriptionType: SubscribableType, pubnub: PubNub) {
-    self.name = name
-    self.subscriptionType = subscriptionType
+  init(pubnub: PubNub?) {
     self.pubnub = pubnub
   }
-}
 
-enum SubscribableType {
-  case channel
-  case channelGroup
-}
+  // Declares what this value contributes to the Subscribe loop: which names join the channel list, which join the
+  // channel group list, and whether they expand to presence names. Subclasses own their identifiers, so each one
+  // overrides this, and may contribute several names rather than being limited to one.
+  func subscriptionTopology(includingPresence: Bool) -> SubscriptionTopology {
+    .empty
+  }
 
-/// Provides the ability to return a `Subscription` object for the underlying entity
-///
-/// Subsequent calls to `.subscribe()` on the obtained `Subscription` instance will initiate the subscription.
-/// Similarly, a subsequent call to `.unsubscribe()` will attempt to deregister the underlying entity from
-/// the Subscribe loop if there are no active subscriptions matching the given entity.
-public protocol Subscriber {
-  /// Creates a `Subscription` object with the specified queue and options.
-  ///
-  /// - Parameters:
-  ///   - queue: The dispatch queue on which the subscription events should be handled.
-  ///   - options: Additional options for configuring the subscription.
-  func subscription(queue: DispatchQueue, options: SubscriptionOptions) -> Subscription
-}
-
-/// Provides a default subscription object for the conforming entity like `ChannelRepresentation`,
-/// `ChannelGroupRepresentation`,`ChannelMetadataRepresentation`, and `UserMetadataRepresentation`
-public extension Subscriber where Self: Subscribable {
-  /// Creates a `Subscription` object with default options for the conforming entity.
+  /// Creates a `Subscription` object for this value.
   ///
   /// - Parameters:
   ///   - queue: The dispatch queue on which the subscription events should be handled
   ///   - options: Additional options for configuring the subscription
-  func subscription(
+  /// - Returns: A `Subscription` instance for managing this value.
+  public func subscription(
     queue: DispatchQueue = .main,
     options: SubscriptionOptions = SubscriptionOptions.empty()
   ) -> Subscription {
     Subscription(
       queue: queue,
-      entity: self,
+      target: self,
       options: options
     )
   }
 }
 
+// The names a value contributes to the Subscribe loop, grouped by the list each name joins.
+struct SubscriptionTopology: Hashable {
+  // Names sent to the Subscribe loop as channels
+  var channels: [String] = []
+  // Names sent to the Subscribe loop as channel groups
+  var channelGroups: [String] = []
+
+  // A topology contributing no names
+  static let empty = SubscriptionTopology()
+
+  var isEmpty: Bool {
+    channels.isEmpty && channelGroups.isEmpty
+  }
+
+  // Whether any name is shared with `other` within the same list
+  func intersects(_ other: SubscriptionTopology) -> Bool {
+    !Set(channels).isDisjoint(with: other.channels) || !Set(channelGroups).isDisjoint(with: other.channelGroups)
+  }
+
+  static func + (lhs: Self, rhs: Self) -> Self {
+    Self(
+      channels: lhs.channels + rhs.channels,
+      channelGroups: lhs.channelGroups + rhs.channelGroups
+    )
+  }
+}
+
+extension SubscriptionTopology {
+  // Whether the payload matches one of the names in this topology.
+  //
+  // Channel names are matched against the channel the message was published to, while channel
+  // group names are matched against the subscription that caused the delivery.
+  func matches(_ payload: SubscribeMessagePayload) -> Bool {
+    channels.contains {
+      Self.isMatching($0, string: payload.channel)
+    } || channelGroups.contains {
+      Self.isMatching($0, string: payload.subscription ?? payload.channel)
+    }
+  }
+
+  private static func isMatching(_ name: String, string: String) -> Bool {
+    guard name.hasSuffix(".*") else {
+      return name.trimmingPresenceChannelSuffix == string
+    }
+    if let firstIndex = name.lastIndex(of: "."), let secondIndex = string.lastIndex(of: ".") {
+      return name.prefix(upTo: firstIndex) == string.prefix(upTo: secondIndex)
+    }
+    return false
+  }
+}
+
 /// A typealias representing an interface for PubNub subscriptions.
-///
-/// This alias combines the conformance of `EventListenerInterface` and `SubscribeCapable`.
-/// Thus, objects conforming to this type can both emit PubNub events and perform subscription-related actions.
 public typealias SubscriptionInterface = EventListenerInterface & SubscriptionDisposable & SubscribeCapable

@@ -12,6 +12,18 @@ import XCTest
 @testable import PubNubSDK
 
 final class DataSyncResponseTests: XCTestCase {
+  private static func entityJSON(className: String) -> String {
+    """
+    {
+      "id": "alice", "status": "active",
+      "entityClass": "\(className)", "entityClassLevel": "SubKey", "entityClassVersion": 1,
+      "createdAt": "2021-01-01T00:00:00.000Z", "updatedAt": "2021-01-01T00:00:00.000Z",
+      "eTag": "1", "expiresAt": "2027-08-07T00:00:00Z",
+      "payload": { "name": "Alice" }
+    }
+    """
+  }
+
   func test_DecodeSingleResourceEnvelope() throws {
     let json = """
     {
@@ -105,6 +117,58 @@ final class DataSyncResponseTests: XCTestCase {
     XCTAssertEqual(membership.relationship.entityBId, membership.userId)
     XCTAssertEqual(membership.relationship.id, membership.id)
     XCTAssertEqual(membership.relationship.className, membership.className)
+  }
+
+  func test_DecodeUser_MapsEntityWireFields() throws {
+    let user = try Constant.jsonDecoder.decode(
+      PubNubDataSyncUser.self,
+      from: XCTUnwrap(Self.entityJSON(className: "User").data(using: .utf8))
+    )
+
+    XCTAssertEqual(user.id, "alice")
+    XCTAssertEqual(user.className, "User")
+    XCTAssertEqual(user.classLevel, .subKey)
+    XCTAssertEqual(user.classVersion, 1)
+    XCTAssertEqual(user.eTag, "1")
+    XCTAssertEqual(user.status, "active")
+    XCTAssertEqual(user.payload?.codableValue["name"], "Alice")
+  }
+
+  func test_DecodeChannel_MapsEntityWireFields() throws {
+    let channel = try Constant.jsonDecoder.decode(
+      PubNubDataSyncChannel.self,
+      from: XCTUnwrap(Self.entityJSON(className: "Channel").data(using: .utf8))
+    )
+
+    XCTAssertEqual(channel.id, "alice")
+    XCTAssertEqual(channel.className, "Channel")
+    XCTAssertEqual(channel.classLevel, .subKey)
+    XCTAssertEqual(channel.classVersion, 1)
+    XCTAssertEqual(channel.eTag, "1")
+    XCTAssertEqual(channel.status, "active")
+    XCTAssertEqual(channel.payload?.codableValue["name"], "Alice")
+  }
+
+  func test_EncodeUser_MatchesEncodedEntity() throws {
+    let data = try XCTUnwrap(Self.entityJSON(className: "User").data(using: .utf8))
+    let user = try Constant.jsonDecoder.decode(PubNubDataSyncUser.self, from: data)
+    let entity = try Constant.jsonDecoder.decode(PubNubDataSyncEntity.self, from: data)
+
+    XCTAssertEqual(
+      try Constant.jsonDecoder.decode(AnyJSON.self, from: try Constant.jsonEncoder.encode(user)),
+      try Constant.jsonDecoder.decode(AnyJSON.self, from: try Constant.jsonEncoder.encode(entity))
+    )
+  }
+
+  func test_EncodeChannel_MatchesEncodedEntity() throws {
+    let data = try XCTUnwrap(Self.entityJSON(className: "Channel").data(using: .utf8))
+    let channel = try Constant.jsonDecoder.decode(PubNubDataSyncChannel.self, from: data)
+    let entity = try Constant.jsonDecoder.decode(PubNubDataSyncEntity.self, from: data)
+
+    XCTAssertEqual(
+      try Constant.jsonDecoder.decode(AnyJSON.self, from: try Constant.jsonEncoder.encode(channel)),
+      try Constant.jsonDecoder.decode(AnyJSON.self, from: try Constant.jsonEncoder.encode(entity))
+    )
   }
 
   func test_DecodeErrorPayloadWithAndWithoutPath() throws {

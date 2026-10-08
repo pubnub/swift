@@ -129,6 +129,158 @@ extension PubNubDataSyncEntity: Codable {
   }
 }
 
+// MARK: - PubNubDataSyncUser
+
+/// Represents a DataSync user, which is an entity of the built-in `User` class or a class that extends it.
+public struct PubNubDataSyncUser: Hashable {
+  /// The user represented as a general DataSync entity.
+  public let entity: PubNubDataSyncEntity
+  /// The unique identifier of the user
+  public var id: String { entity.id }
+  /// The name of the user's class, which is `User` or a class that extends it
+  public var className: String { entity.className }
+  /// The level the user's class is registered at
+  public var classLevel: PubNubDataSyncClassLevel { entity.classLevel }
+  /// The version of the user's class
+  public var classVersion: Int { entity.classVersion }
+  /// The date the user was created
+  public var createdAt: Date { entity.createdAt }
+  /// The date the user was last updated
+  public var updatedAt: Date { entity.updatedAt }
+  /// The user revision used for optimistic concurrency
+  public var eTag: String { entity.eTag }
+  /// The date the user expires, derived from the time-to-live of its class
+  public var expiresAt: Date { entity.expiresAt }
+  /// The user status
+  public var status: String? { entity.status }
+  /// The user fields
+  public var payload: JSONCodable? { entity.payload }
+
+  var concretePayload: AnyJSON? { entity.concretePayload }
+
+  /// Reads an entity as a user.
+  ///
+  /// - Important: Only meaningful for an entity of the built-in `User` class, or a class that extends it.
+  /// Nothing validates the entity's class.
+  ///
+  /// - Parameter entity: The entity to read as a user
+  public init(entity: PubNubDataSyncEntity) {
+    self.entity = entity
+  }
+
+  init(
+    id: String,
+    className: String,
+    classLevel: PubNubDataSyncClassLevel,
+    classVersion: Int,
+    createdAt: Date,
+    updatedAt: Date,
+    eTag: String,
+    expiresAt: Date,
+    status: String? = nil,
+    payload: JSONCodable? = nil
+  ) {
+    self.entity = PubNubDataSyncEntity(
+      id: id,
+      className: className,
+      classLevel: classLevel,
+      classVersion: classVersion,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      eTag: eTag,
+      expiresAt: expiresAt,
+      status: status,
+      payload: payload
+    )
+  }
+}
+
+extension PubNubDataSyncUser: Codable {
+  public init(from decoder: Decoder) throws {
+    self.init(entity: try PubNubDataSyncEntity(from: decoder))
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    try entity.encode(to: encoder)
+  }
+}
+
+// MARK: - PubNubDataSyncChannel
+
+/// Represents a DataSync channel, which is an entity of the built-in `Channel` class or a class that extends it.
+public struct PubNubDataSyncChannel: Hashable {
+  /// The channel represented as a general DataSync entity.
+  public let entity: PubNubDataSyncEntity
+  /// The unique identifier of the channel
+  public var id: String { entity.id }
+  /// The name of the channel's class, which is `Channel` or a class that extends it
+  public var className: String { entity.className }
+  /// The level the channel's class is registered at
+  public var classLevel: PubNubDataSyncClassLevel { entity.classLevel }
+  /// The version of the channel's class
+  public var classVersion: Int { entity.classVersion }
+  /// The date the channel was created
+  public var createdAt: Date { entity.createdAt }
+  /// The date the channel was last updated
+  public var updatedAt: Date { entity.updatedAt }
+  /// The channel revision used for optimistic concurrency
+  public var eTag: String { entity.eTag }
+  /// The date the channel expires, derived from the time-to-live of its class
+  public var expiresAt: Date { entity.expiresAt }
+  /// The channel status
+  public var status: String? { entity.status }
+  /// The channel fields
+  public var payload: JSONCodable? { entity.payload }
+
+  var concretePayload: AnyJSON? { entity.concretePayload }
+
+  /// Reads an entity as a channel.
+  ///
+  /// - Important: Only meaningful for an entity of the built-in `Channel` class, or a class that extends it.
+  /// Nothing validates the entity's class.
+  ///
+  /// - Parameter entity: The entity to read as a channel
+  public init(entity: PubNubDataSyncEntity) {
+    self.entity = entity
+  }
+
+  init(
+    id: String,
+    className: String,
+    classLevel: PubNubDataSyncClassLevel,
+    classVersion: Int,
+    createdAt: Date,
+    updatedAt: Date,
+    eTag: String,
+    expiresAt: Date,
+    status: String? = nil,
+    payload: JSONCodable? = nil
+  ) {
+    self.entity = PubNubDataSyncEntity(
+      id: id,
+      className: className,
+      classLevel: classLevel,
+      classVersion: classVersion,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      eTag: eTag,
+      expiresAt: expiresAt,
+      status: status,
+      payload: payload
+    )
+  }
+}
+
+extension PubNubDataSyncChannel: Codable {
+  public init(from decoder: Decoder) throws {
+    self.init(entity: try PubNubDataSyncEntity(from: decoder))
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    try entity.encode(to: encoder)
+  }
+}
+
 // MARK: - PubNubDataSyncRelationship
 
 /// Represents a DataSync relationship connecting two entities in PubNub DataSync.
@@ -232,7 +384,13 @@ public struct PubNubDataSyncMembership: Hashable {
 
   var concretePayload: AnyJSON? { relationship.concretePayload }
 
-  init(relationship: PubNubDataSyncRelationship) {
+  /// Reads a relationship as a membership, taking side A as the channel and side B as the user.
+  ///
+  /// - Important: Only meaningful for a relationship of the built-in `Membership` class, or a class that
+  /// extends it. Nothing validates the relationship's class.
+  ///
+  /// - Parameter relationship: The relationship to read as a membership
+  public init(relationship: PubNubDataSyncRelationship) {
     self.relationship = relationship
   }
 
@@ -312,16 +470,5 @@ extension PubNubDataSyncMembership: Codable {
     try container.encode(expiresAt, forKey: .expiresAt)
     try container.encodeIfPresent(status, forKey: .status)
     try container.encodeIfPresent(concretePayload, forKey: .concretePayload)
-  }
-}
-
-// MARK: - Membership interpretation
-
-public extension PubNubDataSyncRelationship {
-  /// The relationship read as a membership, taking side A as the channel and side B as the user.
-  ///
-  /// - Important: Only meaningful for a relationship of the built-in `Membership` class.
-  var asMembership: PubNubDataSyncMembership {
-    PubNubDataSyncMembership(relationship: self)
   }
 }

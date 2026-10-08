@@ -136,11 +136,18 @@ listener.didReceiveBatchSubscription = { events in
     case .dataSyncChanged(let dataSyncEvent):
       print("Received on \(dataSyncEvent.channel) at \(dataSyncEvent.timetoken)")
 
+      // Create and update changes can be read two ways: switch on `object` to handle each type
+      // separately, or read `entity` / `relationship` to handle every type the same way
       switch dataSyncEvent.change {
       case let .entityCreated(entityEvent):
-        let entity = entityEvent.entity
-        print("Entity \(entity.id) was created.")
-        print("Entity kind: \(entityEvent.kind)")
+        switch entityEvent.object {
+        case let .user(user):
+          print("User \(user.id) was created.")
+        case let .channel(channel):
+          print("Channel \(channel.id) was created.")
+        case let .custom(entity):
+          print("Entity \(entity.id) of class \(entity.className) was created.")
+        }
       case let .entityUpdated(entityEvent):
         let entity = entityEvent.entity
         print("Entity \(entity.id) was updated.")
@@ -150,9 +157,12 @@ listener.didReceiveBatchSubscription = { events in
         print("Entity \(removedEntity.id) was deleted.")
         print("Entity kind: \(entityEvent.kind)")
       case let .relationshipCreated(relationshipEvent):
-        let relationship = relationshipEvent.relationship
-        print("Relationship \(relationship.id) was created.")
-        print("Relationship kind: \(relationshipEvent.kind)")
+        switch relationshipEvent.object {
+        case let .membership(membership):
+          print("User \(membership.userId) joined channel \(membership.channelId).")
+        case let .custom(relationship):
+          print("Relationship \(relationship.id) of class \(relationship.className) was created.")
+        }
       case let .relationshipUpdated(relationshipEvent):
         let relationship = relationshipEvent.relationship
         print("Relationship \(relationship.id) was updated.")

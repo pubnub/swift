@@ -102,8 +102,8 @@ extension SubscribeRouterTests {
     XCTAssertPayload(entity.payload, equals: expectedPayload)
   }
 
-  func test_Subscribe_WithDataSyncEntityDeleteEvent_ReceivesRemovedObject() throws {
-    let expectedRemoval = PubNubDataSyncRemovedObject(
+  func test_Subscribe_WithDataSyncEntityDeleteEvent_ReceivesRemovedEntity() throws {
+    let expectedRemoval = PubNubDataSyncRemovedEntity(
       id: "hcn-patient-dubois",
       className: "patient",
       classLevel: .subKey,
@@ -191,8 +191,8 @@ extension SubscribeRouterTests {
     XCTAssertPayload(relationship.payload, equals: expectedPayload)
   }
 
-  func test_Subscribe_WithDataSyncRelationshipDeleteEvent_ReceivesRemovedObject() throws {
-    let expectedRemoval = PubNubDataSyncRemovedObject(
+  func test_Subscribe_WithDataSyncRelationshipDeleteEvent_ReceivesRemovedRelationship() throws {
+    let expectedRemoval = PubNubDataSyncRemovedRelationship(
       id: "hcn-rel-attending-tanaka-dubois",
       className: "attending-physician",
       classLevel: .subKey,
@@ -440,13 +440,13 @@ extension SubscribeRouterTests {
     )
   }
 
-  func test_Subscribe_WithDataSyncUserDeleteEvent_ReceivesRemovedObject() throws {
+  func test_Subscribe_WithDataSyncUserDeleteEvent_ReceivesRemovedEntity() throws {
     let event = try decodeEvent(from: "subscription_dataSyncUserDelete_success")
     let removed = try XCTUnwrap(event.deletedDataSyncEntity)
 
     XCTAssertEqual(
       removed,
-      PubNubDataSyncRemovedObject(
+      PubNubDataSyncRemovedEntity(
         id: "alice",
         className: "User",
         classLevel: .global,
@@ -491,13 +491,13 @@ extension SubscribeRouterTests {
     )
   }
 
-  func test_Subscribe_WithDataSyncChannelDeleteEvent_ReceivesRemovedObject() throws {
+  func test_Subscribe_WithDataSyncChannelDeleteEvent_ReceivesRemovedEntity() throws {
     let event = try decodeEvent(from: "subscription_dataSyncChannelDelete_success")
     let removed = try XCTUnwrap(event.deletedDataSyncEntity)
 
     XCTAssertEqual(
       removed,
-      PubNubDataSyncRemovedObject(
+      PubNubDataSyncRemovedEntity(
         id: "general",
         className: "Channel",
         classLevel: .global,
@@ -556,13 +556,13 @@ extension SubscribeRouterTests {
     )
   }
 
-  func test_Subscribe_WithDataSyncMembershipDeleteEvent_ReceivesRemovedObject() throws {
+  func test_Subscribe_WithDataSyncMembershipDeleteEvent_ReceivesRemovedRelationship() throws {
     let event = try decodeEvent(from: "subscription_dataSyncMembershipDelete_success")
     let removed = try XCTUnwrap(event.deletedDataSyncRelationship)
 
     XCTAssertEqual(
       removed,
-      PubNubDataSyncRemovedObject(
+      PubNubDataSyncRemovedRelationship(
         id: "general__alice",
         className: "Membership",
         classLevel: .global,
@@ -938,7 +938,7 @@ private extension PubNubDataSyncEvent {
     return entityEvent.entity
   }
 
-  var deletedEntity: PubNubDataSyncRemovedObject? {
+  var deletedEntity: PubNubDataSyncRemovedEntity? {
     guard case let .entityDeleted(entityEvent) = change else { return nil }
     return entityEvent.removed
   }
@@ -953,7 +953,7 @@ private extension PubNubDataSyncEvent {
     return relationshipEvent.relationship
   }
 
-  var deletedRelationship: PubNubDataSyncRemovedObject? {
+  var deletedRelationship: PubNubDataSyncRemovedRelationship? {
     guard case let .relationshipDeleted(relationshipEvent) = change else { return nil }
     return relationshipEvent.removed
   }
@@ -981,7 +981,7 @@ private extension PubNubEvent {
     return entityEvent.entity
   }
 
-  var deletedDataSyncEntity: PubNubDataSyncRemovedObject? {
+  var deletedDataSyncEntity: PubNubDataSyncRemovedEntity? {
     guard case let .entityDeleted(entityEvent)? = dataSyncEvent?.change else { return nil }
     return entityEvent.removed
   }
@@ -995,7 +995,7 @@ private extension PubNubEvent {
     return relationshipEvent.relationship
   }
 
-  var deletedDataSyncRelationship: PubNubDataSyncRemovedObject? {
+  var deletedDataSyncRelationship: PubNubDataSyncRemovedRelationship? {
     guard case let .relationshipDeleted(relationshipEvent)? = dataSyncEvent?.change else { return nil }
     return relationshipEvent.removed
   }

@@ -150,7 +150,7 @@ extension SubscribeDataSyncPayload: Decodable {
       change = action == .create ? .relationshipCreated(relationshipEvent) : .relationshipUpdated(relationshipEvent)
 
     case (.entity, .delete), (.user, .delete), (.channel, .delete):
-      let removed = PubNubDataSyncRemovedObject(
+      let removed = PubNubDataSyncRemovedEntity(
         id: identifier,
         className: className,
         classLevel: classLevel,
@@ -168,7 +168,7 @@ extension SubscribeDataSyncPayload: Decodable {
       change = .relationshipDeleted(
         PubNubDataSyncRelationshipDeletedEvent(
           kind: type.relationshipKind,
-          removed: PubNubDataSyncRemovedObject(
+          removed: PubNubDataSyncRemovedRelationship(
             id: identifier,
             className: className,
             classLevel: classLevel,

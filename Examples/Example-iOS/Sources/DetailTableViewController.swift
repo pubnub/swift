@@ -328,18 +328,26 @@ class DetailTableViewController: UITableViewController {
     }
 
     self.listener?.didReceiveDataSyncEvent = { dataSyncEvent in
-      switch dataSyncEvent {
-      case let .entityCreated(entity), let .entityUpdated(entity):
-        print("The \(entity.className) entity \(entity.id) was created or updated at \(entity.updatedAt)")
+      print("Received on \(dataSyncEvent.channel) at \(dataSyncEvent.timetoken)")
+
+      switch dataSyncEvent.change {
+      case let .entityCreated(entityEvent), let .entityUpdated(entityEvent):
+        let entity = entityEvent.entity
+        print("The \(entity.className) \(entityEvent.kind) \(entity.id) was created or updated at \(entity.updatedAt)")
         print("Its revision is \(entity.eTag) and it expires at \(entity.expiresAt)")
         print("Payload: \(entity.payload ?? "none")")
-      case let .relationshipCreated(relationship), let .relationshipUpdated(relationship):
-        print("The \(relationship.className) relationship \(relationship.id) was created or updated")
+      case let .relationshipCreated(relationshipEvent), let .relationshipUpdated(relationshipEvent):
+        let relationship = relationshipEvent.relationship
+        print("The \(relationship.className) \(relationshipEvent.kind) \(relationship.id) was created or updated")
         print("It connects entity \(relationship.entityAId) to entity \(relationship.entityBId)")
-      case let .entityDeleted(removed):
-        print("The \(removed.className) entity \(removed.id) was deleted at \(removed.deletedAt)")
-      case let .relationshipDeleted(removed):
-        print("The \(removed.className) relationship \(removed.id) was deleted at \(removed.deletedAt)")
+      case let .entityDeleted(entityEvent):
+        let removed = entityEvent.removed
+        print("The \(removed.className) \(entityEvent.kind) \(removed.id) was deleted at \(removed.deletedAt)")
+      case let .relationshipDeleted(relationshipEvent):
+        let removed = relationshipEvent.removed
+        print("The \(removed.className) \(relationshipEvent.kind) \(removed.id) was deleted at \(removed.deletedAt)")
+      case let .unknown(unknownEvent):
+        print("Unrecognized \(unknownEvent.type) change: \(unknownEvent.event)")
       }
     }
 

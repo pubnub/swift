@@ -21,10 +21,14 @@ import Foundation
 
 @objc
 public class KMPDataSyncEvent: NSObject {
-  @objc public let event: String
+  @objc public let channel: String
+  @objc public let subscription: String?
+  @objc public let timetoken: Timetoken
 
-  init(event: String = "") {
-    self.event = event
+  init(channel: String = "", subscription: String? = nil, timetoken: Timetoken = 0) {
+    self.channel = channel
+    self.subscription = subscription
+    self.timetoken = timetoken
   }
 }
 
@@ -32,11 +36,14 @@ public class KMPDataSyncEvent: NSObject {
 
 @objc
 public class KMPDataSyncEntityCreatedResult: KMPDataSyncEvent {
+  @objc public let kind: String
   @objc public let entity: KMPDataSyncEntity
 
-  init(entity: KMPDataSyncEntity) {
-    self.entity = entity
-    super.init(event: "entityCreated")
+  init(entityEvent: PubNubDataSyncEntityEvent, channel: String, subscription: String?, timetoken: Timetoken) {
+    self.kind = entityEvent.kind.rawValue
+    self.entity = KMPDataSyncEntity(entity: entityEvent.entity)
+
+    super.init(channel: channel, subscription: subscription, timetoken: timetoken)
   }
 }
 
@@ -44,11 +51,14 @@ public class KMPDataSyncEntityCreatedResult: KMPDataSyncEvent {
 
 @objc
 public class KMPDataSyncEntityUpdatedResult: KMPDataSyncEvent {
+  @objc public let kind: String
   @objc public let entity: KMPDataSyncEntity
 
-  init(entity: KMPDataSyncEntity) {
-    self.entity = entity
-    super.init(event: "entityUpdated")
+  init(entityEvent: PubNubDataSyncEntityEvent, channel: String, subscription: String?, timetoken: Timetoken) {
+    self.kind = entityEvent.kind.rawValue
+    self.entity = KMPDataSyncEntity(entity: entityEvent.entity)
+
+    super.init(channel: channel, subscription: subscription, timetoken: timetoken)
   }
 }
 
@@ -56,11 +66,14 @@ public class KMPDataSyncEntityUpdatedResult: KMPDataSyncEvent {
 
 @objc
 public class KMPDataSyncEntityDeletedResult: KMPDataSyncEvent {
-  @objc public let removedObject: KMPDataSyncRemovedObject
+  @objc public let kind: String
+  @objc public let removedEntity: KMPDataSyncRemovedEntity
 
-  init(removedObject: KMPDataSyncRemovedObject) {
-    self.removedObject = removedObject
-    super.init(event: "entityDeleted")
+  init(entityEvent: PubNubDataSyncEntityDeletedEvent, channel: String, subscription: String?, timetoken: Timetoken) {
+    self.kind = entityEvent.kind.rawValue
+    self.removedEntity = KMPDataSyncRemovedEntity(removedEntity: entityEvent.removed)
+
+    super.init(channel: channel, subscription: subscription, timetoken: timetoken)
   }
 }
 
@@ -68,11 +81,14 @@ public class KMPDataSyncEntityDeletedResult: KMPDataSyncEvent {
 
 @objc
 public class KMPDataSyncRelationshipCreatedResult: KMPDataSyncEvent {
+  @objc public let kind: String
   @objc public let relationship: KMPDataSyncRelationship
 
-  init(relationship: KMPDataSyncRelationship) {
-    self.relationship = relationship
-    super.init(event: "relationshipCreated")
+  init(relationshipEvent: PubNubDataSyncRelationshipEvent, channel: String, subscription: String?, timetoken: Timetoken) {
+    self.kind = relationshipEvent.kind.rawValue
+    self.relationship = KMPDataSyncRelationship(relationship: relationshipEvent.relationship)
+
+    super.init(channel: channel, subscription: subscription, timetoken: timetoken)
   }
 }
 
@@ -80,11 +96,14 @@ public class KMPDataSyncRelationshipCreatedResult: KMPDataSyncEvent {
 
 @objc
 public class KMPDataSyncRelationshipUpdatedResult: KMPDataSyncEvent {
+  @objc public let kind: String
   @objc public let relationship: KMPDataSyncRelationship
 
-  init(relationship: KMPDataSyncRelationship) {
-    self.relationship = relationship
-    super.init(event: "relationshipUpdated")
+  init(relationshipEvent: PubNubDataSyncRelationshipEvent, channel: String, subscription: String?, timetoken: Timetoken) {
+    self.kind = relationshipEvent.kind.rawValue
+    self.relationship = KMPDataSyncRelationship(relationship: relationshipEvent.relationship)
+
+    super.init(channel: channel, subscription: subscription, timetoken: timetoken)
   }
 }
 
@@ -92,18 +111,47 @@ public class KMPDataSyncRelationshipUpdatedResult: KMPDataSyncEvent {
 
 @objc
 public class KMPDataSyncRelationshipDeletedResult: KMPDataSyncEvent {
-  @objc public let removedObject: KMPDataSyncRemovedRelationship
+  @objc public let kind: String
+  @objc public let removedRelationship: KMPDataSyncRemovedRelationship
 
-  init(removedObject: KMPDataSyncRemovedRelationship) {
-    self.removedObject = removedObject
-    super.init(event: "relationshipDeleted")
+  init(relationshipEvent: PubNubDataSyncRelationshipDeletedEvent, channel: String, subscription: String?, timetoken: Timetoken) {
+    self.kind = relationshipEvent.kind.rawValue
+    self.removedRelationship = KMPDataSyncRemovedRelationship(removedRelationship: relationshipEvent.removed)
+
+    super.init(channel: channel, subscription: subscription, timetoken: timetoken)
   }
 }
 
-// MARK: - KMPDataSyncRemovedObject
+// MARK: - KMPDataSyncUnknownResult
 
 @objc
-public class KMPDataSyncRemovedObject: NSObject {
+public class KMPDataSyncUnknownResult: KMPDataSyncEvent {
+  @objc public let type: String
+  @objc public let event: String
+  // Named `objectClass` rather than `className` because `NSObject` already exposes a `className` selector
+  @objc public let objectClass: String?
+  @objc public let classLevel: String?
+  @objc public let classVersion: NSNumber?
+  @objc public let metadata: KMPAnyJSON?
+  @objc public let payload: KMPAnyJSON?
+
+  init(unknownEvent: PubNubDataSyncUnknownEvent, channel: String, subscription: String?, timetoken: Timetoken) {
+    self.type = unknownEvent.type
+    self.event = unknownEvent.event
+    self.objectClass = unknownEvent.className
+    self.classLevel = unknownEvent.classLevel?.stringValue
+    self.classVersion = if let version = unknownEvent.classVersion { NSNumber(value: version) } else { nil }
+    self.metadata = if let metadata = unknownEvent.concreteMetadata { KMPAnyJSON(metadata) } else { nil }
+    self.payload = if let payload = unknownEvent.concretePayload { KMPAnyJSON(payload) } else { nil }
+
+    super.init(channel: channel, subscription: subscription, timetoken: timetoken)
+  }
+}
+
+// MARK: - KMPDataSyncRemovedEntity
+
+@objc
+public class KMPDataSyncRemovedEntity: NSObject {
   @objc public let id: String
   // Named `objectClass` rather than `className` because `NSObject` already exposes a `className` selector
   @objc public let objectClass: String
@@ -111,12 +159,12 @@ public class KMPDataSyncRemovedObject: NSObject {
   @objc public let classVersion: Int
   @objc public let deletedAt: Date
 
-  init(removedObject: PubNubDataSyncRemovedObject) {
-    self.id = removedObject.id
-    self.objectClass = removedObject.className
-    self.classLevel = removedObject.classLevel.stringValue
-    self.classVersion = removedObject.classVersion
-    self.deletedAt = removedObject.deletedAt
+  init(removedEntity: PubNubDataSyncRemovedEntity) {
+    self.id = removedEntity.id
+    self.objectClass = removedEntity.className
+    self.classLevel = removedEntity.classLevel.stringValue
+    self.classVersion = removedEntity.classVersion
+    self.deletedAt = removedEntity.deletedAt
   }
 }
 
@@ -127,12 +175,14 @@ public class KMPDataSyncRemovedRelationship: NSObject {
   @objc public let id: String
   // Named `objectClass` rather than `className` because `NSObject` already exposes a `className` selector
   @objc public let objectClass: String
+  @objc public let classLevel: String
   @objc public let classVersion: Int
   @objc public let deletedAt: Date
 
   init(removedRelationship: PubNubDataSyncRemovedRelationship) {
     self.id = removedRelationship.id
     self.objectClass = removedRelationship.className
+    self.classLevel = removedRelationship.classLevel.stringValue
     self.classVersion = removedRelationship.classVersion
     self.deletedAt = removedRelationship.deletedAt
   }
@@ -142,20 +192,45 @@ public class KMPDataSyncRemovedRelationship: NSObject {
 
 extension KMPDataSyncEvent {
   static func from(event: PubNubDataSyncEvent) -> KMPDataSyncEvent {
-    switch event {
-    case .entityCreated(let entity):
-      return KMPDataSyncEntityCreatedResult(entity: KMPDataSyncEntity(entity: entity))
-    case .entityUpdated(let entity):
-      return KMPDataSyncEntityUpdatedResult(entity: KMPDataSyncEntity(entity: entity))
-    case .entityDeleted(let removedObject):
-      return KMPDataSyncEntityDeletedResult(removedObject: KMPDataSyncRemovedObject(removedObject: removedObject))
-    case .relationshipCreated(let relationship):
-      return KMPDataSyncRelationshipCreatedResult(relationship: KMPDataSyncRelationship(relationship: relationship))
-    case .relationshipUpdated(let relationship):
-      return KMPDataSyncRelationshipUpdatedResult(relationship: KMPDataSyncRelationship(relationship: relationship))
-    case .relationshipDeleted(let removedRelationship):
+    let channel = event.channel
+    let subscription = event.subscription
+    let timetoken = event.timetoken
+
+    switch event.change {
+    case .entityCreated(let entityEvent):
+      return KMPDataSyncEntityCreatedResult(
+        entityEvent: entityEvent,
+        channel: channel, subscription: subscription, timetoken: timetoken
+      )
+    case .entityUpdated(let entityEvent):
+      return KMPDataSyncEntityUpdatedResult(
+        entityEvent: entityEvent,
+        channel: channel, subscription: subscription, timetoken: timetoken
+      )
+    case .entityDeleted(let entityEvent):
+      return KMPDataSyncEntityDeletedResult(
+        entityEvent: entityEvent,
+        channel: channel, subscription: subscription, timetoken: timetoken
+      )
+    case .relationshipCreated(let relationshipEvent):
+      return KMPDataSyncRelationshipCreatedResult(
+        relationshipEvent: relationshipEvent,
+        channel: channel, subscription: subscription, timetoken: timetoken
+      )
+    case .relationshipUpdated(let relationshipEvent):
+      return KMPDataSyncRelationshipUpdatedResult(
+        relationshipEvent: relationshipEvent,
+        channel: channel, subscription: subscription, timetoken: timetoken
+      )
+    case .relationshipDeleted(let relationshipEvent):
       return KMPDataSyncRelationshipDeletedResult(
-        removedObject: KMPDataSyncRemovedRelationship(removedRelationship: removedRelationship)
+        relationshipEvent: relationshipEvent,
+        channel: channel, subscription: subscription, timetoken: timetoken
+      )
+    case .unknown(let unknownEvent):
+      return KMPDataSyncUnknownResult(
+        unknownEvent: unknownEvent,
+        channel: channel, subscription: subscription, timetoken: timetoken
       )
     }
   }

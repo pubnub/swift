@@ -44,10 +44,12 @@ final class DataSyncMembershipEventIntegrationTests: XCTestCase {
     )
 
     subscription.onDataSync = { event in
-      guard case let .relationshipCreated(relationship) = event, relationship.id == membershipId else {
+      guard case let .relationshipCreated(relEvent) = event.change, relEvent.relationship.id == membershipId else {
         return
       }
 
+      let relationship = relEvent.relationship
+      XCTAssertEqual(relEvent.kind, .membership)
       XCTAssertEqual(relationship.className, "Membership")
       XCTAssertEqual(relationship.classVersion, self.membershipClassVersion)
       XCTAssertEqual(relationship.entityAId, channelId)
@@ -55,6 +57,7 @@ final class DataSyncMembershipEventIntegrationTests: XCTestCase {
       XCTAssertEqual(relationship.status, "active")
       XCTAssertFalse(relationship.eTag.isEmpty)
       XCTAssertNotNil(relationship.payload)
+
       createExpect.fulfill()
     }
 
@@ -122,16 +125,19 @@ final class DataSyncMembershipEventIntegrationTests: XCTestCase {
     )
 
     subscription.onDataSync = { event in
-      guard case let .relationshipUpdated(relationship) = event, relationship.id == membershipId else {
+      guard case let .relationshipUpdated(relEvent) = event.change, relEvent.relationship.id == membershipId else {
         return
       }
 
+      let relationship = relEvent.relationship
+      XCTAssertEqual(relEvent.kind, .membership)
       XCTAssertEqual(relationship.className, "Membership")
       XCTAssertEqual(relationship.classVersion, self.membershipClassVersion)
       XCTAssertEqual(relationship.entityAId, channelId)
       XCTAssertEqual(relationship.entityBId, userId)
       XCTAssertFalse(relationship.eTag.isEmpty)
       XCTAssertNotNil(relationship.payload)
+
       updateExpect.fulfill()
     }
 
@@ -195,12 +201,15 @@ final class DataSyncMembershipEventIntegrationTests: XCTestCase {
     )
 
     subscription.onDataSync = { event in
-      guard case let .relationshipDeleted(removed) = event, removed.id == membershipId else {
+      guard case let .relationshipDeleted(relationshipEvent) = event.change, relationshipEvent.removed.id == membershipId else {
         return
       }
 
+      let removed = relationshipEvent.removed
+      XCTAssertEqual(relationshipEvent.kind, .membership)
       XCTAssertEqual(removed.className, "Membership")
       XCTAssertEqual(removed.classVersion, self.membershipClassVersion)
+
       deleteExpect.fulfill()
     }
 

@@ -12,7 +12,7 @@ import Foundation
 
 extension SubscribeMessagePayload {
   // swiftlint:disable:next cyclomatic_complexity
-  func asPubNubEvent() -> PubNubEvent {
+  func asPubNubEvent() -> PubNubEvent? {
     switch messageType {
     case .message:
       return .messageReceived(PubNubMessageBase(from: self))
@@ -43,10 +43,10 @@ extension SubscribeMessagePayload {
       }
       return .fileChanged(.uploaded(fileMessage))
     case .dataSync:
-      guard let dataSyncEvent = asDataSyncEvent() else {
+      guard let event = try? decodeDataSyncEvent() else {
         return .messageReceived(PubNubMessageBase(from: self))
       }
-      return .dataSyncChanged(dataSyncEvent)
+      return .dataSyncChanged(event)
     case .presence:
       guard let presence = PubNubPresenceChangeBase(from: self) else {
         return .messageReceived(PubNubMessageBase(from: self))

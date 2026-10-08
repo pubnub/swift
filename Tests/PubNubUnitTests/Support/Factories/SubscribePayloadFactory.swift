@@ -113,7 +113,9 @@ func mockPresenceChangePayload(
 
 func mockDataSyncPayload(
   channel: String = "channel",
+  subscription: String? = nil,
   event: String = "create",
+  source: String = "data-sync",
   type: String = "entity",
   className: String = "patient",
   classLevel: String = "SubKey",
@@ -129,12 +131,13 @@ func mockDataSyncPayload(
 ) -> SubscribeMessagePayload {
   generateMessage(
     with: .dataSync,
+    subscription: subscription,
     channel: channel,
     payload: AnyJSON([
       "version": "1.0",
       "metadata": [
         "event": event,
-        "source": "data-sync",
+        "source": source,
         "type": type,
         "className": className,
         "classLevel": classLevel,

@@ -201,19 +201,36 @@ subscription.onAppContext = { appContextEvent in
 // snippet.on-data-sync
 // Add a listener to receive Data Sync entity and relationship events
 dataSyncSubscription.onDataSync = { dataSyncEvent in
-  switch dataSyncEvent {
-  case let .entityCreated(entity):
-    print("Data Sync entity created: \(entity.id)")
-  case let .entityUpdated(entity):
-    print("Data Sync entity updated: \(entity.id)")
-  case let .entityDeleted(entity):
-    print("Data Sync entity deleted: \(entity.id)")
-  case let .relationshipCreated(relationship):
-    print("Data Sync relationship created: \(relationship.id)")
-  case let .relationshipUpdated(relationship):
-    print("Data Sync relationship updated: \(relationship.id)")
-  case let .relationshipDeleted(relationship):
-    print("Data Sync relationship deleted: \(relationship.id)")
+  print("Received on \(dataSyncEvent.channel) at \(dataSyncEvent.timetoken)")
+
+  switch dataSyncEvent.change {
+  case let .entityCreated(entityEvent):
+    let entity = entityEvent.entity
+    print("Entity \(entity.id) was created.")
+    print("Entity kind: \(entityEvent.kind)")
+  case let .entityUpdated(entityEvent):
+    let entity = entityEvent.entity
+    print("Entity \(entity.id) was updated.")
+    print("Entity kind: \(entityEvent.kind)")
+  case let .entityDeleted(entityEvent):
+    let removedEntity = entityEvent.removed
+    print("Entity \(removedEntity.id) was deleted.")
+    print("Entity kind: \(entityEvent.kind)")
+  case let .relationshipCreated(relationshipEvent):
+    let relationship = relationshipEvent.relationship
+    print("Relationship \(relationship.id) was created.")
+    print("Relationship kind: \(relationshipEvent.kind)")
+  case let .relationshipUpdated(relationshipEvent):
+    let relationship = relationshipEvent.relationship
+    print("Relationship \(relationship.id) was updated.")
+    print("Relationship kind: \(relationshipEvent.kind)")
+  case let .relationshipDeleted(relationshipEvent):
+    let removedRelationship = relationshipEvent.removed
+    print("Relationship \(removedRelationship.id) was deleted.")
+    print("Relationship kind: \(relationshipEvent.kind)")
+  case let .unknown(unknownEvent):
+    // An object type or action this SDK version doesn't recognize
+    print("Unrecognized \(unknownEvent.type) change: \(unknownEvent.event)")
   }
 }
 // snippet.end

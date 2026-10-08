@@ -352,7 +352,7 @@ public struct SubscribeMessagePayload: Codable, Hashable, CustomStringConvertibl
       case .file:
         return .file
       case .dataSync:
-        return .unknown
+        return .dataSync
       case .presence:
         return .unknown
       }

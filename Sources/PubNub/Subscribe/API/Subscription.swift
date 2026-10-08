@@ -152,11 +152,14 @@ extension Subscription: SubscribeMessagesReceiver {
   }
 
   func event(from payload: SubscribeMessagePayload) -> PubNubEvent? {
-    guard subscriptionTopology.matches(payload), payload.publishTimetoken.timetoken >= timetoken ?? 0 else {
+    guard
+      subscriptionTopology.matches(payload),
+      payload.publishTimetoken.timetoken >= timetoken ?? 0,
+      let event = payload.asPubNubEvent()
+    else {
       return nil
     }
 
-    let event = payload.asPubNubEvent()
     return options.filterCriteriaSatisfied(event: event) ? event : nil
   }
 }

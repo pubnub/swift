@@ -490,7 +490,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
         patchExpect.fulfill()
       case let .failure(error):
         XCTAssertNotNil(error.pubNubError)
-        XCTAssertEqual(error.pubNubError?.reason, .badRequest)
+        XCTAssertEqual(error.pubNubError?.reason, .conflict)
 
         client.dataSync.getEntity(id: patientId) { fetchResult in
           switch fetchResult {

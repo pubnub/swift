@@ -110,7 +110,7 @@ public final class CoreListener: BaseSubscriptionListener {
   }
 
   override public func emit(batch: [SubscribeMessagePayload]) {
-    emitDidReceive(subscription: batch.map { $0.asPubNubEvent() })
+    emitDidReceive(subscription: batch.compactMap { $0.asPubNubEvent() })
   }
 
   public func emitDidReceive(subscription batch: [PubNubEvent]) {

@@ -61,29 +61,6 @@ final class DataSyncUserAPITests: DataSyncAPITestCase {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func test_GetUser_ExposesUnderlyingEntity() throws {
-    let expectation = self.expectation(description: "getUser underlying entity")
-    let sessions = try MockURLSession.mockSession(for: ["datasync_user_fetch_success"])
-    let pubnub = TestPubNubFactory.make(session: sessions.session)
-
-    pubnub.dataSync.getUser(id: "alice") { result in
-      switch result {
-      case let .success(user):
-        XCTAssertEqual(user.entity.id, user.id)
-        XCTAssertEqual(user.entity.className, user.className)
-        XCTAssertEqual(user.entity.classLevel, user.classLevel)
-        XCTAssertEqual(user.entity.classVersion, user.classVersion)
-        XCTAssertEqual(user.entity.eTag, user.eTag)
-        XCTAssertEqual(PubNubDataSyncUser(entity: user.entity), user)
-      case let .failure(error):
-        XCTFail("Request failed with \(error.localizedDescription)")
-      }
-      expectation.fulfill()
-    }
-
-    wait(for: [expectation], timeout: 1.0)
-  }
-
   func test_CreateUser_DecodesCreatedUser() throws {
     let expectation = self.expectation(description: "createUser")
     let sessions = try MockURLSession.mockSession(for: ["datasync_user_fetch_success"])

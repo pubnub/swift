@@ -24,6 +24,7 @@ import Foundation
   @objc public let authorizedUUID: String
   @objc public let resources: KMPPAMTokenResource
   @objc public let patterns: KMPPAMTokenResource
+  @objc public let categories: KMPPAMTokenCategory
   @objc public let meta: KMPAnyJSON
 
   init(from token: PAMToken) {
@@ -33,7 +34,18 @@ import Foundation
     authorizedUUID = token.authorizedUUID ?? ""
     resources = KMPPAMTokenResource(from: token.resources)
     patterns = KMPPAMTokenResource(from: token.patterns)
+    categories = KMPPAMTokenCategory(from: token.categories)
     meta = KMPAnyJSON(token.meta)
+  }
+}
+
+@objc public class KMPPAMTokenCategory: NSObject {
+  @objc public let channels: KMPPAMPermission
+  @objc public let uuids: KMPPAMPermission
+
+  init(from category: PAMTokenCategory) {
+    channels = KMPPAMPermission(from: category.channels)
+    uuids = KMPPAMPermission(from: category.uuids)
   }
 }
 

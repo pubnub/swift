@@ -158,13 +158,7 @@ public struct PubNubDataSyncUser: Hashable {
 
   var concretePayload: AnyJSON? { entity.concretePayload }
 
-  /// Reads an entity as a user.
-  ///
-  /// - Important: Only meaningful for an entity of the built-in `User` class, or a class that extends it.
-  /// Nothing validates the entity's class.
-  ///
-  /// - Parameter entity: The entity to read as a user
-  public init(entity: PubNubDataSyncEntity) {
+  init(entity: PubNubDataSyncEntity) {
     self.entity = entity
   }
 
@@ -234,13 +228,7 @@ public struct PubNubDataSyncChannel: Hashable {
 
   var concretePayload: AnyJSON? { entity.concretePayload }
 
-  /// Reads an entity as a channel.
-  ///
-  /// - Important: Only meaningful for an entity of the built-in `Channel` class, or a class that extends it.
-  /// Nothing validates the entity's class.
-  ///
-  /// - Parameter entity: The entity to read as a channel
-  public init(entity: PubNubDataSyncEntity) {
+  init(entity: PubNubDataSyncEntity) {
     self.entity = entity
   }
 
@@ -384,13 +372,7 @@ public struct PubNubDataSyncMembership: Hashable {
 
   var concretePayload: AnyJSON? { relationship.concretePayload }
 
-  /// Reads a relationship as a membership, taking side A as the channel and side B as the user.
-  ///
-  /// - Important: Only meaningful for a relationship of the built-in `Membership` class, or a class that
-  /// extends it. Nothing validates the relationship's class.
-  ///
-  /// - Parameter relationship: The relationship to read as a membership
-  public init(relationship: PubNubDataSyncRelationship) {
+  init(relationship: PubNubDataSyncRelationship) {
     self.relationship = relationship
   }
 

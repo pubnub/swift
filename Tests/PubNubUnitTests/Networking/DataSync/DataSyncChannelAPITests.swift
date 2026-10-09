@@ -36,29 +36,6 @@ final class DataSyncChannelAPITests: DataSyncAPITestCase {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func test_GetChannel_ExposesUnderlyingEntity() throws {
-    let expectation = self.expectation(description: "getChannel underlying entity")
-    let sessions = try MockURLSession.mockSession(for: ["datasync_channel_fetch_success"])
-    let pubnub = TestPubNubFactory.make(session: sessions.session)
-
-    pubnub.dataSync.getChannel(id: "general") { result in
-      switch result {
-      case let .success(channel):
-        XCTAssertEqual(channel.entity.id, channel.id)
-        XCTAssertEqual(channel.entity.className, channel.className)
-        XCTAssertEqual(channel.entity.classLevel, channel.classLevel)
-        XCTAssertEqual(channel.entity.classVersion, channel.classVersion)
-        XCTAssertEqual(channel.entity.eTag, channel.eTag)
-        XCTAssertEqual(PubNubDataSyncChannel(entity: channel.entity), channel)
-      case let .failure(error):
-        XCTFail("Request failed with \(error.localizedDescription)")
-      }
-      expectation.fulfill()
-    }
-
-    wait(for: [expectation], timeout: 1.0)
-  }
-
   func test_CreateChannel_WithClassNameAndLevel_SendsThemInBody() throws {
     let expectation = self.expectation(description: "createChannel class identity")
     let sessions = try MockURLSession.mockSession(for: ["datasync_channel_fetch_success"])

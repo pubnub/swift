@@ -81,6 +81,8 @@ public enum ConnectionStatus: Equatable {
       return true
     case (.connected, .disconnectedUnexpectedly):
       return true
+    case (.subscriptionChanged, .subscriptionChanged):
+      return true
     case (.subscriptionChanged, .disconnectedUnexpectedly):
       return true
     case (.subscriptionChanged, .disconnected):

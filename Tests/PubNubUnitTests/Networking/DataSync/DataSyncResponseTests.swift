@@ -72,6 +72,32 @@ final class DataSyncResponseTests: XCTestCase {
     XCTAssertEqual(response.links?.next, "/users?cursor=TjIw")
   }
 
+  func test_Page_WithoutMeta_ReportsNilPage() {
+    XCTAssertNil(PubNubDataSyncPage(from: nil, requestedLimit: 20))
+  }
+
+  func test_Page_WithoutMetaLimit_FallsBackToRequestedLimit() throws {
+    let page = try XCTUnwrap(PubNubDataSyncPage(
+      from: DataSyncPageMeta(nextCursor: "TjIw", hasNext: true, limit: nil),
+      requestedLimit: 50
+    ))
+
+    XCTAssertEqual(page.cursor, "TjIw")
+    XCTAssertTrue(page.hasNext)
+    XCTAssertEqual(page.limit, 50)
+  }
+
+  func test_Page_WithoutMetaOrRequestedLimit_KeepsCursorAtTheDefaultLimit() throws {
+    let page = try XCTUnwrap(PubNubDataSyncPage(
+      from: DataSyncPageMeta(nextCursor: "TjIw", hasNext: true, limit: nil),
+      requestedLimit: nil
+    ))
+
+    XCTAssertEqual(page.cursor, "TjIw")
+    XCTAssertTrue(page.hasNext)
+    XCTAssertEqual(page.limit, 20)
+  }
+
   func test_DecodeRelationshipResourceFields() throws {
     let json = """
     {

@@ -47,16 +47,18 @@ final class DataSyncMembershipEventIntegrationTests: XCTestCase {
       guard case let .relationshipCreated(relEvent) = event.change, relEvent.relationship.id == membershipId else {
         return
       }
+      guard case let .membership(membership) = relEvent.object else {
+        XCTFail("A Membership relationship event should narrow to .membership, got \(relEvent.kind)"); return
+      }
 
-      let relationship = relEvent.relationship
-      XCTAssertEqual(relEvent.kind, .membership)
-      XCTAssertEqual(relationship.className, "Membership")
-      XCTAssertEqual(relationship.classVersion, self.membershipClassVersion)
-      XCTAssertEqual(relationship.entityAId, channelId)
-      XCTAssertEqual(relationship.entityBId, userId)
-      XCTAssertEqual(relationship.status, "active")
-      XCTAssertFalse(relationship.eTag.isEmpty)
-      XCTAssertNotNil(relationship.payload)
+      XCTAssertEqual(membership.id, membershipId)
+      XCTAssertEqual(membership.className, "Membership")
+      XCTAssertEqual(membership.classVersion, self.membershipClassVersion)
+      XCTAssertEqual(membership.channelId, channelId)
+      XCTAssertEqual(membership.userId, userId)
+      XCTAssertEqual(membership.status, "active")
+      XCTAssertFalse(membership.eTag.isEmpty)
+      XCTAssertNotNil(membership.payload)
 
       createExpect.fulfill()
     }
@@ -104,12 +106,7 @@ final class DataSyncMembershipEventIntegrationTests: XCTestCase {
 
     createDataSyncUsers(client: adminClient, ids: [userId], classVersion: userClassVersion)
     createDataSyncChannels(client: adminClient, ids: [channelId], classVersion: channelClassVersion)
-    createMembership(
-      client: adminClient,
-      id: membershipId,
-      channelId: channelId,
-      userId: userId
-    )
+    createMembership(client: adminClient, id: membershipId, channelId: channelId, userId: userId)
 
     let connectedExpect = expectation(description: "Subscription connected")
     connectedExpect.assertForOverFulfill = false
@@ -128,15 +125,17 @@ final class DataSyncMembershipEventIntegrationTests: XCTestCase {
       guard case let .relationshipUpdated(relEvent) = event.change, relEvent.relationship.id == membershipId else {
         return
       }
+      guard case let .membership(membership) = relEvent.object else {
+        XCTFail("A Membership relationship event should narrow to .membership, got \(relEvent.kind)"); return
+      }
 
-      let relationship = relEvent.relationship
-      XCTAssertEqual(relEvent.kind, .membership)
-      XCTAssertEqual(relationship.className, "Membership")
-      XCTAssertEqual(relationship.classVersion, self.membershipClassVersion)
-      XCTAssertEqual(relationship.entityAId, channelId)
-      XCTAssertEqual(relationship.entityBId, userId)
-      XCTAssertFalse(relationship.eTag.isEmpty)
-      XCTAssertNotNil(relationship.payload)
+      XCTAssertEqual(membership.id, membershipId)
+      XCTAssertEqual(membership.className, "Membership")
+      XCTAssertEqual(membership.classVersion, self.membershipClassVersion)
+      XCTAssertEqual(membership.channelId, channelId)
+      XCTAssertEqual(membership.userId, userId)
+      XCTAssertFalse(membership.eTag.isEmpty)
+      XCTAssertNotNil(membership.payload)
 
       updateExpect.fulfill()
     }
@@ -180,12 +179,7 @@ final class DataSyncMembershipEventIntegrationTests: XCTestCase {
 
     createDataSyncUsers(client: adminClient, ids: [userId], classVersion: userClassVersion)
     createDataSyncChannels(client: adminClient, ids: [channelId], classVersion: channelClassVersion)
-    createMembership(
-      client: adminClient,
-      id: membershipId,
-      channelId: channelId,
-      userId: userId
-    )
+    createMembership(client: adminClient, id: membershipId, channelId: channelId, userId: userId)
 
     let connectedExpect = expectation(description: "Subscription connected")
     connectedExpect.assertForOverFulfill = false

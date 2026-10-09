@@ -22,6 +22,7 @@ final class DataSyncChannelEventIntegrationTests: XCTestCase {
     let adminClient = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))
     let pubnub = PubNub(configuration: try dataSyncSubscribeConfiguration(from: testsBundle))
     let channelId = randomString()
+    let payload = TestDataSyncChannelPayload(name: channelId, description: "Created by the Swift integration tests")
 
     let connectedExpect = expectation(description: "Subscription connected")
     connectedExpect.assertForOverFulfill = false
@@ -39,15 +40,17 @@ final class DataSyncChannelEventIntegrationTests: XCTestCase {
       guard case let .entityCreated(entityEvent) = event.change, entityEvent.entity.id == channelId else {
         return
       }
+      guard case let .channel(channel) = entityEvent.object else {
+        XCTFail("A Channel entity event should narrow to .channel, got \(entityEvent.kind)"); return
+      }
 
-      let entity = entityEvent.entity
-      XCTAssertEqual(entityEvent.kind, .channel)
-      XCTAssertEqual(entity.className, "Channel")
-      XCTAssertEqual(entity.classLevel, .global)
-      XCTAssertEqual(entity.classVersion, self.channelClassVersion)
-      XCTAssertEqual(entity.status, "active")
-      XCTAssertFalse(entity.eTag.isEmpty)
-      XCTAssertNotNil(entity.payload)
+      XCTAssertEqual(channel.id, channelId)
+      XCTAssertEqual(channel.className, "Channel")
+      XCTAssertEqual(channel.classLevel, .global)
+      XCTAssertEqual(channel.classVersion, self.channelClassVersion)
+      XCTAssertEqual(channel.status, "active")
+      XCTAssertFalse(channel.eTag.isEmpty)
+      XCTAssertPayload(channel.payload, equals: payload)
 
       createExpect.fulfill()
     }
@@ -57,10 +60,7 @@ final class DataSyncChannelEventIntegrationTests: XCTestCase {
         classVersion: self.channelClassVersion,
         id: channelId,
         status: "active",
-        payload: TestDataSyncChannelPayload(
-          name: channelId,
-          description: "Created by the Swift integration tests"
-        )
+        payload: payload
       ) { result in
         if case let .failure(error) = result {
           XCTFail("Failed to trigger the channel created event: \(error)")
@@ -108,14 +108,16 @@ final class DataSyncChannelEventIntegrationTests: XCTestCase {
       guard case let .entityUpdated(entityEvent) = event.change, entityEvent.entity.id == channelId else {
         return
       }
+      guard case let .channel(channel) = entityEvent.object else {
+        XCTFail("A Channel entity event should narrow to .channel, got \(entityEvent.kind)"); return
+      }
 
-      let entity = entityEvent.entity
-      XCTAssertEqual(entityEvent.kind, .channel)
-      XCTAssertEqual(entity.className, "Channel")
-      XCTAssertEqual(entity.classLevel, .global)
-      XCTAssertEqual(entity.classVersion, self.channelClassVersion)
-      XCTAssertFalse(entity.eTag.isEmpty)
-      XCTAssertNotNil(entity.payload)
+      XCTAssertEqual(channel.id, channelId)
+      XCTAssertEqual(channel.className, "Channel")
+      XCTAssertEqual(channel.classLevel, .global)
+      XCTAssertEqual(channel.classVersion, self.channelClassVersion)
+      XCTAssertFalse(channel.eTag.isEmpty)
+      XCTAssertNotNil(channel.payload)
 
       updateExpect.fulfill()
     }

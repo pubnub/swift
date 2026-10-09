@@ -96,8 +96,7 @@ class PAMTokenTests: XCTestCase {
   /// ```
   static let dataSyncCustomToken = "qGF2AmF0GmEI03xjdHRsGDxjcmVzonFkYXRhc3luYzplbnRpdGllc6F4G3ZlaGljbGUudG95b3RhLWNvcm9sbGEtN2YzYRhjdmRhdGFzeW5jOnJlbGF0aW9uc2hpcHOhd2Fzc2lnbm1lbnQucnlhbi1jYXJyb2xsGCFjcGF0oGRtZXRhoW5wbi1wcm9qZWN0aW9uc6FjcmVzongtZGF0YXN5bmM6ZW50aXRpZXM6dmVoaWNsZS50b3lvdGEtY29yb2xsYS03ZjNhaXRlbGVtZXRyeXguZGF0YXN5bmM6cmVsYXRpb25zaGlwczphc3NpZ25tZW50LnJ5YW4tY2Fycm9sbGl0ZWxlbWV0cnlkdXVpZGxyeWFuLWNhcnJvbGxjc2lnRPpU-vA="
 
-  /// Token carrying both category permissions (the `cat` section) and ordinary resource and pattern
-  /// permissions. Equivalent grant request body (as passed to grantToken):
+  /// Token carrying both category permissions (the `cat` section) and ordinary resource and pattern permissions. Equivalent grant request body (as passed to grantToken):
   ///
   /// ```
   /// {
@@ -124,8 +123,7 @@ class PAMTokenTests: XCTestCase {
   /// ```
   static let categoryToken = "qWF2AmF0GmEJDXxjdHRsGDxjcmVzomRjaGFuoWljaGFubmVsLTEYIGR1dWlkoWZ1dWlkLTEYIGNwYXShZGNoYW6hbV5jaGFubmVsLVxTKiQYIGNjYXSiZGNoYW4YIGR1dWlkGCBkbWV0YaBkdXVpZHR0ZXN0LWF1dGhvcml6ZWQtdXVpZGNzaWdE-lT68A=="
 
-  /// Token carrying a single category permission and nothing else. Equivalent grant request body
-  /// (as passed to grantToken):
+  /// Token carrying a single category permission and nothing else. Equivalent grant request body (as passed to grantToken):
   ///
   /// ```
   /// {
@@ -136,10 +134,6 @@ class PAMTokenTests: XCTestCase {
   ///   }
   /// }
   /// ```
-  ///
-  /// The `res`, `pat`, and `meta` sections are omitted from the CBOR entirely, and `cat` carries only one
-  /// of the two categories. This fixture is deliberately minimal to pin down the tolerance of the decoder
-  /// for absent sections, rather than to mirror the exact section set a token service emits today.
   static let categoryOnlyToken = "pmF2AmF0GmEJDXxjdHRsGDxjY2F0oWR1dWlkGCBkdXVpZHR0ZXN0LWF1dGhvcml6ZWQtdXVpZGNzaWdE-lT68A=="
 }
 
@@ -220,7 +214,6 @@ extension PAMTokenTests {
     XCTAssertEqual(categories.channels, PAMPermission.get)
     XCTAssertEqual(categories.uuids, PAMPermission.get)
 
-    // A category permission is reported separately from the permissions on named resources and patterns
     XCTAssertEqual(resources.channels["channel-1"], PAMPermission.get)
     XCTAssertEqual(resources.uuids["uuid-1"], PAMPermission.get)
     XCTAssertEqual(patterns.channels["^channel-\\S*$"], PAMPermission.get)
@@ -250,7 +243,6 @@ extension PAMTokenTests {
     XCTAssertEqual(token.categories.channels, PAMPermission.none)
     XCTAssertEqual(token.categories.uuids, PAMPermission.none)
 
-    // The rest of the token is unaffected by the absent `cat` section
     XCTAssertEqual(token.authorizedUUID, "test-authorized-uuid")
     XCTAssertEqual(token.resources.dataSyncMemberships["membership-1"], PAMPermission.all)
     XCTAssertEqual(token.patterns.dataSyncEntities[".*"], PAMPermission.all)

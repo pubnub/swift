@@ -395,6 +395,8 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
       XCTAssertEqual(relEvent.kind, .custom)
       XCTAssertEqual(removed.id, "swift-rel-attending-carter-alice")
       XCTAssertEqual(removed.className, HealthcareClass.attendingPhysician.name)
+      // The envelope reports a class level for relationships, even though the REST model has none
+      XCTAssertEqual(removed.classLevel, .subKey)
 
       deleteExpect.fulfill()
     }

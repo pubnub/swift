@@ -203,6 +203,8 @@ final class DataSyncMembershipEventIntegrationTests: XCTestCase {
       XCTAssertEqual(relationshipEvent.kind, .membership)
       XCTAssertEqual(removed.className, "Membership")
       XCTAssertEqual(removed.classVersion, self.membershipClassVersion)
+      // The envelope reports a class level for relationships, even though the REST model has none
+      XCTAssertEqual(removed.classLevel, .global)
 
       deleteExpect.fulfill()
     }

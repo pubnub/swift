@@ -22,6 +22,7 @@ final class DataSyncUserEventIntegrationTests: XCTestCase {
     let adminClient = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))
     let pubnub = PubNub(configuration: try dataSyncSubscribeConfiguration(from: testsBundle))
     let userId = randomString()
+    let payload = TestDataSyncUserPayload(fullName: "Swift ITest User", email: "swift.itest@example.com")
 
     let connectedExpect = expectation(description: "Subscription connected")
     connectedExpect.assertForOverFulfill = false
@@ -39,15 +40,17 @@ final class DataSyncUserEventIntegrationTests: XCTestCase {
       guard case let .entityCreated(entityEvent) = event.change, entityEvent.entity.id == userId else {
         return
       }
+      guard case let .user(user) = entityEvent.object else {
+        XCTFail("A User entity event should narrow to .user, got \(entityEvent.kind)"); return
+      }
 
-      let entity = entityEvent.entity
-      XCTAssertEqual(entityEvent.kind, .user)
-      XCTAssertEqual(entity.className, "User")
-      XCTAssertEqual(entity.classLevel, .global)
-      XCTAssertEqual(entity.classVersion, self.userClassVersion)
-      XCTAssertEqual(entity.status, "active")
-      XCTAssertFalse(entity.eTag.isEmpty)
-      XCTAssertNotNil(entity.payload)
+      XCTAssertEqual(user.id, userId)
+      XCTAssertEqual(user.className, "User")
+      XCTAssertEqual(user.classLevel, .global)
+      XCTAssertEqual(user.classVersion, self.userClassVersion)
+      XCTAssertEqual(user.status, "active")
+      XCTAssertFalse(user.eTag.isEmpty)
+      XCTAssertPayload(user.payload, equals: payload)
 
       createExpect.fulfill()
     }
@@ -57,7 +60,7 @@ final class DataSyncUserEventIntegrationTests: XCTestCase {
         classVersion: self.userClassVersion,
         id: userId,
         status: "active",
-        payload: TestDataSyncUserPayload(fullName: "Swift ITest User", email: "swift.itest@example.com")
+        payload: payload
       ) { result in
         if case let .failure(error) = result {
           XCTFail("Failed to trigger the user created event: \(error)")
@@ -105,14 +108,16 @@ final class DataSyncUserEventIntegrationTests: XCTestCase {
       guard case let .entityUpdated(entityEvent) = event.change, entityEvent.entity.id == userId else {
         return
       }
+      guard case let .user(user) = entityEvent.object else {
+        XCTFail("A User entity event should narrow to .user, got \(entityEvent.kind)"); return
+      }
 
-      let entity = entityEvent.entity
-      XCTAssertEqual(entityEvent.kind, .user)
-      XCTAssertEqual(entity.className, "User")
-      XCTAssertEqual(entity.classLevel, .global)
-      XCTAssertEqual(entity.classVersion, self.userClassVersion)
-      XCTAssertFalse(entity.eTag.isEmpty)
-      XCTAssertNotNil(entity.payload)
+      XCTAssertEqual(user.id, userId)
+      XCTAssertEqual(user.className, "User")
+      XCTAssertEqual(user.classLevel, .global)
+      XCTAssertEqual(user.classVersion, self.userClassVersion)
+      XCTAssertFalse(user.eTag.isEmpty)
+      XCTAssertNotNil(user.payload)
 
       updateExpect.fulfill()
     }

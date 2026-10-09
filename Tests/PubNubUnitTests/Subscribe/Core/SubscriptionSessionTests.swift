@@ -140,6 +140,21 @@ class SubscriptionSessionTests: XCTestCase {
     XCTAssertEqual(subscriptionSession.subscribedChannelGroups, [testChannel])
   }
 
+  func testSubscriptionSession_UnsubscribeBatchReleasesNameSharedWithinTheBatch() throws {
+    let mockResponses = ["subscription_handshake_success", "cancelled"]
+    let subscriptionSession = try mockSubscriptionSession(with: mockResponses, and: config)
+    let pubnub = PubNub(configuration: config)
+
+    let channelSubscription = pubnub.channel(testChannel).subscription()
+    let dataSyncSubscription = pubnub.dataSyncChannel(testChannel).subscription()
+
+    subscriptionSession.subscribe(to: [channelSubscription, dataSyncSubscription])
+    XCTAssertEqual(subscriptionSession.subscribedChannels, [testChannel])
+
+    subscriptionSession.internalUnsubscribe(from: [channelSubscription, dataSyncSubscription])
+    XCTAssertTrue(subscriptionSession.subscribedChannels.isEmpty)
+  }
+
   func testSubscriptionSession_UnsubscribeRetainsNameHeldBySubscriptionSet() throws {
     let mockResponses = ["subscription_handshake_success", "cancelled"]
     let subscriptionSession = try mockSubscriptionSession(with: mockResponses, and: config)
@@ -155,6 +170,65 @@ class SubscriptionSessionTests: XCTestCase {
     // The set's topology covers both lists, and it still holds the name
     subscriptionSession.internalUnsubscribe(from: [standaloneSubscription])
     XCTAssertEqual(subscriptionSession.subscribedChannels, [testChannel])
+  }
+
+  func testLegacySubscriptionSession_ReportsSubscriptionChangedOnlyWhileConnected() throws {
+    let legacyConfig = PubNubConfiguration(
+      publishKey: "FakeTestString",
+      subscribeKey: "FakeTestString",
+      userId: UUID().uuidString,
+      enableEventEngine: false
+    )
+
+    let mockResponses = ["subscription_handshake_success", "cancelled"]
+    let subscriptionSession = try mockSubscriptionSession(with: mockResponses, and: legacyConfig)
+    let pubnub = PubNub(configuration: legacyConfig)
+    let listener = SubscriptionListener()
+    let otherChannel = "OtherChannel"
+
+    let statusExpect = XCTestExpectation(description: "Status Events")
+    statusExpect.assertForOverFulfill = false
+    statusExpect.expectedFulfillmentCount = 3
+
+    var statuses = [ConnectionStatus]()
+    var hasDisconnected = false
+
+    listener.didReceiveStatus = { [unowned subscriptionSession] status in
+      guard let newStatus = try? status.get(), !hasDisconnected else {
+        return
+      }
+
+      statuses.append(newStatus)
+      statusExpect.fulfill()
+
+      switch newStatus {
+      case .connected:
+        subscriptionSession.subscribe(to: [pubnub.channel(otherChannel).subscription()])
+      case .subscriptionChanged:
+        subscriptionSession.unsubscribeAll()
+      case .disconnected:
+        hasDisconnected = true
+      default:
+        break
+      }
+    }
+
+    subscriptionSession.add(listener)
+    subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
+
+    defer { listener.cancel() }
+    wait(for: [statusExpect], timeout: 1.0)
+
+    // Lets the requests cancelled by `unsubscribeAll()` unwind while the mock session is still alive
+    let settleExpect = XCTestExpectation(description: "Cancelled Requests Settled")
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { settleExpect.fulfill() }
+    wait(for: [settleExpect], timeout: 1.0)
+
+    XCTAssertEqual(statuses, [
+      .connected,
+      .subscriptionChanged(channels: [testChannel, otherChannel], groups: []),
+      .disconnected
+    ])
   }
 }
 

@@ -36,6 +36,30 @@ public struct PubNubDataSyncEntityEvent: Hashable {
   public let entity: PubNubDataSyncEntity
 }
 
+public extension PubNubDataSyncEntityEvent {
+  /// A created or updated entity, narrowed to the type the service reported.
+  enum Object: Hashable {
+    /// A user, including classes that extend `User`
+    case user(PubNubDataSyncUser)
+    /// A channel, including classes that extend `Channel`
+    case channel(PubNubDataSyncChannel)
+    /// A custom entity
+    case custom(PubNubDataSyncEntity)
+  }
+
+  /// The created or updated entity, narrowed to the type the service reported.
+  var object: Object {
+    switch kind {
+    case .user:
+      return .user(PubNubDataSyncUser(entity: entity))
+    case .channel:
+      return .channel(PubNubDataSyncChannel(entity: entity))
+    case .custom:
+      return .custom(entity)
+    }
+  }
+}
+
 /// A deleted DataSync entity event.
 public struct PubNubDataSyncEntityDeletedEvent: Hashable {
   /// The entity type
@@ -50,6 +74,26 @@ public struct PubNubDataSyncRelationshipEvent: Hashable {
   public let kind: PubNubDataSyncRelationshipKind
   /// The created or updated relationship
   public let relationship: PubNubDataSyncRelationship
+}
+
+public extension PubNubDataSyncRelationshipEvent {
+  /// A created or updated relationship, narrowed to the type the service reported.
+  enum Object: Hashable {
+    /// A membership
+    case membership(PubNubDataSyncMembership)
+    /// A custom relationship
+    case custom(PubNubDataSyncRelationship)
+  }
+
+  /// The created or updated relationship, narrowed to the type the service reported.
+  var object: Object {
+    switch kind {
+    case .membership:
+      return .membership(PubNubDataSyncMembership(relationship: relationship))
+    case .custom:
+      return .custom(relationship)
+    }
+  }
 }
 
 /// A deleted DataSync relationship event.

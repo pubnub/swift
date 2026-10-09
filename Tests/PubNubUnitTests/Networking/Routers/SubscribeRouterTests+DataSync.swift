@@ -383,6 +383,93 @@ extension SubscribeRouterTests {
     XCTAssertEqual(PubNubDataSyncRelationshipKind.custom.rawValue, "custom")
   }
 
+  func test_Subscribe_WithDataSyncUserEvent_NarrowsObjectToUser() throws {
+    let event = try XCTUnwrap(
+      try XCTUnwrap(mockDataSyncPayload(type: "user", className: "MyUser").asPubNubEvent())
+        .createdDataSyncEntityEvent
+    )
+
+    let user = try XCTUnwrap(event.object.user, "A user event should narrow to the user case")
+
+    XCTAssertEqual(user.entity, event.entity)
+    XCTAssertEqual(user.className, "MyUser")
+  }
+
+  func test_Subscribe_WithDataSyncChannelEvent_NarrowsObjectToChannel() throws {
+    let event = try XCTUnwrap(
+      try XCTUnwrap(mockDataSyncPayload(type: "channel", className: "MyChannel").asPubNubEvent())
+        .createdDataSyncEntityEvent
+    )
+
+    let channel = try XCTUnwrap(event.object.channel, "A channel event should narrow to the channel case")
+
+    XCTAssertEqual(channel.entity, event.entity)
+    XCTAssertEqual(channel.className, "MyChannel")
+  }
+
+  func test_Subscribe_WithDataSyncCustomEntityEvent_NarrowsObjectToCustom() throws {
+    let event = try XCTUnwrap(
+      try XCTUnwrap(
+        mockDataSyncPayload(
+          type: "entity",
+          className: "patient"
+        ).asPubNubEvent()
+      ).createdDataSyncEntityEvent
+    )
+
+    let entity = try XCTUnwrap(event.object.custom)
+
+    XCTAssertEqual(entity, event.entity)
+    XCTAssertEqual(entity.className, "patient")
+  }
+
+  func test_Subscribe_WithDataSyncMembershipEvent_NarrowsObjectToMembership() throws {
+    let payload = mockDataSyncPayload(
+      type: "membership",
+      className: "Membership",
+      classLevel: "Global",
+      data: [
+        "id": "hcn-membership-alice",
+        "channelId": "hcn-channel-general",
+        "userId": "hcn-user-alice",
+        "createdAt": "2026-07-28T09:11:17.077390Z",
+        "updatedAt": "2026-07-28T09:11:17.077390Z",
+        "eTag": "3w5e111hppk83",
+        "expiresAt": "2027-07-29T00:00:00Z"
+      ]
+    )
+
+    let event = try XCTUnwrap(try XCTUnwrap(payload.asPubNubEvent()).createdDataSyncRelationshipEvent)
+    let membership = try XCTUnwrap(event.object.membership)
+
+    XCTAssertEqual(membership.relationship, event.relationship)
+    XCTAssertEqual(membership.channelId, "hcn-channel-general")
+    XCTAssertEqual(membership.userId, "hcn-user-alice")
+  }
+
+  func test_Subscribe_WithDataSyncCustomRelationshipEvent_NarrowsObjectToCustom() throws {
+    let payload = mockDataSyncPayload(
+      type: "relationship",
+      className: "attendingPhysician",
+      data: [
+        "id": "hcn-relationship-alice",
+        "entityAId": "hcn-practitioner-bob",
+        "entityBId": "hcn-patient-alice",
+        "createdAt": "2026-07-28T09:11:17.077390Z",
+        "updatedAt": "2026-07-28T09:11:17.077390Z",
+        "eTag": "3w5e111hppk83",
+        "expiresAt": "2027-07-29T00:00:00Z"
+      ]
+    )
+
+    let event = try XCTUnwrap(try XCTUnwrap(payload.asPubNubEvent()).createdDataSyncRelationshipEvent)
+    let relationship = try XCTUnwrap(event.object.custom)
+
+    XCTAssertEqual(relationship, event.relationship)
+    XCTAssertEqual(relationship.entityAId, "hcn-practitioner-bob")
+    XCTAssertEqual(relationship.entityBId, "hcn-patient-alice")
+  }
+
   func test_DataSyncAction_MapsToDataSyncMessageType() {
     XCTAssertEqual(SubscribeMessagePayload.Action.dataSync.asPubNubMessageType, .dataSync)
   }
@@ -961,6 +1048,35 @@ private extension PubNubDataSyncEvent {
   var unknown: PubNubDataSyncUnknownEvent? {
     guard case let .unknown(unknownEvent) = change else { return nil }
     return unknownEvent
+  }
+}
+
+private extension PubNubDataSyncEntityEvent.Object {
+  var user: PubNubDataSyncUser? {
+    guard case let .user(user) = self else { return nil }
+    return user
+  }
+
+  var channel: PubNubDataSyncChannel? {
+    guard case let .channel(channel) = self else { return nil }
+    return channel
+  }
+
+  var custom: PubNubDataSyncEntity? {
+    guard case let .custom(entity) = self else { return nil }
+    return entity
+  }
+}
+
+private extension PubNubDataSyncRelationshipEvent.Object {
+  var membership: PubNubDataSyncMembership? {
+    guard case let .membership(membership) = self else { return nil }
+    return membership
+  }
+
+  var custom: PubNubDataSyncRelationship? {
+    guard case let .custom(relationship) = self else { return nil }
+    return relationship
   }
 }
 

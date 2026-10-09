@@ -443,7 +443,7 @@ public extension PubNub.DataSyncAPI {
   ///   - sort: List of properties to sort the results by
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: A `Tuple` containing an `Array` of ``PubNubDataSyncEntity``, and the next page (if one exists)
+  ///     - **Success**: A `Tuple` containing an `Array` of ``PubNubDataSyncUser``, and the next page (if one exists)
   ///     - **Failure**: An `Error` describing the failure
   func getUsers(
     className: String? = nil,
@@ -455,7 +455,7 @@ public extension PubNub.DataSyncAPI {
     filter: String? = nil,
     sort: [PubNub.DataSyncSortField] = [],
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
-    completion: ((Result<(users: [PubNubDataSyncEntity], next: PubNubDataSyncPage?), Error>) -> Void)?
+    completion: ((Result<(users: [PubNubDataSyncUser], next: PubNubDataSyncPage?), Error>) -> Void)?
   ) {
     log(
       operation: "getUsers",
@@ -489,7 +489,7 @@ public extension PubNub.DataSyncAPI {
 
     route(
       router,
-      responseDecoder: DataSyncListValueResponseDecoder<PubNubDataSyncEntity>(),
+      responseDecoder: DataSyncListValueResponseDecoder<PubNubDataSyncUser>(),
       custom: requestConfig
     ) { result in
       completion?(result.map { (
@@ -505,12 +505,12 @@ public extension PubNub.DataSyncAPI {
   ///   - id: The unique identifier of the user
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: The ``PubNubDataSyncEntity`` belonging to the identifier
+  ///     - **Success**: The ``PubNubDataSyncUser`` belonging to the identifier
   ///     - **Failure**: An `Error` describing the failure
   func getUser(
     id: String,
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
-    completion: ((Result<PubNubDataSyncEntity, Error>) -> Void)?
+    completion: ((Result<PubNubDataSyncUser, Error>) -> Void)?
   ) {
     log(
       operation: "getUser",
@@ -525,7 +525,7 @@ public extension PubNub.DataSyncAPI {
 
     route(
       router,
-      responseDecoder: DataSyncSingleValueResponseDecoder<PubNubDataSyncEntity>(),
+      responseDecoder: DataSyncSingleValueResponseDecoder<PubNubDataSyncUser>(),
       custom: requestConfig
     ) { result in
       completion?(result.map { $0.payload.data })
@@ -547,7 +547,7 @@ public extension PubNub.DataSyncAPI {
   ///   - payload: The user fields
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: The created ``PubNubDataSyncEntity``
+  ///     - **Success**: The created ``PubNubDataSyncUser``
   ///     - **Failure**: An `Error` describing the failure
   func createUser(
     className: String? = nil,
@@ -557,7 +557,7 @@ public extension PubNub.DataSyncAPI {
     status: String? = nil,
     payload: JSONCodable? = nil,
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
-    completion: ((Result<PubNubDataSyncEntity, Error>) -> Void)?
+    completion: ((Result<PubNubDataSyncUser, Error>) -> Void)?
   ) {
     log(
       operation: "createUser",
@@ -589,7 +589,7 @@ public extension PubNub.DataSyncAPI {
 
     route(
       router,
-      responseDecoder: DataSyncSingleValueResponseDecoder<PubNubDataSyncEntity>(),
+      responseDecoder: DataSyncSingleValueResponseDecoder<PubNubDataSyncUser>(),
       custom: requestConfig
     ) { result in
       completion?(result.map { $0.payload.data })
@@ -607,10 +607,10 @@ public extension PubNub.DataSyncAPI {
   ///   - classVersion: The version of the `User` class the payload conforms to
   ///   - status: An arbitrary status to store with the user
   ///   - payload: The replacement user fields
-  ///   - ifMatchesEtag: The user's last known ``PubNubDataSyncEntity/eTag``, used to prevent modifying a newer revision
+  ///   - ifMatchesEtag: The user's last known ``PubNubDataSyncUser/eTag``, used to prevent modifying a newer revision
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: The replaced ``PubNubDataSyncEntity``
+  ///     - **Success**: The replaced ``PubNubDataSyncUser``
   ///     - **Failure**: An `Error` describing the failure
   func setUser(
     id: String,
@@ -619,7 +619,7 @@ public extension PubNub.DataSyncAPI {
     payload: JSONCodable? = nil,
     ifMatchesEtag: String? = nil,
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
-    completion: ((Result<PubNubDataSyncEntity, Error>) -> Void)?
+    completion: ((Result<PubNubDataSyncUser, Error>) -> Void)?
   ) {
     log(
       operation: "setUser",
@@ -645,7 +645,7 @@ public extension PubNub.DataSyncAPI {
 
     route(
       router,
-      responseDecoder: DataSyncSingleValueResponseDecoder<PubNubDataSyncEntity>(),
+      responseDecoder: DataSyncSingleValueResponseDecoder<PubNubDataSyncUser>(),
       custom: requestConfig
     ) { result in
       completion?(result.map { $0.payload.data })
@@ -660,17 +660,17 @@ public extension PubNub.DataSyncAPI {
   /// - Parameters:
   ///   - id: The unique identifier of the user
   ///   - operations: The RFC 6902 operations to apply, which must not be empty
-  ///   - ifMatchesEtag: The user's last known ``PubNubDataSyncEntity/eTag``, used to prevent modifying a newer revision
+  ///   - ifMatchesEtag: The user's last known ``PubNubDataSyncUser/eTag``, used to prevent modifying a newer revision
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: The patched ``PubNubDataSyncEntity``
+  ///     - **Success**: The patched ``PubNubDataSyncUser``
   ///     - **Failure**: An `Error` describing the failure
   func updateUser(
     id: String,
     operations: [PubNubDataSyncPatchOperation],
     ifMatchesEtag: String? = nil,
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
-    completion: ((Result<PubNubDataSyncEntity, Error>) -> Void)?
+    completion: ((Result<PubNubDataSyncUser, Error>) -> Void)?
   ) {
     log(
       operation: "updateUser",
@@ -690,7 +690,7 @@ public extension PubNub.DataSyncAPI {
 
     route(
       router,
-      responseDecoder: DataSyncSingleValueResponseDecoder<PubNubDataSyncEntity>(),
+      responseDecoder: DataSyncSingleValueResponseDecoder<PubNubDataSyncUser>(),
       custom: requestConfig
     ) { result in
       completion?(result.map { $0.payload.data })
@@ -701,7 +701,7 @@ public extension PubNub.DataSyncAPI {
   ///
   /// - Parameters:
   ///   - id: The unique identifier of the user
-  ///   - ifMatchesEtag: The user's last known ``PubNubDataSyncEntity/eTag``, used to prevent modifying a newer revision
+  ///   - ifMatchesEtag: The user's last known ``PubNubDataSyncUser/eTag``, used to prevent modifying a newer revision
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: An acknowledgement that the user was removed
@@ -753,7 +753,7 @@ public extension PubNub.DataSyncAPI {
   ///   - sort: List of properties to sort the results by
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: A `Tuple` containing an `Array` of ``PubNubDataSyncEntity``, and the next page (if one exists)
+  ///     - **Success**: A `Tuple` containing an `Array` of ``PubNubDataSyncChannel``, and the next page (if one exists)
   ///     - **Failure**: An `Error` describing the failure
   func getChannels(
     className: String? = nil,
@@ -765,7 +765,7 @@ public extension PubNub.DataSyncAPI {
     filter: String? = nil,
     sort: [PubNub.DataSyncSortField] = [],
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
-    completion: ((Result<(channels: [PubNubDataSyncEntity], next: PubNubDataSyncPage?), Error>) -> Void)?
+    completion: ((Result<(channels: [PubNubDataSyncChannel], next: PubNubDataSyncPage?), Error>) -> Void)?
   ) {
     log(
       operation: "getChannels",
@@ -799,7 +799,7 @@ public extension PubNub.DataSyncAPI {
 
     route(
       router,
-      responseDecoder: DataSyncListValueResponseDecoder<PubNubDataSyncEntity>(),
+      responseDecoder: DataSyncListValueResponseDecoder<PubNubDataSyncChannel>(),
       custom: requestConfig
     ) { result in
       completion?(result.map { (
@@ -815,12 +815,12 @@ public extension PubNub.DataSyncAPI {
   ///   - id: The unique identifier of the channel
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: The ``PubNubDataSyncEntity`` belonging to the identifier
+  ///     - **Success**: The ``PubNubDataSyncChannel`` belonging to the identifier
   ///     - **Failure**: An `Error` describing the failure
   func getChannel(
     id: String,
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
-    completion: ((Result<PubNubDataSyncEntity, Error>) -> Void)?
+    completion: ((Result<PubNubDataSyncChannel, Error>) -> Void)?
   ) {
     log(
       operation: "getChannel",
@@ -835,7 +835,7 @@ public extension PubNub.DataSyncAPI {
 
     route(
       router,
-      responseDecoder: DataSyncSingleValueResponseDecoder<PubNubDataSyncEntity>(),
+      responseDecoder: DataSyncSingleValueResponseDecoder<PubNubDataSyncChannel>(),
       custom: requestConfig
     ) { result in
       completion?(result.map { $0.payload.data })
@@ -857,7 +857,7 @@ public extension PubNub.DataSyncAPI {
   ///   - payload: The channel fields
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: The created ``PubNubDataSyncEntity``
+  ///     - **Success**: The created ``PubNubDataSyncChannel``
   ///     - **Failure**: An `Error` describing the failure
   func createChannel(
     className: String? = nil,
@@ -867,7 +867,7 @@ public extension PubNub.DataSyncAPI {
     status: String? = nil,
     payload: JSONCodable? = nil,
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
-    completion: ((Result<PubNubDataSyncEntity, Error>) -> Void)?
+    completion: ((Result<PubNubDataSyncChannel, Error>) -> Void)?
   ) {
     log(
       operation: "createChannel",
@@ -899,7 +899,7 @@ public extension PubNub.DataSyncAPI {
 
     route(
       router,
-      responseDecoder: DataSyncSingleValueResponseDecoder<PubNubDataSyncEntity>(),
+      responseDecoder: DataSyncSingleValueResponseDecoder<PubNubDataSyncChannel>(),
       custom: requestConfig
     ) { result in
       completion?(result.map { $0.payload.data })
@@ -917,10 +917,10 @@ public extension PubNub.DataSyncAPI {
   ///   - classVersion: The version of the `Channel` class the payload conforms to
   ///   - status: An arbitrary status to store with the channel
   ///   - payload: The replacement channel fields
-  ///   - ifMatchesEtag: The channel's last known ``PubNubDataSyncEntity/eTag``, used to prevent modifying a newer revision
+  ///   - ifMatchesEtag: The channel's last known ``PubNubDataSyncChannel/eTag``, used to prevent modifying a newer revision
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: The replaced ``PubNubDataSyncEntity``
+  ///     - **Success**: The replaced ``PubNubDataSyncChannel``
   ///     - **Failure**: An `Error` describing the failure
   func setChannel(
     id: String,
@@ -929,7 +929,7 @@ public extension PubNub.DataSyncAPI {
     payload: JSONCodable? = nil,
     ifMatchesEtag: String? = nil,
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
-    completion: ((Result<PubNubDataSyncEntity, Error>) -> Void)?
+    completion: ((Result<PubNubDataSyncChannel, Error>) -> Void)?
   ) {
     log(
       operation: "setChannel",
@@ -955,7 +955,7 @@ public extension PubNub.DataSyncAPI {
 
     route(
       router,
-      responseDecoder: DataSyncSingleValueResponseDecoder<PubNubDataSyncEntity>(),
+      responseDecoder: DataSyncSingleValueResponseDecoder<PubNubDataSyncChannel>(),
       custom: requestConfig
     ) { result in
       completion?(result.map { $0.payload.data })
@@ -970,17 +970,17 @@ public extension PubNub.DataSyncAPI {
   /// - Parameters:
   ///   - id: The unique identifier of the channel
   ///   - operations: The RFC 6902 operations to apply, which must not be empty
-  ///   - ifMatchesEtag: The channel's last known ``PubNubDataSyncEntity/eTag``, used to prevent modifying a newer revision
+  ///   - ifMatchesEtag: The channel's last known ``PubNubDataSyncChannel/eTag``, used to prevent modifying a newer revision
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: The patched ``PubNubDataSyncEntity``
+  ///     - **Success**: The patched ``PubNubDataSyncChannel``
   ///     - **Failure**: An `Error` describing the failure
   func updateChannel(
     id: String,
     operations: [PubNubDataSyncPatchOperation],
     ifMatchesEtag: String? = nil,
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
-    completion: ((Result<PubNubDataSyncEntity, Error>) -> Void)?
+    completion: ((Result<PubNubDataSyncChannel, Error>) -> Void)?
   ) {
     log(
       operation: "updateChannel",
@@ -1000,7 +1000,7 @@ public extension PubNub.DataSyncAPI {
 
     route(
       router,
-      responseDecoder: DataSyncSingleValueResponseDecoder<PubNubDataSyncEntity>(),
+      responseDecoder: DataSyncSingleValueResponseDecoder<PubNubDataSyncChannel>(),
       custom: requestConfig
     ) { result in
       completion?(result.map { $0.payload.data })
@@ -1011,7 +1011,7 @@ public extension PubNub.DataSyncAPI {
   ///
   /// - Parameters:
   ///   - id: The unique identifier of the channel
-  ///   - ifMatchesEtag: The channel's last known ``PubNubDataSyncEntity/eTag``, used to prevent modifying a newer revision
+  ///   - ifMatchesEtag: The channel's last known ``PubNubDataSyncChannel/eTag``, used to prevent modifying a newer revision
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: An acknowledgement that the channel was removed

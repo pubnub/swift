@@ -40,15 +40,11 @@ public struct PubNubDataSyncPage: Hashable {
     guard let meta = meta else {
       return nil
     }
-    // Both fields are documented as always present, but fall back rather than fail the response
-    guard let limit = meta.limit ?? requestedLimit else {
-      return nil
-    }
 
     self.init(
       cursor: meta.nextCursor,
       hasNext: meta.hasNext ?? false,
-      limit: limit
+      limit: meta.limit ?? requestedLimit ?? 20
     )
   }
 }

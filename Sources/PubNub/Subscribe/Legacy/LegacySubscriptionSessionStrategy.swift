@@ -332,8 +332,10 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
     let (channels, groups) = internalState.lockedRead {
       ($0.allSubscribedChannels, $0.allSubscribedGroups)
     }
-    notify {
-      $0.emit(subscribe: .connectionChanged(.subscriptionChanged(channels: channels, groups: groups)))
+    if channels.isEmpty, groups.isEmpty {
+      return
     }
+
+    connectionStatus = .subscriptionChanged(channels: channels, groups: groups)
   }
 }

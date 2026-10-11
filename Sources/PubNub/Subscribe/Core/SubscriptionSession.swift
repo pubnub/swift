@@ -251,15 +251,16 @@ extension SubscriptionSession {
     )
   }
 
-  // Returns a boolean indicating whether there are subscription objects that subscribe to at least one name
-  // in common with the given subscription
-  func hasOverlappingSubscriptions(for subscription: Subscription) -> Bool {
+  // Returns a boolean indicating whether there are subscription objects that subscribe to at least one name in common with the given subscription
+  func hasOverlappingSubscriptions(
+    for subscription: Subscription,
+    excluding excludedUUIDs: Set<UUID> = []
+  ) -> Bool {
     let remainingSubscriptions = strategy.listeners.allObjects.compactMap {
       $0 as? BaseSubscriptionListenerAdapter
     }.filter {
-      // Exclude the subscription being checked and the internal global events listener
-      // since the global listener is not a user-triggered subscription
-      $0.uuid != subscription.uuid && $0.uuid != globalEventsListener.uuid
+      // Exclude the subscriptions being removed and the internal global events listener
+      $0.uuid != subscription.uuid && !excludedUUIDs.contains($0.uuid) && $0.uuid != globalEventsListener.uuid
     }
     let matchingSubscriptions = remainingSubscriptions.compactMap {
      $0.receiver
@@ -272,8 +273,10 @@ extension SubscriptionSession {
 
   // Returns the names that no longer have any subscription keeping them in the Subscribe loop
   private func resolveTopologyToUnsubscribe(from subscriptions: [Subscription]) -> SubscriptionTopology {
+    let uuidsBeingRemoved = Set(subscriptions.map { $0.uuid })
+
     return subscriptions.reduce(SubscriptionTopology.empty) { accumulatedResult, subscription in
-      if hasOverlappingSubscriptions(for: subscription) {
+      if hasOverlappingSubscriptions(for: subscription, excluding: uuidsBeingRemoved) {
         return accumulatedResult
       } else {
         return accumulatedResult + subscription.subscriptionTopology

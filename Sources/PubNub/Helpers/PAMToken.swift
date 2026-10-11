@@ -19,6 +19,10 @@ public struct PAMToken: Codable, Equatable, Hashable {
   public let authorizedUUID: String?
   public let resources: PAMTokenResource
   public let patterns: PAMTokenResource
+  /// Permissions granted on a whole resource type rather than on named resources.
+  ///
+  /// Empty when the token carries no category permissions.
+  public let categories: PAMTokenCategory
   public let meta: [String: AnyJSON]
   public let signature: String
 
@@ -31,8 +35,26 @@ public struct PAMToken: Codable, Equatable, Hashable {
     case authorizedUUID = "uuid"
     case resources = "res"
     case patterns = "pat"
+    case categories = "cat"
     case meta
     case signature = "sig"
+  }
+
+  // Decodes each optional section through `decodeIfPresent` so that a token omitting any of them still
+  // parses. Tokens only carry the sections that were granted, and new sections may be added over time,
+  // so a missing key must not fail the whole token and cost the caller the permissions it does carry.
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+
+    version = try container.decode(Int.self, forKey: .version)
+    timestamp = try container.decode(Int.self, forKey: .timestamp)
+    ttl = try container.decode(Int.self, forKey: .ttl)
+    signature = try container.decode(String.self, forKey: .signature)
+    authorizedUUID = try container.decodeIfPresent(String.self, forKey: .authorizedUUID)
+    resources = try container.decodeIfPresent(PAMTokenResource.self, forKey: .resources) ?? PAMTokenResource()
+    patterns = try container.decodeIfPresent(PAMTokenResource.self, forKey: .patterns) ?? PAMTokenResource()
+    categories = try container.decodeIfPresent(PAMTokenCategory.self, forKey: .categories) ?? PAMTokenCategory()
+    meta = try container.decodeIfPresent([String: AnyJSON].self, forKey: .meta) ?? [:]
   }
 
   enum PAMTokenError: Error {
@@ -74,6 +96,22 @@ public struct PAMTokenResource: Codable, Equatable, Hashable {
     case dataSyncRelationships = "datasync:relationships"
   }
 
+  init(
+    channels: [String: PAMPermission] = [:],
+    groups: [String: PAMPermission] = [:],
+    uuids: [String: PAMPermission] = [:],
+    dataSyncEntities: [String: PAMPermission] = [:],
+    dataSyncMemberships: [String: PAMPermission] = [:],
+    dataSyncRelationships: [String: PAMPermission] = [:]
+  ) {
+    self.channels = channels
+    self.groups = groups
+    self.uuids = uuids
+    self.dataSyncEntities = dataSyncEntities
+    self.dataSyncMemberships = dataSyncMemberships
+    self.dataSyncRelationships = dataSyncRelationships
+  }
+
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -83,6 +121,35 @@ public struct PAMTokenResource: Codable, Equatable, Hashable {
     dataSyncEntities = try container.decodeIfPresent([String: PAMPermission].self, forKey: .dataSyncEntities) ?? [:]
     dataSyncMemberships = try container.decodeIfPresent([String: PAMPermission].self, forKey: .dataSyncMemberships) ?? [:]
     dataSyncRelationships = try container.decodeIfPresent([String: PAMPermission].self, forKey: .dataSyncRelationships) ?? [:]
+  }
+}
+
+/// Permissions granted on an entire resource type, independent of the permissions granted on named
+/// resources and patterns.
+///
+/// A category permission is not implied by, and does not imply, a permission on an individual resource
+/// of the same type.
+public struct PAMTokenCategory: Codable, Equatable, Hashable {
+  /// Permissions granted on the channel type as a whole.
+  public let channels: PAMPermission
+  /// Permissions granted on the uuid type as a whole.
+  public let uuids: PAMPermission
+
+  enum CodingKeys: String, CodingKey {
+    case channels = "chan"
+    case uuids = "uuid"
+  }
+
+  init(channels: PAMPermission = .none, uuids: PAMPermission = .none) {
+    self.channels = channels
+    self.uuids = uuids
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+
+    channels = try container.decodeIfPresent(PAMPermission.self, forKey: .channels) ?? .none
+    uuids = try container.decodeIfPresent(PAMPermission.self, forKey: .uuids) ?? .none
   }
 }
 

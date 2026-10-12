@@ -33,6 +33,11 @@ public class KMPChannelEntity: KMPEntity {
     self.channel = channel
     super.init(entity: channel)
   }
+
+  @objc
+  public var name: String {
+    channel.name
+  }
 }
 
 @objc
@@ -42,6 +47,11 @@ public class KMPChannelGroupEntity: KMPEntity {
   init(channelGroup: ChannelGroup) {
     self.channelGroup = channelGroup
     super.init(entity: channelGroup)
+  }
+
+  @objc
+  public var name: String {
+    channelGroup.name
   }
 }
 
@@ -53,6 +63,11 @@ public class KMPUserMetadataEntity: KMPEntity {
     self.userMetadata = userMetadata
     super.init(entity: userMetadata)
   }
+
+  @objc
+  public var name: String {
+    userMetadata.id
+  }
 }
 
 @objc
@@ -62,6 +77,11 @@ public class KMPChannelMetadataEntity: KMPEntity {
   init(channelMetadata: ChannelMetadata) {
     self.channelMetadata = channelMetadata
     super.init(entity: channelMetadata)
+  }
+
+  @objc
+  public var name: String {
+    channelMetadata.id
   }
 }
 
@@ -115,15 +135,6 @@ public class KMPDataSyncChannelReference: KMPDataSyncReference {
 }
 
 @objc
-public class KMPDataSyncMembershipReference: NSObject {
-  private let membership: DataSyncMembership
-
-  init(membership: DataSyncMembership) {
-    self.membership = membership
-  }
-}
-
-@objc
 public class KMPDataSyncEntityReference: KMPDataSyncReference {
   private let dataSyncEntity: DataSyncEntity
 
@@ -134,14 +145,5 @@ public class KMPDataSyncEntityReference: KMPDataSyncReference {
 
   override func dataSyncSubscription(projection: String) -> Subscription {
     dataSyncEntity.subscription(projection: projection)
-  }
-}
-
-@objc
-public class KMPDataSyncRelationshipReference: NSObject {
-  private let relationship: DataSyncRelationship
-
-  init(relationship: DataSyncRelationship) {
-    self.relationship = relationship
   }
 }

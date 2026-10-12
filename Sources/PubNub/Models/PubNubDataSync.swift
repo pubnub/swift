@@ -14,10 +14,6 @@ import Foundation
 public enum PubNubDataSyncClassLevel: Hashable {
   /// A class shared across all accounts
   case global
-  /// A class scoped to the account
-  ///
-  /// - Important: Not supported yet; support for account-level classes is planned for a future release
-  case account
   /// A class scoped to the subscribe key
   case subKey
   /// A level this version of the SDK doesn't recognize, along with the value received from the server
@@ -28,8 +24,6 @@ public enum PubNubDataSyncClassLevel: Hashable {
     switch self {
     case .global:
       return "Global"
-    case .account:
-      return "Account"
     case .subKey:
       return "SubKey"
     case let .unknown(rawValue):
@@ -41,8 +35,6 @@ public enum PubNubDataSyncClassLevel: Hashable {
     switch stringValue {
     case "Global":
       self = .global
-    case "Account":
-      self = .account
     case "SubKey":
       self = .subKey
     default:

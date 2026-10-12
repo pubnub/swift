@@ -26,41 +26,31 @@ final class DataSyncResponseTests: XCTestCase {
 
   func test_DecodeSingleResourceEnvelope() throws {
     let json = """
-    {
-      "data": {
-        "id": "alice", "status": "active", "entityClassVersion": 1,
-        "createdAt": "2021-01-01T00:00:00.000Z", "updatedAt": "2021-01-01T00:00:00.000Z",
-        "eTag": "1", "expiresAt": "2027-08-07T00:00:00Z",
-        "payload": { "name": "Alice", "email": "alice@example.com" }
-      }
-    }
+    { "data": \(Self.entityJSON(className: "User")) }
     """
 
     let response = try Constant.jsonDecoder.decode(
-      DataSyncSingleResponse<DataSyncResource>.self,
+      DataSyncSingleResponse<PubNubDataSyncUser>.self,
       from: XCTUnwrap(json.data(using: .utf8))
     )
 
     XCTAssertEqual(response.data.id, "alice")
     XCTAssertEqual(response.data.status, "active")
-    XCTAssertEqual(response.data.entityClassVersion, 1)
+    XCTAssertEqual(response.data.classVersion, 1)
     XCTAssertEqual(response.data.eTag, "1")
-    XCTAssertEqual(response.data.expiresAt, "2027-08-07T00:00:00Z")
   }
 
   func test_DecodeListEnvelopeWithMeta() throws {
     let json = """
     {
-      "data": [
-        { "id": "alice", "entityClassVersion": 1, "eTag": "1", "expiresAt": "2027-08-07T00:00:00Z" }
-      ],
+      "data": [\(Self.entityJSON(className: "User"))],
       "links": { "self": "/users?limit=20", "next": "/users?cursor=TjIw" },
       "meta": { "has_next": true, "next_cursor": "TjIw", "limit": 20 }
     }
     """
 
     let response = try Constant.jsonDecoder.decode(
-      DataSyncListResponse<DataSyncResource>.self,
+      DataSyncListResponse<PubNubDataSyncUser>.self,
       from: XCTUnwrap(json.data(using: .utf8))
     )
 
@@ -98,31 +88,31 @@ final class DataSyncResponseTests: XCTestCase {
     XCTAssertEqual(page.limit, 20)
   }
 
-  func test_DecodeRelationshipResourceFields() throws {
+  func test_DecodeRelationship_MapsRelationshipWireFields() throws {
     let json = """
     {
-      "data": {
-        "id": "r-123", "entityAId": "u123", "entityBId": "s456",
-        "relationshipClass": "ProductOwner", "relationshipClassVersion": 1,
-        "status": "active", "eTag": "1", "expiresAt": "2027-08-07T00:00:00Z",
-        "payload": { "custom": "fields" }
-      }
+      "id": "r-123", "entityAId": "u123", "entityBId": "s456",
+      "relationshipClass": "ProductOwner", "relationshipClassVersion": 1,
+      "status": "active", "eTag": "1",
+      "createdAt": "2021-01-01T00:00:00.000Z", "updatedAt": "2021-01-01T00:00:00.000Z",
+      "expiresAt": "2027-08-07T00:00:00Z",
+      "payload": { "custom": "fields" }
     }
     """
 
-    let response = try Constant.jsonDecoder.decode(
-      DataSyncSingleResponse<DataSyncResource>.self,
+    let relationship = try Constant.jsonDecoder.decode(
+      PubNubDataSyncRelationship.self,
       from: XCTUnwrap(json.data(using: .utf8))
     )
 
-    XCTAssertEqual(response.data.id, "r-123")
-    XCTAssertEqual(response.data.entityAId, "u123")
-    XCTAssertEqual(response.data.entityBId, "s456")
-    XCTAssertEqual(response.data.relationshipClass, "ProductOwner")
-    XCTAssertEqual(response.data.relationshipClassVersion, 1)
-    XCTAssertEqual(response.data.status, "active")
-    XCTAssertEqual(response.data.eTag, "1")
-    XCTAssertEqual(response.data.payload?["custom"], "fields")
+    XCTAssertEqual(relationship.id, "r-123")
+    XCTAssertEqual(relationship.entityAId, "u123")
+    XCTAssertEqual(relationship.entityBId, "s456")
+    XCTAssertEqual(relationship.className, "ProductOwner")
+    XCTAssertEqual(relationship.classVersion, 1)
+    XCTAssertEqual(relationship.status, "active")
+    XCTAssertEqual(relationship.eTag, "1")
+    XCTAssertEqual(relationship.payload?.codableValue["custom"], "fields")
   }
 
   func test_MembershipRelationship_MapsMembershipEndpointsToRelationshipSides() {

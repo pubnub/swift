@@ -129,7 +129,7 @@ public extension PubNub.DataSyncAPI {
   /// - Parameters:
   ///   - className: The name of the class to list entities of
   ///   - classVersion: Restricts results to a single class version. If omitted, every version is returned, including classes that extend this one
-  ///   - classLevel: The level to resolve the class name at. If omitted, the first level declaring it wins, searching `subKey`, `account`, then `global`
+  ///   - classLevel: The level to resolve the class name at. If omitted, the first level declaring it wins, searching `subKey`, then `global`
   ///   - cursor: The ``PubNubDataSyncPage/cursor`` of a previous page, or `nil` for the first page
   ///   - limit: The number of entities to retrieve, between 1 and 100. Defaults to 20
   ///   - filterFast: Filters the latest data, including changes made immediately before the request. Supports a limited number of filter conditions. Mutually exclusive with `filter`
@@ -231,7 +231,7 @@ public extension PubNub.DataSyncAPI {
   /// - Parameters:
   ///   - className: The name of the class to create the entity in
   ///   - classVersion: The version of the class the payload conforms to
-  ///   - classLevel: The level to resolve the class name at. If omitted, the first level declaring it wins, searching `subKey`, `account`, then `global`
+  ///   - classLevel: The level to resolve the class name at. If omitted, the first level declaring it wins, searching `subKey`, then `global`
   ///   - id: The unique identifier to create the entity with, or `nil` to let the service assign one
   ///   - status: An arbitrary status to store with the entity
   ///   - payload: The entity fields
@@ -434,7 +434,7 @@ public extension PubNub.DataSyncAPI {
   ///   - className: The class to list, which must be `User` or a class that extends it. Defaults to `User`
   ///   - classVersion: Restricts results to a single version of the `User` class. If omitted, every version is returned, including classes that extend `User`
   ///   - classLevel: The level to resolve `className` at
-  ///     - **Omitted**: the first level declaring it wins, searching `subKey`, `account`, then `global`
+  ///     - **Omitted**: the first level declaring it wins, searching `subKey`, then `global`
   ///     - **Provided**: only that level is searched
   ///   - cursor: The ``PubNubDataSyncPage/cursor`` of a previous page, or `nil` for the first page
   ///   - limit: The number of users to retrieve, between 1 and 100. Defaults to 20
@@ -540,7 +540,7 @@ public extension PubNub.DataSyncAPI {
   ///   - className: The class to create the user in, which must be `User` or a class that extends it. Defaults to `User`
   ///   - classVersion: The version of the `User` class the payload conforms to
   ///   - classLevel: The level to resolve `className` at
-  ///     - **Omitted**: the first level declaring it wins, searching `subKey`, `account`, then `global`
+  ///     - **Omitted**: the first level declaring it wins, searching `subKey`, then `global`
   ///     - **Provided**: only that level is searched
   ///   - id: The unique identifier to create the user with, or `nil` to let the service assign one
   ///   - status: An arbitrary status to store with the user
@@ -744,7 +744,7 @@ public extension PubNub.DataSyncAPI {
   ///   - className: The class to list, which must be `Channel` or a class that extends it. Defaults to `Channel`
   ///   - classVersion: Restricts results to a single version of the `Channel` class. If omitted, every version is returned, including classes that extend `Channel`
   ///   - classLevel: The level to resolve `className` at
-  ///     - **Omitted**: the first level declaring it wins, searching `subKey`, `account`, then `global`
+  ///     - **Omitted**: the first level declaring it wins, searching `subKey`, then `global`
   ///     - **Provided**: only that level is searched
   ///   - cursor: The ``PubNubDataSyncPage/cursor`` of a previous page, or `nil` for the first page
   ///   - limit: The number of channels to retrieve, between 1 and 100. Defaults to 20
@@ -850,7 +850,7 @@ public extension PubNub.DataSyncAPI {
   ///   - className: The class to create the channel in, which must be `Channel` or a class that extends it. Defaults to `Channel`
   ///   - classVersion: The version of the `Channel` class the payload conforms to
   ///   - classLevel: The level to resolve `className` at
-  ///     - **Omitted**: the first level declaring it wins, searching `subKey`, `account`, then `global`
+  ///     - **Omitted**: the first level declaring it wins, searching `subKey`, then `global`
   ///     - **Provided**: only that level is searched
   ///   - id: The unique identifier to create the channel with, or `nil` to let the service assign one
   ///   - status: An arbitrary status to store with the channel

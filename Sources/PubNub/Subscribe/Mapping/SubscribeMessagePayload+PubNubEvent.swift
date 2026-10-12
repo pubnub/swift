@@ -44,7 +44,7 @@ extension SubscribeMessagePayload {
       return .fileChanged(.uploaded(fileMessage))
     case .dataSync:
       guard let event = try? decodeDataSyncEvent() else {
-        return .messageReceived(PubNubMessageBase(from: self))
+        return nil
       }
       return .dataSyncChanged(event)
     case .presence:

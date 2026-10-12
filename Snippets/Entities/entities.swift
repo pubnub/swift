@@ -48,19 +48,9 @@ pubnub.dataSyncUser("player-1")
 pubnub.dataSyncChannel("team-1")
 // snippet.end
 
-// snippet.data-sync-membership-entity
-// Create a Data Sync membership reference
-pubnub.dataSyncMembership("membership-1")
-// snippet.end
-
 // snippet.data-sync-entity
 // Create a Data Sync custom entity reference
 pubnub.dataSyncEntity("match-1")
-// snippet.end
-
-// snippet.data-sync-relationship-entity
-// Create a Data Sync custom relationship reference
-pubnub.dataSyncRelationship("relationship-1")
 // snippet.end
 
 // snippet.data-sync-projection-subscription

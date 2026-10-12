@@ -68,6 +68,79 @@ pubnub.dataSync.getRelationships(
 }
 // snippet.end
 
+// snippet.get-relationships-filter-fast
+// Filter strongly consistent data, so a relationship you just wrote is matched
+pubnub.dataSync.getRelationships(
+  className: "enrollment",
+  limit: 20,
+  filterFast: "isActive == true && completedLessons >= 10"
+) { result in
+  switch result {
+  case let .success((relationships, _)):
+    print("The matching relationships: \(relationships)")
+  case let .failure(error):
+    print("Get relationships request failed with error: \(error.localizedDescription)")
+  }
+}
+// snippet.end
+
+// snippet.get-relationships-filter
+// Filter eventually consistent data with the full expression language
+pubnub.dataSync.getRelationships(
+  className: "enrollment",
+  limit: 20,
+  filter: "role LIKE \"*student*\""
+) { result in
+  switch result {
+  case let .success((relationships, _)):
+    print("The matching relationships: \(relationships)")
+  case let .failure(error):
+    print("Get relationships request failed with error: \(error.localizedDescription)")
+  }
+}
+// snippet.end
+
+// snippet.get-relationships-pagination
+// Page through every relationship, passing the cursor of each page into the next request
+func fetchRelationships(cursor: String? = nil) {
+  pubnub.dataSync.getRelationships(
+    className: "enrollment",
+    cursor: cursor,
+    limit: 20
+  ) { result in
+    switch result {
+    case let .success((relationships, next)):
+      print("A page of relationships: \(relationships)")
+
+      // Stop when the response has no next page
+      if let next = next, next.hasNext {
+        fetchRelationships(cursor: next.cursor)
+      }
+    case let .failure(error):
+      print("Get relationships request failed with error: \(error.localizedDescription)")
+    }
+  }
+}
+
+fetchRelationships()
+// snippet.end
+
+// snippet.get-relationships-by-entity-b
+// Retrieve the relationships whose side B is a specific entity
+pubnub.dataSync.getRelationships(
+  className: "enrollment",
+  entityBId: "course-swift-basics",
+  limit: 20
+) { result in
+  switch result {
+  case let .success((relationships, _)):
+    print("The students enrolled in `course-swift-basics`: \(relationships.map { $0.entityAId })")
+  case let .failure(error):
+    print("Get relationships request failed with error: \(error.localizedDescription)")
+  }
+}
+// snippet.end
+
 // snippet.get-relationship
 // Retrieve a single relationship by identifier, and decode its payload into your own type
 pubnub.dataSync.getRelationship(id: "alice-course-swift-basics") { result in

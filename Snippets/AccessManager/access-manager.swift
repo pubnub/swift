@@ -25,6 +25,15 @@ let pubnub = PubNub(
 
 // snippet.end
 
+// snippet.parse-token-data-sync
+// Read the DataSync permissions embedded in a token
+if let token = pubnub.parse(token: "#yourAuthToken") {
+  print("Entity permissions: \(token.resources.dataSyncEntities)")
+  print("Membership permissions: \(token.resources.dataSyncMemberships)")
+  print("Relationship permissions: \(token.resources.dataSyncRelationships)")
+}
+// snippet.end
+
 // snippet.set-token
 // Update the authentication token granted by the server
 pubnub.set(token: "#yourAuthToken")

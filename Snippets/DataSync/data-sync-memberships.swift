@@ -63,20 +63,61 @@ pubnub.dataSync.getMemberships(userId: "alice", limit: 20) { result in
 }
 // snippet.end
 
-// snippet.sort-memberships
-// Sort a page of memberships by the properties declared on the `Membership` class
+// snippet.get-memberships-filter-fast
+// Filter strongly consistent data, so a membership you just wrote is matched
 pubnub.dataSync.getMemberships(
   channelId: "general",
   limit: 20,
-  sort: [.init(property: "unreadCount", ascending: false), .init(property: "role")]
+  filterFast: "role == \"moderator\""
 ) { result in
   switch result {
   case let .success((memberships, _)):
-    print("The sorted memberships: \(memberships)")
+    print("The matching memberships: \(memberships)")
   case let .failure(error):
     print("Get memberships request failed with error: \(error.localizedDescription)")
   }
 }
+// snippet.end
+
+// snippet.get-memberships-filter
+// Filter eventually consistent data with the full expression language
+pubnub.dataSync.getMemberships(
+  channelId: "general",
+  limit: 20,
+  filter: "role LIKE \"*mod*\""
+) { result in
+  switch result {
+  case let .success((memberships, _)):
+    print("The matching memberships: \(memberships)")
+  case let .failure(error):
+    print("Get memberships request failed with error: \(error.localizedDescription)")
+  }
+}
+// snippet.end
+
+// snippet.get-memberships-pagination
+// Page through every membership, passing the cursor of each page into the next request
+func fetchMemberships(cursor: String? = nil) {
+  pubnub.dataSync.getMemberships(
+    channelId: "general",
+    cursor: cursor,
+    limit: 20
+  ) { result in
+    switch result {
+    case let .success((memberships, next)):
+      print("A page of memberships: \(memberships)")
+
+      // Stop when the response has no next page
+      if let next = next, next.hasNext {
+        fetchMemberships(cursor: next.cursor)
+      }
+    case let .failure(error):
+      print("Get memberships request failed with error: \(error.localizedDescription)")
+    }
+  }
+}
+
+fetchMemberships()
 // snippet.end
 
 // snippet.get-membership

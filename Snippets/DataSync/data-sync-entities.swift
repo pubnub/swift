@@ -51,21 +51,61 @@ pubnub.dataSync.getEntities(className: "course", limit: 20) { result in
 }
 // snippet.end
 
-// snippet.get-entities-class-version
-// Restrict results to a single version of the class, resolved at a specific level
+// snippet.get-entities-filter-fast
+// Filter strongly consistent data, so a entity you just wrote is matched
 pubnub.dataSync.getEntities(
   className: "course",
-  classVersion: 1,
-  classLevel: .subKey,
-  limit: 20
+  limit: 20,
+  filterFast: "isPublished == true && lessonCount > 20"
 ) { result in
   switch result {
   case let .success((entities, _)):
-    print("The entities of version 1: \(entities)")
+    print("The matching entities: \(entities)")
   case let .failure(error):
     print("Get entities request failed with error: \(error.localizedDescription)")
   }
 }
+// snippet.end
+
+// snippet.get-entities-filter
+// Filter eventually consistent data with the full expression language
+pubnub.dataSync.getEntities(
+  className: "course",
+  limit: 20,
+  filter: "title LIKE \"*Swift*\""
+) { result in
+  switch result {
+  case let .success((entities, _)):
+    print("The matching entities: \(entities)")
+  case let .failure(error):
+    print("Get entities request failed with error: \(error.localizedDescription)")
+  }
+}
+// snippet.end
+
+// snippet.get-entities-pagination
+// Page through every entity, passing the cursor of each page into the next request
+func fetchEntities(cursor: String? = nil) {
+  pubnub.dataSync.getEntities(
+    className: "course",
+    cursor: cursor,
+    limit: 20
+  ) { result in
+    switch result {
+    case let .success((entities, next)):
+      print("A page of entities: \(entities)")
+
+      // Stop when the response has no next page
+      if let next = next, next.hasNext {
+        fetchEntities(cursor: next.cursor)
+      }
+    case let .failure(error):
+      print("Get entities request failed with error: \(error.localizedDescription)")
+    }
+  }
+}
+
+fetchEntities()
 // snippet.end
 
 // snippet.get-entity
@@ -157,6 +197,29 @@ pubnub.dataSync.updateEntity(
   switch result {
   case let .success(entity):
     print("The updated entity: \(entity)")
+  case let .failure(error):
+    print("Update entity request failed with error: \(error.localizedDescription)")
+  }
+}
+// snippet.end
+
+// snippet.update-entity-multiple-operations
+// Combine several operations in one atomic patch, and guard the write with the eTag
+pubnub.dataSync.updateEntity(
+  id: "course-swift-basics",
+  operations: [
+    .test(path: "/status", value: "draft"),
+    .replace(path: "/payload/lessonCount", value: 30),
+    .add(path: "/payload/level", value: "beginner"),
+    .copy(from: "/payload/title", path: "/payload/slug"),
+    .move(from: "/payload/summary", path: "/payload/description"),
+    .remove(path: "/payload/isPublished")
+  ],
+  ifMatchesEtag: "3w5e111uk7djz" // Always provide the eTag from the most recent response
+) { result in
+  switch result {
+  case let .success(entity):
+    print("The patched entity: \(entity)")
   case let .failure(error):
     print("Update entity request failed with error: \(error.localizedDescription)")
   }

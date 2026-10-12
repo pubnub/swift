@@ -105,6 +105,21 @@ let dataSyncSubscription = pubnub
 
 // snippet.end
 
+// snippet.data-sync-projection-channels
+// Subscribe to the base projection and to a named projection of the same entity
+let baseProjectionSubscription = pubnub
+  .dataSyncEntity("course-swift-basics")
+  .subscription()
+
+let statsProjectionSubscription = pubnub
+  .dataSyncEntity("course-swift-basics")
+  .subscription(projection: "stats")
+
+baseProjectionSubscription.subscribe()
+statsProjectionSubscription.subscribe()
+
+// snippet.end
+
 // snippet.on-message
 // Defines a custom type that can be used to decode the message payload
 struct Person: JSONCodable {

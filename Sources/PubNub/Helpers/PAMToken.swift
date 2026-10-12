@@ -19,9 +19,6 @@ public struct PAMToken: Codable, Equatable, Hashable {
   public let authorizedUUID: String?
   public let resources: PAMTokenResource
   public let patterns: PAMTokenResource
-  /// Permissions granted on a whole resource type rather than on named resources.
-  ///
-  /// Empty when the token carries no category permissions.
   public let categories: PAMTokenCategory
   public let meta: [String: AnyJSON]
   public let signature: String

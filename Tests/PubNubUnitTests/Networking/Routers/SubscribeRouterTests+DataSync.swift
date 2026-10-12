@@ -262,7 +262,7 @@ extension SubscribeRouterTests {
     XCTAssertNil(entity.payload)
   }
 
-  func test_Subscribe_WithDataSyncMissingRequiredFields_FallsBackToMessage() throws {
+  func test_Subscribe_WithDataSyncMissingRequiredFields_ReturnsNilEvent() {
     for missingField in ["eTag"] {
       var data: [String: Any] = [
         "id": "hcn-patient-alice",
@@ -273,30 +273,19 @@ extension SubscribeRouterTests {
 
       data.removeValue(forKey: missingField)
 
-      let payload = mockDataSyncPayload(data: data)
-      let event = try XCTUnwrap(payload.asPubNubEvent(), "An envelope missing \(missingField) should be reported")
-      let message = try XCTUnwrap(event.message, "An envelope missing \(missingField) should fall back to a message")
-
-      XCTAssertEqual(message.messageType, .dataSync)
-      XCTAssertNil(event.dataSyncEvent)
+      XCTAssertNil(mockDataSyncPayload(data: data).asPubNubEvent())
     }
   }
 
-  func test_Subscribe_WithMalformedDataSyncEnvelope_FallsBackToMessage() throws {
+  func test_Subscribe_WithMalformedDataSyncEnvelope_ReturnsNilEvent() {
     let payload = generateMessage(
       with: .dataSync,
       subscription: "patient-refs",
       channel: "alice",
       payload: MalformedDataSyncPayload().codableValue
     )
-    let message = try XCTUnwrap(payload.asPubNubEvent()?.message)
 
-    XCTAssertEqual(message.messageType, .dataSync)
-    XCTAssertEqual(message.payload.codableValue, MalformedDataSyncPayload().codableValue)
-    XCTAssertEqual(message.channel, "alice")
-    XCTAssertEqual(message.subscription, "patient-refs")
-    XCTAssertEqual(message.published, 122412)
-    XCTAssertEqual(message.publisher, "publisher")
+    XCTAssertNil(payload.asPubNubEvent())
   }
 
   func test_Subscribe_WithUnrecognizedDataSyncObjectType_ReportsUnknownChange() throws {
@@ -326,14 +315,13 @@ extension SubscribeRouterTests {
     XCTAssertEqual(unknown.payload?.codableValue[rawValue: "id"] as? String, "hcn-patient-alice")
   }
 
-  func test_Subscribe_WithNonDataSyncSource_FallsBackToMessage() throws {
-    let message = try XCTUnwrap(mockDataSyncPayload(source: "objects").asPubNubEvent()?.message)
-    XCTAssertEqual(message.messageType, .dataSync)
+  func test_Subscribe_WithNonDataSyncSource_ReturnsNilEvent() {
+    XCTAssertNil(mockDataSyncPayload(source: "objects").asPubNubEvent())
   }
 
-  func test_Subscribe_WithEmptyDataSyncDiscriminators_FallsBackToMessage() throws {
-    XCTAssertNotNil(try XCTUnwrap(mockDataSyncPayload(event: "").asPubNubEvent()).message)
-    XCTAssertNotNil(try XCTUnwrap(mockDataSyncPayload(type: "").asPubNubEvent()).message)
+  func test_Subscribe_WithEmptyDataSyncDiscriminators_ReturnsNilEvent() {
+    XCTAssertNil(mockDataSyncPayload(event: "").asPubNubEvent())
+    XCTAssertNil(mockDataSyncPayload(type: "").asPubNubEvent())
   }
 
   func test_Subscribe_WithDataSyncEvent_ReportsChannelAndTimetoken() throws {
@@ -663,17 +651,17 @@ extension SubscribeRouterTests {
 // MARK: - DataSync Delivery Through The Subscribe Loop
 
 extension SubscribeRouterTests {
-  func test_Subscribe_WithBrokenDataSyncEnvelope_DeliversItAsMessageToModernListener() {
+  func test_Subscribe_WithBrokenDataSyncEnvelope_DropsItForModernListener() {
     let pubnub = PubNub(configuration: config)
     let subscription = pubnub.channel("test-channel").subscription()
     let dataSyncExpectation = expectation(description: "Valid DataSync event")
-    let messageExpectation = expectation(description: "Fallback message")
+    let messageExpectation = expectation(description: "No fallback message")
+    messageExpectation.isInverted = true
 
     subscription.onDataSync = { _ in
       dataSyncExpectation.fulfill()
     }
-    subscription.onMessage = { message in
-      XCTAssertEqual(message.messageType, .dataSync)
+    subscription.onMessage = { _ in
       messageExpectation.fulfill()
     }
 
@@ -682,20 +670,20 @@ extension SubscribeRouterTests {
       mockDataSyncPayload(channel: "test-channel")
     ])
 
-    XCTAssertEqual(events.count, 2)
+    XCTAssertEqual(events.count, 1)
     wait(for: [dataSyncExpectation, messageExpectation], timeout: 0.1)
   }
 
-  func test_Subscribe_WithBrokenDataSyncEnvelope_DeliversItAsMessageToLegacyListener() {
+  func test_Subscribe_WithBrokenDataSyncEnvelope_DropsItForLegacyListener() {
     let listener = SubscriptionListener(queue: .main)
     let dataSyncExpectation = expectation(description: "Valid DataSync event")
-    let messageExpectation = expectation(description: "Fallback message")
+    let messageExpectation = expectation(description: "No fallback message")
+    messageExpectation.isInverted = true
 
     listener.didReceiveDataSyncEvent = { _ in
       dataSyncExpectation.fulfill()
     }
-    listener.didReceiveMessage = { message in
-      XCTAssertEqual(message.messageType, .dataSync)
+    listener.didReceiveMessage = { _ in
       messageExpectation.fulfill()
     }
 

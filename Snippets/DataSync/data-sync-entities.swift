@@ -51,23 +51,6 @@ pubnub.dataSync.getEntities(className: "course", limit: 20) { result in
 }
 // snippet.end
 
-// snippet.get-entities-class-version
-// Restrict results to a single version of the class, resolved at a specific level
-pubnub.dataSync.getEntities(
-  className: "course",
-  classVersion: 1,
-  classLevel: .subKey,
-  limit: 20
-) { result in
-  switch result {
-  case let .success((entities, _)):
-    print("The entities of version 1: \(entities)")
-  case let .failure(error):
-    print("Get entities request failed with error: \(error.localizedDescription)")
-  }
-}
-// snippet.end
-
 // snippet.get-entities-filter-fast
 // Filter strongly consistent data, so a entity you just wrote is matched
 pubnub.dataSync.getEntities(

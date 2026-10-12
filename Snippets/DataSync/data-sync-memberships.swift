@@ -63,22 +63,6 @@ pubnub.dataSync.getMemberships(userId: "alice", limit: 20) { result in
 }
 // snippet.end
 
-// snippet.sort-memberships
-// Sort a page of memberships by the properties declared on the `Membership` class
-pubnub.dataSync.getMemberships(
-  channelId: "general",
-  limit: 20,
-  sort: [.init(property: "unreadCount", ascending: false), .init(property: "role")]
-) { result in
-  switch result {
-  case let .success((memberships, _)):
-    print("The sorted memberships: \(memberships)")
-  case let .failure(error):
-    print("Get memberships request failed with error: \(error.localizedDescription)")
-  }
-}
-// snippet.end
-
 // snippet.get-memberships-filter-fast
 // Filter strongly consistent data, so a membership you just wrote is matched
 pubnub.dataSync.getMemberships(

@@ -51,21 +51,6 @@ pubnub.dataSync.getChannels(limit: 20) { result in
 }
 // snippet.end
 
-// snippet.sort-channels
-// Sort a page of channels by the properties declared on the `channel` class
-pubnub.dataSync.getChannels(
-  limit: 20,
-  sort: [.init(property: "retentionDays", ascending: false), .init(property: "name")]
-) { result in
-  switch result {
-  case let .success((channels, _)):
-    print("The sorted channels: \(channels)")
-  case let .failure(error):
-    print("Get channels request failed with error: \(error.localizedDescription)")
-  }
-}
-// snippet.end
-
 // snippet.get-channels-filter-fast
 // Filter strongly consistent data, so a channel you just wrote is matched
 pubnub.dataSync.getChannels(

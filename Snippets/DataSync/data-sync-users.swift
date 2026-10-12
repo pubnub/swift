@@ -51,21 +51,6 @@ pubnub.dataSync.getUsers(limit: 20) { result in
 }
 // snippet.end
 
-// snippet.sort-users
-// Sort a page of users by the properties declared on the `user` class
-pubnub.dataSync.getUsers(
-  limit: 20,
-  sort: [.init(property: "isEmailVerified", ascending: false), .init(property: "fullName")]
-) { result in
-  switch result {
-  case let .success((users, _)):
-    print("The sorted users: \(users)")
-  case let .failure(error):
-    print("Get users request failed with error: \(error.localizedDescription)")
-  }
-}
-// snippet.end
-
 // snippet.get-users-filter-fast
 // Filter strongly consistent data, so a user you just wrote is matched
 pubnub.dataSync.getUsers(

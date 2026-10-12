@@ -377,7 +377,7 @@ extension AnyJSONType: Hashable {
       }
       return false
     case let (.dictionary(lhsDict), .dictionary(rhsDict)):
-      return lhsDict.allSatisfy {
+      return lhsDict.count == rhsDict.count && lhsDict.allSatisfy {
         rhsDict[$0] == $1
       }
     case let (.codable(lhsCodable), .codable(rhsCodable)):

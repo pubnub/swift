@@ -19,12 +19,14 @@ public struct PubNubConfiguration: Hashable {
   ///   - publishKeyAt: The dictionary key used to search the Info Dictionary of the `Bundle` for the Publish Key Value. Defaults to `"PubNubPublishKey"`
   ///   - subscribeKeyAt: The dictionary key used to search the Info Dictionary of the `Bundle` for the Subscribe Key Value. Defaults to `"PubNubSubscribeKey"`
   ///   - userIdAt: The dictionary key used to search the Info Dictionary of the `Bundle` for the UserId value. Defaults to `"PubNubUuid"` for backward compatibility
+  ///   - originAt: The dictionary key used to search the Info Dictionary of the `Bundle` for the origin value. Defaults to `"PubNubOrigin"`
   /// - Precondition: You must set a String value for the PubNub SubscribeKey
   public init(
     bundle: Bundle = .main,
     publishKeyAt pubPlistKey: String = "PubNubPublishKey",
     subscribeKeyAt subPlistKey: String = "PubNubSubscribeKey",
-    userIdAt userIdPlistKey: String = "PubNubUuid"
+    userIdAt userIdPlistKey: String = "PubNubUuid",
+    originAt originPlistKey: String = "PubNubOrigin"
   ) {
     guard let subscribeKey = bundle.infoDictionary?[subPlistKey] as? String else {
       preconditionFailure("The Subscribe Key was not found inside the plist file.")
@@ -36,7 +38,8 @@ public struct PubNubConfiguration: Hashable {
     self.init(
       publishKey: bundle.infoDictionary?[pubPlistKey] as? String,
       subscribeKey: subscribeKey,
-      userId: userId
+      userId: userId,
+      origin: bundle.infoDictionary?[originPlistKey] as? String ?? "ps.pndsn.com"
     )
   }
 

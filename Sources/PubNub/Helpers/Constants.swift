@@ -57,7 +57,7 @@ public enum Constant {
 
   static let pubnubSwiftSDKName: String = "PubNubSwift"
 
-  static let pubnubSwiftSDKVersion: String = "10.2.0"
+  static let pubnubSwiftSDKVersion: String = "11.0.0"
 
   static let appBundleId: String = {
     if let info = Bundle.main.infoDictionary,
@@ -103,6 +103,7 @@ public enum Constant {
       let date = DateFormatter.iso8601.date(
         from: dateString
       ) ?? DateFormatter.iso8601_noMilliseconds.date(from: dateString)
+        ?? DateFormatter.iso8601_dateOnly.date(from: dateString)
 
       guard let decodedDate = date else {
         throw DecodingError.typeMismatch(

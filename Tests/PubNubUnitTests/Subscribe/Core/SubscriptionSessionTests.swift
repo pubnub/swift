@@ -99,6 +99,137 @@ class SubscriptionSessionTests: XCTestCase {
     defer { listener.cancel() }
     wait(for: [statusExpect], timeout: 1.0)
   }
+
+  // MARK: - Overlapping Subscriptions
+
+  func testSubscriptionSession_UnsubscribeRetainsNameHeldByAnotherSubscription() throws {
+    let mockResponses = ["subscription_handshake_success", "cancelled"]
+    let subscriptionSession = try mockSubscriptionSession(with: mockResponses, and: config)
+    let pubnub = PubNub(configuration: config)
+
+    let firstSubscription = pubnub.channel(testChannel).subscription()
+    let secondSubscription = pubnub.channel(testChannel).subscription()
+
+    subscriptionSession.subscribe(to: [firstSubscription, secondSubscription])
+    XCTAssertEqual(subscriptionSession.subscribedChannels, [testChannel])
+
+    // The second subscription still holds the name, so it must stay in the Subscribe loop
+    subscriptionSession.internalUnsubscribe(from: [firstSubscription])
+    XCTAssertEqual(subscriptionSession.subscribedChannels, [testChannel])
+
+    // With the last subscription holding it gone, the name leaves the Subscribe loop
+    subscriptionSession.internalUnsubscribe(from: [secondSubscription])
+    XCTAssertTrue(subscriptionSession.subscribedChannels.isEmpty)
+  }
+
+  func testSubscriptionSession_UnsubscribeChannelRetainsSameNamedChannelGroup() throws {
+    let mockResponses = ["subscription_handshake_success", "cancelled"]
+    let subscriptionSession = try mockSubscriptionSession(with: mockResponses, and: config)
+    let pubnub = PubNub(configuration: config)
+
+    // A channel and a channel group sharing a name occupy different lists in the Subscribe loop
+    let channelSubscription = pubnub.channel(testChannel).subscription()
+    let groupSubscription = pubnub.channelGroup(testChannel).subscription()
+
+    subscriptionSession.subscribe(to: [channelSubscription], and: [groupSubscription])
+    XCTAssertEqual(subscriptionSession.subscribedChannels, [testChannel])
+    XCTAssertEqual(subscriptionSession.subscribedChannelGroups, [testChannel])
+
+    subscriptionSession.internalUnsubscribe(from: [channelSubscription])
+    XCTAssertTrue(subscriptionSession.subscribedChannels.isEmpty)
+    XCTAssertEqual(subscriptionSession.subscribedChannelGroups, [testChannel])
+  }
+
+  func testSubscriptionSession_UnsubscribeBatchReleasesNameSharedWithinTheBatch() throws {
+    let mockResponses = ["subscription_handshake_success", "cancelled"]
+    let subscriptionSession = try mockSubscriptionSession(with: mockResponses, and: config)
+    let pubnub = PubNub(configuration: config)
+
+    let channelSubscription = pubnub.channel(testChannel).subscription()
+    let dataSyncSubscription = pubnub.dataSyncChannel(testChannel).subscription()
+
+    subscriptionSession.subscribe(to: [channelSubscription, dataSyncSubscription])
+    XCTAssertEqual(subscriptionSession.subscribedChannels, [testChannel])
+
+    subscriptionSession.internalUnsubscribe(from: [channelSubscription, dataSyncSubscription])
+    XCTAssertTrue(subscriptionSession.subscribedChannels.isEmpty)
+  }
+
+  func testSubscriptionSession_UnsubscribeRetainsNameHeldBySubscriptionSet() throws {
+    let mockResponses = ["subscription_handshake_success", "cancelled"]
+    let subscriptionSession = try mockSubscriptionSession(with: mockResponses, and: config)
+    let pubnub = PubNub(configuration: config)
+
+    let standaloneSubscription = pubnub.channel(testChannel).subscription()
+    let subscriptionSet = pubnub.subscription(targets: [pubnub.channel(testChannel)])
+
+    subscriptionSession.subscribe(to: [standaloneSubscription])
+    subscriptionSession.registerAdapter(subscriptionSet.adapter)
+    XCTAssertEqual(subscriptionSession.subscribedChannels, [testChannel])
+
+    // The set's topology covers both lists, and it still holds the name
+    subscriptionSession.internalUnsubscribe(from: [standaloneSubscription])
+    XCTAssertEqual(subscriptionSession.subscribedChannels, [testChannel])
+  }
+
+  func testLegacySubscriptionSession_ReportsSubscriptionChangedOnlyWhileConnected() throws {
+    let legacyConfig = PubNubConfiguration(
+      publishKey: "FakeTestString",
+      subscribeKey: "FakeTestString",
+      userId: UUID().uuidString,
+      enableEventEngine: false
+    )
+
+    let mockResponses = ["subscription_handshake_success", "cancelled"]
+    let subscriptionSession = try mockSubscriptionSession(with: mockResponses, and: legacyConfig)
+    let pubnub = PubNub(configuration: legacyConfig)
+    let listener = SubscriptionListener()
+    let otherChannel = "OtherChannel"
+
+    let statusExpect = XCTestExpectation(description: "Status Events")
+    statusExpect.assertForOverFulfill = false
+    statusExpect.expectedFulfillmentCount = 3
+
+    var statuses = [ConnectionStatus]()
+    var hasDisconnected = false
+
+    listener.didReceiveStatus = { [unowned subscriptionSession] status in
+      guard let newStatus = try? status.get(), !hasDisconnected else {
+        return
+      }
+
+      statuses.append(newStatus)
+      statusExpect.fulfill()
+
+      switch newStatus {
+      case .connected:
+        subscriptionSession.subscribe(to: [pubnub.channel(otherChannel).subscription()])
+      case .subscriptionChanged:
+        subscriptionSession.unsubscribeAll()
+      case .disconnected:
+        hasDisconnected = true
+      default:
+        break
+      }
+    }
+
+    subscriptionSession.add(listener)
+    subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
+
+    defer { listener.cancel() }
+    wait(for: [statusExpect], timeout: 1.0)
+
+    // Lets the requests cancelled by `unsubscribeAll()` unwind while the mock session is still alive
+    let settleExpect = XCTestExpectation(description: "Cancelled Requests Settled")
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { settleExpect.fulfill() }
+    wait(for: [settleExpect], timeout: 1.0)
+
+    XCTAssertEqual(statuses, [
+      .connected,
+      .subscriptionChanged(channels: [testChannel, otherChannel], groups: []),
+      .disconnected
+    ])
+  }
 }
 
 fileprivate extension SubscriptionSessionTests {

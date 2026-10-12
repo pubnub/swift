@@ -48,6 +48,11 @@ desc "Executes Integration Tests"
 lane :integration_test do
   pub_key = ENV['SDK_PUB_KEY']
   sub_key = ENV['SDK_SUB_KEY']
+  destination = ENV['DESTINATION'].to_s.empty? ? 'platform=macOS' : ENV['DESTINATION']
+  
+  datasync_pub_key = ENV['SDK_DS_PUB_KEY']
+  datasync_sub_key = ENV['SDK_DS_SUB_KEY']
+  datasync_secret_key = ENV['SDK_DS_SECRET_KEY']
 
   set_info_plist_value(
     path: "PubNub.xcodeproj/PubNubTests_Info.plist",
@@ -58,13 +63,30 @@ lane :integration_test do
     path: "PubNub.xcodeproj/PubNubTests_Info.plist",
     key: "PubNubSubscribeKey",
     value: sub_key
-  )    
+  )
 
-  Dir.chdir("..") do
-    # Invoking the integration tests using xcodebuild directly to avoid an issue with the scan method,
-    # which is unable to detect the simulator:
-    sh "set -o pipefail && env NSUnbufferedIO=YES xcodebuild -workspace PubNub.xcworkspace -scheme PubNubIntegration -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.4' -parallel-testing-enabled NO test 2>&1 | xcpretty"
-  end
+  set_info_plist_value(
+    path: "PubNub.xcodeproj/PubNubDataSyncTests_Info.plist",
+    key: "PubNubPublishKey",
+    value: datasync_pub_key
+  )
+  set_info_plist_value(
+    path: "PubNub.xcodeproj/PubNubDataSyncTests_Info.plist",
+    key: "PubNubSubscribeKey",
+    value: datasync_sub_key
+  )
+  set_info_plist_value(
+    path: "PubNub.xcodeproj/PubNubDataSyncTests_Info.plist",
+    key: "PubNubSecretKey",
+    value: datasync_secret_key
+  )
+
+  scan(
+    workspace: ENV['WORKSPACE'],
+    scheme: ENV['SCHEME_INTEGRATION'],
+    destination: destination,
+    parallel_testing: false
+  )
 end
 
 desc "Lints a release using Cocoapods"

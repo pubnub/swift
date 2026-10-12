@@ -24,8 +24,12 @@
 	<string>PubNubTests.TestSetup</string>
 	<key>PubNubPublishKey</key>
 	<string>demo</string>
+	<key>PubNubSecretKey</key>
+	<string></string>
 	<key>PubNubSubscribeKey</key>
 	<string>demo</string>
+	<key>PubNubOrigin</key>
+	<string>unit-test.pndsn.com</string>
 	<key>PubNubUuid</key>
 	<string>test-uuid</string>
 </dict>

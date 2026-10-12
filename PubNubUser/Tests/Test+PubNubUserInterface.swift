@@ -102,7 +102,7 @@ class PubNubUserInterfaceTests: XCTestCase {
     let expectation = XCTestExpectation(description: "Fetch Users API")
 
     let testRouterEndpoint = ObjectsUserRouter.Endpoint.all(
-      customFields: true,
+      include: PubNub.UserIncludeFields(custom: true).includeFields,
       totalCount: true,
       filter: nil,
       sort: ["id"],
@@ -143,7 +143,7 @@ class PubNubUserInterfaceTests: XCTestCase {
 
     let testRouterEndpoint = ObjectsUserRouter.Endpoint.fetch(
       metadataId: pubnub.configuration.userId,
-      customFields: true
+      include: PubNub.UserIncludeFields(custom: true).includeFields
     )
 
     // Validate Inputs
@@ -186,7 +186,7 @@ class PubNubUserInterfaceTests: XCTestCase {
         updated: nil,
         eTag: nil
       ),
-      customFields: true
+      include: PubNub.UserIncludeFields(custom: true).includeFields
     )
 
     // Validate Inputs
@@ -240,7 +240,7 @@ class PubNubUserInterfaceTests: XCTestCase {
         updated: nil,
         eTag: nil
       ),
-      customFields: true
+      include: PubNub.UserIncludeFields(custom: true).includeFields
     )
 
     // Validate Inputs

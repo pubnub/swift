@@ -25,18 +25,6 @@ let package = Package(
     .library(
       name: "PubNubSDK",
       targets: ["PubNubSDK"]
-    ),
-    .library(
-      name: "PubNubUser",
-      targets: ["PubNubUser"]
-    ),
-    .library(
-      name: "PubNubSpace",
-      targets: ["PubNubSpace"]
-    ),
-    .library(
-      name: "PubNubMembership",
-      targets: ["PubNubMembership"]
     )
   ],
   dependencies: [
@@ -49,21 +37,6 @@ let package = Package(
       name: "PubNubSDK",
       path: "Sources/PubNub",
       resources: [.copy("PrivacyInfo.xcprivacy")]
-    ),
-    .target(
-      name: "PubNubUser",
-      dependencies: ["PubNubSDK"],
-      path: "PubNubUser/Sources"
-    ),
-    .target(
-      name: "PubNubSpace",
-      dependencies: ["PubNubSDK"],
-      path: "PubNubSpace/Sources"
-    ),
-    .target(
-      name: "PubNubMembership",
-      dependencies: ["PubNubSDK", "PubNubUser", "PubNubSpace"],
-      path: "PubNubMembership/Sources"
     ),
     .testTarget(
       name: "PubNubTests",

@@ -16,6 +16,7 @@ public enum PubNubMessageType: Int, Codable, Hashable {
   case object = 2
   case messageAction = 3
   case file = 4
+  case dataSync = 5
   case unknown = 999
 }
 

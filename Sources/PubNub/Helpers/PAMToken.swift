@@ -19,6 +19,7 @@ public struct PAMToken: Codable, Equatable, Hashable {
   public let authorizedUUID: String?
   public let resources: PAMTokenResource
   public let patterns: PAMTokenResource
+  public let categories: PAMTokenCategory
   public let meta: [String: AnyJSON]
   public let signature: String
 
@@ -31,8 +32,26 @@ public struct PAMToken: Codable, Equatable, Hashable {
     case authorizedUUID = "uuid"
     case resources = "res"
     case patterns = "pat"
+    case categories = "cat"
     case meta
     case signature = "sig"
+  }
+
+  // Decodes each optional section through `decodeIfPresent` so that a token omitting any of them still
+  // parses. Tokens only carry the sections that were granted, and new sections may be added over time,
+  // so a missing key must not fail the whole token and cost the caller the permissions it does carry.
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+
+    version = try container.decode(Int.self, forKey: .version)
+    timestamp = try container.decode(Int.self, forKey: .timestamp)
+    ttl = try container.decode(Int.self, forKey: .ttl)
+    signature = try container.decode(String.self, forKey: .signature)
+    authorizedUUID = try container.decodeIfPresent(String.self, forKey: .authorizedUUID)
+    resources = try container.decodeIfPresent(PAMTokenResource.self, forKey: .resources) ?? PAMTokenResource()
+    patterns = try container.decodeIfPresent(PAMTokenResource.self, forKey: .patterns) ?? PAMTokenResource()
+    categories = try container.decodeIfPresent(PAMTokenCategory.self, forKey: .categories) ?? PAMTokenCategory()
+    meta = try container.decodeIfPresent([String: AnyJSON].self, forKey: .meta) ?? [:]
   }
 
   enum PAMTokenError: Error {
@@ -61,11 +80,76 @@ public struct PAMTokenResource: Codable, Equatable, Hashable {
   public let channels: [String: PAMPermission]
   public let groups: [String: PAMPermission]
   public let uuids: [String: PAMPermission]
+  public let dataSyncEntities: [String: PAMPermission]
+  public let dataSyncMemberships: [String: PAMPermission]
+  public let dataSyncRelationships: [String: PAMPermission]
 
   enum CodingKeys: String, CodingKey {
     case channels = "chan"
     case groups = "grp"
     case uuids = "uuid"
+    case dataSyncEntities = "datasync:entities"
+    case dataSyncMemberships = "datasync:memberships"
+    case dataSyncRelationships = "datasync:relationships"
+  }
+
+  init(
+    channels: [String: PAMPermission] = [:],
+    groups: [String: PAMPermission] = [:],
+    uuids: [String: PAMPermission] = [:],
+    dataSyncEntities: [String: PAMPermission] = [:],
+    dataSyncMemberships: [String: PAMPermission] = [:],
+    dataSyncRelationships: [String: PAMPermission] = [:]
+  ) {
+    self.channels = channels
+    self.groups = groups
+    self.uuids = uuids
+    self.dataSyncEntities = dataSyncEntities
+    self.dataSyncMemberships = dataSyncMemberships
+    self.dataSyncRelationships = dataSyncRelationships
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+
+    channels = try container.decodeIfPresent([String: PAMPermission].self, forKey: .channels) ?? [:]
+    groups = try container.decodeIfPresent([String: PAMPermission].self, forKey: .groups) ?? [:]
+    uuids = try container.decodeIfPresent([String: PAMPermission].self, forKey: .uuids) ?? [:]
+    dataSyncEntities = try container.decodeIfPresent([String: PAMPermission].self, forKey: .dataSyncEntities) ?? [:]
+    dataSyncMemberships = try container.decodeIfPresent([String: PAMPermission].self, forKey: .dataSyncMemberships) ?? [:]
+    dataSyncRelationships = try container.decodeIfPresent([String: PAMPermission].self, forKey: .dataSyncRelationships) ?? [:]
+  }
+}
+
+/// Permissions granted on an entire App Context resource type, independent of the permissions granted on
+/// named resources and patterns.
+///
+/// A category permission covers operations that span every record of the type, such as listing all channel
+/// metadata or all user metadata.
+///
+/// A category permission is not implied by, and does not imply, a permission on an individual resource
+/// of the same type.
+public struct PAMTokenCategory: Codable, Equatable, Hashable {
+  /// Permissions granted on App Context channel metadata as a whole.
+  public let channels: PAMPermission
+  /// Permissions granted on App Context user metadata (uuid) as a whole.
+  public let uuids: PAMPermission
+
+  enum CodingKeys: String, CodingKey {
+    case channels = "chan"
+    case uuids = "uuid"
+  }
+
+  init(channels: PAMPermission = .none, uuids: PAMPermission = .none) {
+    self.channels = channels
+    self.uuids = uuids
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+
+    channels = try container.decodeIfPresent(PAMPermission.self, forKey: .channels) ?? .none
+    uuids = try container.decodeIfPresent(PAMPermission.self, forKey: .uuids) ?? .none
   }
 }
 
@@ -79,6 +163,7 @@ public struct PAMPermission: OptionSet, Codable, Equatable, Hashable {
   public static let write = PAMPermission(rawValue: 1 << 1) // 2
   public static let manage = PAMPermission(rawValue: 1 << 2) // 4
   public static let delete = PAMPermission(rawValue: 1 << 3) // 8
+  public static let create = PAMPermission(rawValue: 1 << 4) // 16
   public static let get = PAMPermission(rawValue: 1 << 5) // 32
   public static let update = PAMPermission(rawValue: 1 << 6) // 64
   public static let join = PAMPermission(rawValue: 1 << 7) // 128
@@ -88,6 +173,12 @@ public struct PAMPermission: OptionSet, Codable, Equatable, Hashable {
   ]
   public static let all: PAMPermission = [
     PAMPermission.get, PAMPermission.join, PAMPermission.crud, PAMPermission.manage
+  ]
+  public static let dataSyncCrud: PAMPermission = [
+    PAMPermission.crud, PAMPermission.create
+  ]
+  public static let dataSyncAll: PAMPermission = [
+    PAMPermission.all, PAMPermission.create
   ]
 
   public init(rawValue: UInt32) {
@@ -117,6 +208,9 @@ extension PAMPermission: CustomStringConvertible {
     }
     if contains(.delete) {
       perm.append("delete")
+    }
+    if contains(.create) {
+      perm.append("create")
     }
     if contains(.get) {
       perm.append("get")

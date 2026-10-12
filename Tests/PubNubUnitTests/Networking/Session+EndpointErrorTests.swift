@@ -128,6 +128,12 @@ final class SessionEndpointErrorTests: XCTestCase {
     )
   }
 
+  func test_EndpointDataSyncStatusCodes_ReturnPubNubErrorReasons() {
+    XCTAssertEqual(PubNubError.Reason(rawValue: 405), .methodNotAllowed)
+    XCTAssertEqual(PubNubError.Reason(rawValue: 406), .notAcceptable)
+    XCTAssertEqual(PubNubError.Reason(rawValue: 413), .contentTooLarge)
+  }
+
   func test_Session_EndpointRequestURITooLongStatusCode_ReturnsPubNubError() throws {
     try testEndpointError(
       payload: nil,

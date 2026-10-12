@@ -1,9 +1,32 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "10.2.0"
+version: "11.0.0"
 schema: 1
 changelog:
+  - date: 2026-10-12
+    version: 11.0.0
+    changes:
+      - type: feature
+        text: "Adds the `pubnub.dataSync` namespace with paged fetch, create, replace, update, and remove operations for entities, users, channels, memberships, and relationships. Object changes are delivered to subscribe listeners as `PubNubDataSyncEvent`, and DataSync subscribe targets support both base and projection subscriptions."
+      - type: feature
+        text: "Access Manager tokens now parse DataSync resource permissions and expose the new `create` permission alongside the existing ones."
+      - type: feature
+        text: "`PubNubConfiguration.init(bundle:)` accepts an `originAt:` plist key, defaulting to `PubNubOrigin`."
+      - type: bug
+        text: "`yyyy-MM-dd` values now decode as dates, as an ISO 8601 fallback."
+      - type: bug
+        text: "Fixes an issue where a dictionary compared equal to any superset of itself, because only the left operand's keys were checked. Key counts are now compared first."
+      - type: bug
+        text: "The SDK now skips subscribe messages whose `e` value it does not recognize. Messages that omit `e` preserve current inference behavior, while malformed entries no longer disrupt delivery of the remaining batch."
+      - type: improvement
+        text: "`entity` now means a DataSync record, so the subscribe API uses `target` instead; the subscribe target types drop the `Representation` suffix, and `Subscription` / `SubscriptionSet` are created only through the `PubNub` factory methods."
+      - type: improvement
+        text: "The legacy `SubscriptionListener` emits the same `PubNubEvent` type as the modern listener API, and the catch-all event callbacks are deprecated in favor of the granular per-type ones. `PubNubEvent` gains a `dataSyncChanged` case."
+      - type: improvement
+        text: "`BaseSubscriptionListener.queue` and `supressCancellationErrors` are now passed to the initializer, removing a data race when they were mutated on a live listener."
+      - type: improvement
+        text: "`PubNubUser`, `PubNubSpace`, and `PubNubMembership` are no longer built or distributed via SPM, though their sources remain in the repository."
   - date: 2026-09-03
     version: 10.2.0
     changes:
@@ -805,6 +828,41 @@ features:
     - MESSAGE-ACTIONS-GET
     - MESSAGE-ACTIONS-ADD
     - MESSAGE-ACTIONS-REMOVE
+  data-sync:
+    - DATASYNC-USER-CREATE
+    - DATASYNC-USER-GET
+    - DATASYNC-USER-GET-ALL
+    - DATASYNC-USER-UPDATE
+    - DATASYNC-USER-PATCH
+    - DATASYNC-USER-DELETE
+    - DATASYNC-CHANNEL-CREATE
+    - DATASYNC-CHANNEL-GET
+    - DATASYNC-CHANNEL-GET-ALL
+    - DATASYNC-CHANNEL-UPDATE
+    - DATASYNC-CHANNEL-PATCH
+    - DATASYNC-CHANNEL-DELETE
+    - DATASYNC-MEMBERSHIP-CREATE
+    - DATASYNC-MEMBERSHIP-GET
+    - DATASYNC-MEMBERSHIP-GET-ALL
+    - DATASYNC-MEMBERSHIP-UPDATE
+    - DATASYNC-MEMBERSHIP-PATCH
+    - DATASYNC-MEMBERSHIP-DELETE
+    - DATASYNC-ENTITY-CREATE
+    - DATASYNC-ENTITY-GET
+    - DATASYNC-ENTITY-GET-ALL
+    - DATASYNC-ENTITY-UPDATE
+    - DATASYNC-ENTITY-PATCH
+    - DATASYNC-ENTITY-DELETE
+    - DATASYNC-RELATIONSHIP-CREATE
+    - DATASYNC-RELATIONSHIP-GET
+    - DATASYNC-RELATIONSHIP-GET-ALL
+    - DATASYNC-RELATIONSHIP-UPDATE
+    - DATASYNC-RELATIONSHIP-PATCH
+    - DATASYNC-RELATIONSHIP-DELETE
+    - DATASYNC-FILTERING
+    - DATASYNC-SORTING
+    - DATASYNC-EVENTS-LISTENER
+    - DATASYNC-ACCESS-MANAGER
   others:
     - CREATE-PUSH-PAYLOAD
 sdks:
@@ -823,7 +881,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/10.2.0.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/11.0.0.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

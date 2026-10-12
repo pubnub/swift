@@ -118,7 +118,6 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
   ) {
     let currentInput = subscribeEngine.state.input
     let newInput = currentInput.adding(channels: Set(channels), and: Set(channelGroups))
-    let diff = newInput.difference(from: currentInput)
 
     if let cursor = cursor, cursor.timetoken != 0 {
       sendSubscribeEvent(event: .subscriptionRestored(
@@ -143,17 +142,6 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
       // No unique channels or channel groups were provided.
       // There's no need to alter the Subscribe loop.
     }
-
-    if !diff.addedChannels.isEmpty || !diff.addedChannelGroups.isEmpty {
-      notify {
-        $0.emit(subscribe: .subscriptionChanged(
-          .subscribed(
-            channels: diff.addedChannels.map { PubNubChannel(channel: $0) }.consolidated(),
-            groups: diff.addedChannelGroups.map { PubNubChannel(channel: $0) }.consolidated()
-          ))
-        )
-      }
-    }
   }
 
   func unsubscribe(
@@ -168,20 +156,6 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
       let diff = newInput.difference(from: currentInput)
       let removedMainChannels = diff.removedChannels.filter { !$0.isPresenceChannelName }.allObjects
       let removedMainChannelGroups = diff.removedChannelGroups.filter { !$0.isPresenceChannelName }.allObjects
-
-      // Dispatch local event first to guarantee the expected order of events.
-      // An event indicating unsubscribing from channels and channel groups
-      // should be emitted before an event related to disconnecting
-      // from the Subscribe loop, assuming you unsubscribed from all channels
-      // and channel groups
-      notify {
-        $0.emit(subscribe: .subscriptionChanged(
-          .unsubscribed(
-            channels: diff.removedChannels.map { PubNubChannel(channel: $0) }.consolidated(),
-            groups: diff.removedChannelGroups.map { PubNubChannel(channel: $0) }.consolidated()
-          ))
-        )
-      }
 
       if configuration.maintainPresenceState {
         presenceStateContainer.removeState(forChannels: removedMainChannels)
@@ -208,27 +182,7 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
   }
 
   func unsubscribeAll() {
-    let currentInput = subscribeEngine.state.input
-
-    // Dispatch local event first to guarantee the expected order of events.
-    // An event indicating unsubscribing from channels and channel groups
-    // should be emitted before an event related to disconnecting
-    // from the Subscribe loop, assuming you unsubscribed from all channels
-    // and channel groups
-    notify {
-      $0.emit(subscribe: .subscriptionChanged(
-        .unsubscribed(
-          channels: currentInput.channelNames(withPresence: true).map { PubNubChannel(channel: $0) }.consolidated(),
-          groups: currentInput.channelGroupNames(withPresence: true).map { PubNubChannel(channel: $0) }.consolidated()
-        )
-      ))
-    }
-
     sendSubscribeEvent(event: .unsubscribeAll)
     sendPresenceEvent(event: .leftAll)
-  }
-
-  private func notify(listeners closure: (BaseSubscriptionListener) -> Void) {
-    listeners.allObjects.forEach { closure($0) }
   }
 }

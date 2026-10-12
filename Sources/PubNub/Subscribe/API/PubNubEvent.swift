@@ -22,8 +22,10 @@ public enum PubNubEvent {
   case messageActionChanged(PubNubMessageActionEvent)
   /// A File was uploaded to storage
   case fileChanged(PubNubFileChangeEvent)
-  /// A Membership object has been added/removed/updated
+  /// An AppContext object has been changed
   case appContextChanged(PubNubAppContextEvent)
+  /// A DataSync entity or relationship has been changed
+  case dataSyncChanged(PubNubDataSyncEvent)
 }
 
 /// Possible subevents for Message Actions

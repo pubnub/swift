@@ -14,6 +14,11 @@ Data Sync helps keep shared application data consistent across clients while giv
 
 For usage details, see the PubNub Swift SDK documentation.
 
+### Other Additions
+
+- **Access Manager:** parsed tokens now expose Data Sync resource permissions (`dataSyncEntities`, `dataSyncMemberships`, `dataSyncRelationships`). `PAMPermission` gains a `create` option, along with the `dataSyncCrud` and `dataSyncAll` presets that include it.
+- **Configuration:** `PubNubConfiguration.init(bundle:)` accepts an `originAt:` parameter naming the Info.plist key to read the origin from. It defaults to `PubNubOrigin`.
+
 ## Breaking API Changes
 
 ### 1. `Subscription` and `SubscriptionSet` Are Created Through Factory Methods
@@ -64,6 +69,8 @@ listener.didReceiveStatus = { status in
 
 Along with the types above, `CoreListener.MessageActionEvent`, `SubscribeResponseHeader`, and the `subscriptionChanged` / `responseReceived` cases of `PubNubSubscribeEvent` are removed.
 
+`PubNubEvent` also gains a `dataSyncChanged(PubNubDataSyncEvent)` case. If you `switch` exhaustively over `PubNubEvent`, add a case for it (or a `default`).
+
 ### 3. Listener Configuration Is Now Immutable
 
 `BaseSubscriptionListener.queue` and `BaseSubscriptionListener.supressCancellationErrors` — inherited by `SubscriptionListener` and `PubNubEntityListener` — changed from `var` to `let`. Both are now set once at construction and cannot be reassigned afterwards.
@@ -86,6 +93,18 @@ let listener = SubscriptionListener(
 ```
 
 Both parameters have defaults (`.main` and `true`), so `SubscriptionListener()` and `SubscriptionListener(queue:)` continue to compile unchanged — only post-construction assignment is affected.
+
+### 4. `PubNubUser`, `PubNubSpace` and `PubNubMembership` Are No Longer Part of SPM
+
+The `PubNubUser`, `PubNubSpace` and `PubNubMembership` modules are no longer built or distributed through Swift Package Manager, so these products are no longer available. Remove them from your target dependencies and depend on `PubNubSDK` only:
+
+```swift
+// Before (10.0):
+.product(name: "PubNubUser", package: "swift")
+
+// Now (11.0):
+.product(name: "PubNubSDK", package: "swift")
+```
 
 ## Deprecations (Non-Breaking Changes)
 

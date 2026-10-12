@@ -48,8 +48,8 @@ extension DataSyncGrant {
   /// Authorizes the DataSync healthcare Entity and Relationship integration test suites.
   static let healthcareAdmin = DataSyncGrant(
     patterns: [
-      "datasync:entities": [testPattern: .all],
-      "datasync:relationships": [testPattern: .all]
+      "datasync:entities": [testPattern: .dataSyncAll],
+      "datasync:relationships": [testPattern: .dataSyncAll]
     ],
     meta: [
       "pn-projections": [
@@ -64,8 +64,8 @@ extension DataSyncGrant {
   /// Authorizes the DataSync healthcare suites under the `__default__` projection.
   static let healthcareDefault = DataSyncGrant(
     patterns: [
-      "datasync:entities": [testPattern: .all],
-      "datasync:relationships": [testPattern: .all]
+      "datasync:entities": [testPattern: .dataSyncAll],
+      "datasync:relationships": [testPattern: .dataSyncAll]
     ]
   )
 

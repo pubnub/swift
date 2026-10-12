@@ -66,6 +66,60 @@ pubnub.dataSync.getUsers(
 }
 // snippet.end
 
+// snippet.get-users-filter-fast
+// Filter strongly consistent data, so a user you just wrote is matched
+pubnub.dataSync.getUsers(
+  limit: 20,
+  filterFast: "isEmailVerified == true && loginCount > 5"
+) { result in
+  switch result {
+  case let .success((users, _)):
+    print("The matching users: \(users)")
+  case let .failure(error):
+    print("Get users request failed with error: \(error.localizedDescription)")
+  }
+}
+// snippet.end
+
+// snippet.get-users-filter
+// Filter eventually consistent data with the full expression language
+pubnub.dataSync.getUsers(
+  limit: 20,
+  filter: "fullName LIKE \"*Summers*\""
+) { result in
+  switch result {
+  case let .success((users, _)):
+    print("The matching users: \(users)")
+  case let .failure(error):
+    print("Get users request failed with error: \(error.localizedDescription)")
+  }
+}
+// snippet.end
+
+// snippet.get-users-pagination
+// Page through every user, passing the cursor of each page into the next request
+func fetchUsers(cursor: String? = nil) {
+  pubnub.dataSync.getUsers(
+    cursor: cursor,
+    limit: 20
+  ) { result in
+    switch result {
+    case let .success((users, next)):
+      print("A page of users: \(users)")
+
+      // Stop when the response has no next page
+      if let next = next, next.hasNext {
+        fetchUsers(cursor: next.cursor)
+      }
+    case let .failure(error):
+      print("Get users request failed with error: \(error.localizedDescription)")
+    }
+  }
+}
+
+fetchUsers()
+// snippet.end
+
 // snippet.get-user
 // Retrieve a single user by identifier, and decode its payload into your own type
 pubnub.dataSync.getUser(id: "alice") { result in

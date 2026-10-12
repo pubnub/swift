@@ -66,6 +66,60 @@ pubnub.dataSync.getChannels(
 }
 // snippet.end
 
+// snippet.get-channels-filter-fast
+// Filter strongly consistent data, so a channel you just wrote is matched
+pubnub.dataSync.getChannels(
+  limit: 20,
+  filterFast: "isPrivate == false && retentionDays <= 30"
+) { result in
+  switch result {
+  case let .success((channels, _)):
+    print("The matching channels: \(channels)")
+  case let .failure(error):
+    print("Get channels request failed with error: \(error.localizedDescription)")
+  }
+}
+// snippet.end
+
+// snippet.get-channels-filter
+// Filter eventually consistent data with the full expression language
+pubnub.dataSync.getChannels(
+  limit: 20,
+  filter: "topic LIKE \"*announcements*\""
+) { result in
+  switch result {
+  case let .success((channels, _)):
+    print("The matching channels: \(channels)")
+  case let .failure(error):
+    print("Get channels request failed with error: \(error.localizedDescription)")
+  }
+}
+// snippet.end
+
+// snippet.get-channels-pagination
+// Page through every channel, passing the cursor of each page into the next request
+func fetchChannels(cursor: String? = nil) {
+  pubnub.dataSync.getChannels(
+    cursor: cursor,
+    limit: 20
+  ) { result in
+    switch result {
+    case let .success((channels, next)):
+      print("A page of channels: \(channels)")
+
+      // Stop when the response has no next page
+      if let next = next, next.hasNext {
+        fetchChannels(cursor: next.cursor)
+      }
+    case let .failure(error):
+      print("Get channels request failed with error: \(error.localizedDescription)")
+    }
+  }
+}
+
+fetchChannels()
+// snippet.end
+
 // snippet.get-channel
 // Retrieve a single channel by identifier, and decode its payload into your own type
 pubnub.dataSync.getChannel(id: "general") { result in

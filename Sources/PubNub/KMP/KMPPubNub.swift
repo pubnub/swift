@@ -110,16 +110,8 @@ public extension KMPPubNub {
     KMPDataSyncChannelReference(channel: pubnub.dataSyncChannel(id))
   }
 
-  func dataSyncMembership(with id: String) -> KMPDataSyncMembershipReference {
-    KMPDataSyncMembershipReference(membership: pubnub.dataSyncMembership(id))
-  }
-
   func dataSyncEntity(with id: String) -> KMPDataSyncEntityReference {
     KMPDataSyncEntityReference(entity: pubnub.dataSyncEntity(id))
-  }
-
-  func dataSyncRelationship(with id: String) -> KMPDataSyncRelationshipReference {
-    KMPDataSyncRelationshipReference(relationship: pubnub.dataSyncRelationship(id))
   }
 }
 

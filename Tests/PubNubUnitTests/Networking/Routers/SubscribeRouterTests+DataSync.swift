@@ -209,7 +209,6 @@ extension SubscribeRouterTests {
   func test_Subscribe_WithDataSyncClassLevels_ReceivesMatchingLevel() throws {
     let levels: [String: PubNubDataSyncClassLevel] = [
       "SubKey": .subKey,
-      "Account": .account,
       "Global": .global
     ]
 

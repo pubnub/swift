@@ -20,7 +20,7 @@ final class DataSyncQueryParameterAPITests: DataSyncAPITestCase {
     pubnub.dataSync.getEntities(
       className: "patient",
       classVersion: 2,
-      classLevel: .account,
+      classLevel: .global,
       cursor: "TjIw",
       limit: 25
     ) { _ in
@@ -30,7 +30,7 @@ final class DataSyncQueryParameterAPITests: DataSyncAPITestCase {
     wait(for: [expectation], timeout: 1.0)
     XCTAssertEqual(try queryValue(sessions.mockSession, named: "entity_class"), "patient")
     XCTAssertEqual(try queryValue(sessions.mockSession, named: "entity_class_version"), "2")
-    XCTAssertEqual(try queryValue(sessions.mockSession, named: "entity_class_level"), "Account")
+    XCTAssertEqual(try queryValue(sessions.mockSession, named: "entity_class_level"), "Global")
     XCTAssertEqual(try queryValue(sessions.mockSession, named: "cursor"), "TjIw")
     XCTAssertEqual(try queryValue(sessions.mockSession, named: "limit"), "25")
   }

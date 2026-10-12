@@ -128,19 +128,6 @@ public class DataSyncChannel: Subscribable {
   }
 }
 
-/// A reference to a Data Sync membership by identifier.
-public class DataSyncMembership {
-  /// The identifier of the Data Sync membership
-  public let id: String
-  /// The PubNub instance that references this membership
-  weak var pubnub: PubNub?
-
-  init(id: String, pubnub: PubNub) {
-    self.id = id
-    self.pubnub = pubnub
-  }
-}
-
 /// A reference to a Data Sync entity by identifier.
 public class DataSyncEntity: Subscribable {
   /// The identifier of the Data Sync entity
@@ -162,19 +149,6 @@ public class DataSyncEntity: Subscribable {
     options: SubscriptionOptions = SubscriptionOptions.empty()
   ) -> Subscription {
     makeProjectionSubscription(projectionName, id: id, queue: queue, options: options)
-  }
-}
-
-/// A reference to a Data Sync relationship by identifier.
-public class DataSyncRelationship {
-  /// The identifier of the Data Sync relationship
-  public let id: String
-  /// The PubNub instance that references this membership
-  weak var pubnub: PubNub?
-
-  init(id: String, pubnub: PubNub) {
-    self.id = id
-    self.pubnub = pubnub
   }
 }
 

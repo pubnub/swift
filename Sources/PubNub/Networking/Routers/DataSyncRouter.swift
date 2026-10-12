@@ -67,27 +67,6 @@ struct DataSyncListResponse<Value: Codable>: Codable {
 struct DataSyncStatusResponse: Codable {
 }
 
-// MARK: - Raw resource
-
-struct DataSyncResource: Codable, Equatable {
-  let id: String
-  let status: String?
-  let entityClass: String?
-  let entityClassVersion: Int?
-  let entityClassLevel: String?
-  let relationshipClass: String?
-  let relationshipClassVersion: Int?
-  let entityAId: String?
-  let entityBId: String?
-  let channelId: String?
-  let userId: String?
-  let createdAt: String?
-  let updatedAt: String?
-  let eTag: String?
-  let expiresAt: String
-  let payload: AnyJSON?
-}
-
 // MARK: - Error envelope
 
 /// A single failure entry in a DataSync error response.
@@ -107,6 +86,12 @@ struct DataSyncErrorPayload: Codable, Equatable {
 
 /// A router for the DataSync v4 data plane, which returns an error envelope distinct from ``GenericServicePayloadResponse``.
 protocol DataSyncRouting: HTTPRouter {}
+
+extension HTTPRouter {
+  var acceptsEmptyResponse: Bool {
+    self is DataSyncRouting && method == .delete
+  }
+}
 
 /// Decodes the DataSync v4 error envelope, falling back to the default decoding when the body isn't one.
 extension DataSyncRouting {

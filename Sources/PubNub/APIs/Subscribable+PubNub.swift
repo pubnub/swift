@@ -62,19 +62,9 @@ public extension PubNub {
     DataSyncChannel(id: id, pubnub: self)
   }
 
-  /// Returns a reference to the Data Sync membership with the given identifier.
-  func dataSyncMembership(_ id: String) -> DataSyncMembership {
-    DataSyncMembership(id: id, pubnub: self)
-  }
-
   /// Returns a reference to the Data Sync entity with the given identifier.
   func dataSyncEntity(_ id: String) -> DataSyncEntity {
     DataSyncEntity(id: id, pubnub: self)
-  }
-
-  /// Returns a reference to the Data Sync relationship with the given identifier.
-  func dataSyncRelationship(_ id: String) -> DataSyncRelationship {
-    DataSyncRelationship(id: id, pubnub: self)
   }
 
   /// Creates a `SubscriptionSet` from a collection of `Subscribable` values.

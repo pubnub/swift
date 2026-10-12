@@ -181,8 +181,8 @@ extension PAMTokenTests {
     let patterns = try XCTUnwrap(token?.patterns)
 
     XCTAssertEqual(token?.authorizedUUID, "test-authorized-uuid")
-    XCTAssertEqual(resources.dataSyncMemberships["membership-1"], PAMPermission.all)
-    XCTAssertEqual(patterns.dataSyncEntities[".*"], PAMPermission.all)
+    XCTAssertEqual(resources.dataSyncMemberships["membership-1"], PAMPermission.dataSyncAll)
+    XCTAssertEqual(patterns.dataSyncEntities[".*"], PAMPermission.dataSyncAll)
     XCTAssertEqual(patterns.dataSyncRelationships[".*"], [PAMPermission.read, PAMPermission.write, PAMPermission.create])
   }
 
@@ -244,8 +244,8 @@ extension PAMTokenTests {
     XCTAssertEqual(token.categories.uuids, PAMPermission.none)
 
     XCTAssertEqual(token.authorizedUUID, "test-authorized-uuid")
-    XCTAssertEqual(token.resources.dataSyncMemberships["membership-1"], PAMPermission.all)
-    XCTAssertEqual(token.patterns.dataSyncEntities[".*"], PAMPermission.all)
+    XCTAssertEqual(token.resources.dataSyncMemberships["membership-1"], PAMPermission.dataSyncAll)
+    XCTAssertEqual(token.patterns.dataSyncEntities[".*"], PAMPermission.dataSyncAll)
   }
 
   func test_SetToken_UpdatesConfiguration() {

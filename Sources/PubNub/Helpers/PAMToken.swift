@@ -121,15 +121,18 @@ public struct PAMTokenResource: Codable, Equatable, Hashable {
   }
 }
 
-/// Permissions granted on an entire resource type, independent of the permissions granted on named
-/// resources and patterns.
+/// Permissions granted on an entire App Context resource type, independent of the permissions granted on
+/// named resources and patterns.
+///
+/// A category permission covers operations that span every record of the type, such as listing all channel
+/// metadata or all user metadata.
 ///
 /// A category permission is not implied by, and does not imply, a permission on an individual resource
 /// of the same type.
 public struct PAMTokenCategory: Codable, Equatable, Hashable {
-  /// Permissions granted on the channel type as a whole.
+  /// Permissions granted on App Context channel metadata as a whole.
   public let channels: PAMPermission
-  /// Permissions granted on the uuid type as a whole.
+  /// Permissions granted on App Context user metadata (uuid) as a whole.
   public let uuids: PAMPermission
 
   enum CodingKeys: String, CodingKey {
@@ -166,10 +169,16 @@ public struct PAMPermission: OptionSet, Codable, Equatable, Hashable {
   public static let join = PAMPermission(rawValue: 1 << 7) // 128
 
   public static let crud: PAMPermission = [
-    PAMPermission.read, PAMPermission.write, PAMPermission.create, PAMPermission.update, PAMPermission.delete
+    PAMPermission.read, PAMPermission.write, PAMPermission.update, PAMPermission.delete
   ]
   public static let all: PAMPermission = [
     PAMPermission.get, PAMPermission.join, PAMPermission.crud, PAMPermission.manage
+  ]
+  public static let dataSyncCrud: PAMPermission = [
+    PAMPermission.crud, PAMPermission.create
+  ]
+  public static let dataSyncAll: PAMPermission = [
+    PAMPermission.all, PAMPermission.create
   ]
 
   public init(rawValue: UInt32) {

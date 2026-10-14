@@ -4,21 +4,6 @@ PubNub Native Swift SDK v11.0 is the latest major release of the PubNub SDK for 
 
 This guide is meant to ease the transition to the 11.0 version of the SDK. To read the full set of documentation, please head over to our official [docs page](https://www.pubnub.com/docs/swift-native/pubnub-swift-sdk)
 
-## New Features
-
-### Data Sync
-
-PubNub 11.0 adds Data Sync APIs for working with users, channels, memberships, and your custom entities and relationships through the `pubnub.dataSync` namespace.
-
-Data Sync helps keep shared application data consistent across clients while giving your app a structured way to model and update its domain data.
-
-For usage details, see the PubNub Swift SDK documentation.
-
-### Other Additions
-
-- **Access Manager:** parsed tokens now expose Data Sync resource permissions (`dataSyncEntities`, `dataSyncMemberships`, `dataSyncRelationships`). `PAMPermission` gains a `create` option, along with the `dataSyncCrud` and `dataSyncAll` presets that include it.
-- **Configuration:** `PubNubConfiguration.init(bundle:)` accepts an `originAt:` parameter naming the Info.plist key to read the origin from. It defaults to `PubNubOrigin`.
-
 ## Breaking API Changes
 
 ### 1. `Subscription` and `SubscriptionSet` Are Created Through Factory Methods

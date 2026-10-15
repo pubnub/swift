@@ -1,3 +1,5 @@
+<img width="1920" height="600" alt="swift-header" src="https://github.com/user-attachments/assets/1cb177eb-a540-421e-b6dd-89d52e740c28" />
+
 # PubNub Swift SDK
 
 [![Platforms](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fpubnub%2Fswift%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/pubnub/swift)

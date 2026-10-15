@@ -55,44 +55,49 @@ import Foundation
 import PubNubSDK
 
 final class PubNubHelloWorld {
-    private let pubnub: PubNub
-    private var subscription: Subscription?
-
-    init() {
-        let configuration = PubNubConfiguration(
-            publishKey: "YOUR_PUBLISH_KEY",
-            subscribeKey: "YOUR_SUBSCRIBE_KEY",
-            userId: "hello-world-user"
-        )
-
-        pubnub = PubNub(configuration: configuration)
-    }
-
-    func start() {
-        let subscription = pubnub
-            .channel("hello_world")
-            .subscription()
-
-        self.subscription = subscription
-
-        subscription.onEvent = { [weak self] event in
-            guard case let .messageReceived(message) = event else {
-                return
-            }
-
-            print(message.payload)
-            self?.subscription?.unsubscribe()
+  private let pubnub: PubNub
+  private var subscription: Subscription?
+  
+  init() {
+    let configuration = PubNubConfiguration(
+      publishKey: "YOUR_PUBLISH_KEY",
+      subscribeKey: "YOUR_SUBSCRIBE_KEY",
+      userId: "hello-world-user"
+    )
+    
+    pubnub = PubNub(configuration: configuration)
+  }
+  
+  func start() {
+    pubnub.onConnectionStateChange = { [weak self] status in
+      guard status.isConnected else {
+        return 
+      }
+      
+      self?.pubnub.publish(
+        channel: "hello_world",
+        message: "Hello world"
+      ) { result in
+        if case let .failure(error) = result {
+          print("Publish failed: \(error)")
         }
-
-        subscription.subscribe()
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            self.pubnub.publish(
-                channel: "hello_world",
-                message: "Hello world"
-            ) { _ in }
-        }
+      }
     }
+    
+    subscription = pubnub
+      .channel("hello_world")
+      .subscription()
+    
+    subscription?.onMessage = { [weak self] message in
+      print(message.payload)
+      
+      // Done with the example: release the connection listener and the subscription.
+      self?.pubnub.onConnectionStateChange = nil
+      self?.subscription?.unsubscribe()
+    }
+    
+    subscription?.subscribe()
+  }
 }
 ```
 
@@ -108,7 +113,7 @@ The Xcode console should show:
 Hello world
 ```
 
-Keep a strong reference to the active subscription and call `subscription.unsubscribe()` when it is no longer needed.
+Keep a strong reference to the active subscription, and call `subscription.unsubscribe()` and clear `pubnub.onConnectionStateChange` when they are no longer needed.
 
 For a complete application, see the [getting started guide](https://www.pubnub.com/docs/sdks/swift).
 

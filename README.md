@@ -1,6 +1,11 @@
 # PubNub Swift SDK
 
-[![CocoaPods](https://img.shields.io/cocoapods/v/PubNubSwift.svg)](https://cocoapods.org/pods/PubNubSwift)
+[![Platforms](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fpubnub%2Fswift%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/pubnub/swift)
+[![CocoaPods Compatible](https://img.shields.io/cocoapods/v/PubNubSwift.svg)](https://cocoapods.org/pods/PubNubSwift)
+[![Swift Package Manager compatible](https://img.shields.io/badge/Swift%20Package%20Manager-compatible-brightgreen.svg)](https://github.com/apple/swift-package-manager)
+[![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
+[![Build Status](https://github.com/pubnub/swift/actions/workflows/run-tests.yml/badge.svg?branch=master)](https://github.com/pubnub/swift/actions/workflows/run-tests.yml)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ea96a32a311944eaa09b4c452db4d397)](https://app.codacy.com?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
 PubNub provides global infrastructure for real-time, interactive applications.
 

@@ -30,7 +30,7 @@ In Xcode, choose File > Add Package Dependencies and add:
 https://github.com/pubnub/swift.git
 ```
 
-For other installation methods, see [environment setup](https://www.pubnub.com/docs/sdks/swift).
+For other installation methods, see [environment setup](https://www.pubnub.com/docs/sdks/swift#setup).
 
 ## Quickstart
 

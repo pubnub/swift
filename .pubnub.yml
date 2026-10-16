@@ -895,7 +895,7 @@ sdks:
                   minimum-os-version:
                     - macOS 10.15
                   maximum-os-version:
-                    - macOS 15.5
+                    - macOS 27.0.1
                   target-architecture:
                     - arm64
                     - x86_64
@@ -905,7 +905,7 @@ sdks:
                   minimum-os-version:
                     - iOS 12.0
                   maximum-os-version:
-                    - iOS 18.5
+                    - iOS 27.0.1
                   target-architecture:
                     - arm64
                   target-devices:
@@ -917,7 +917,7 @@ sdks:
                   minimum-os-version:
                     - tvOS 12.0
                   maximum-os-version:
-                    - tvOS 18.5
+                    - tvOS 27.0
                   target-architecture:
                     - arm64
                   target-devices:
@@ -928,7 +928,7 @@ sdks:
                   minimum-os-version:
                     - watchOS 4.0
                   maximum-os-version:
-                    - watchOS 11.5
+                    - watchOS 27.0.1
                   target-architecture:
                     - arm64
                     - armv7k
@@ -956,7 +956,7 @@ sdks:
                   minimum-os-version:
                     - macOS 10.15
                   maximum-os-version:
-                    - macOS 15.5
+                    - macOS 27.0.1
                   target-architecture:
                     - arm64
                     - x86_64
@@ -966,7 +966,7 @@ sdks:
                   minimum-os-version:
                     - iOS 12.0
                   maximum-os-version:
-                    - iOS 18.5
+                    - iOS 27.0.1
                   target-architecture:
                     - arm64
                   target-devices:
@@ -978,7 +978,7 @@ sdks:
                   minimum-os-version:
                     - tvOS 12.0
                   maximum-os-version:
-                    - tvOS 18.5
+                    - tvOS 27.0
                   target-architecture:
                     - arm64
                   target-devices:
@@ -989,7 +989,7 @@ sdks:
                   minimum-os-version:
                     - watchOS 4.0
                   maximum-os-version:
-                    - watchOS 11.5
+                    - watchOS 27.0.1
                   target-architecture:
                     - armv7k
                     - arm64_32
@@ -1008,7 +1008,7 @@ sdks:
                   minimum-os-version:
                     - macOS 10.15
                   maximum-os-version:
-                    - macOS 15.5
+                    - macOS 27.0.1
                   target-architecture:
                     - arm64
                     - x86_64
@@ -1018,7 +1018,7 @@ sdks:
                   minimum-os-version:
                     - iOS 12.0
                   maximum-os-version:
-                    - iOS 18.5
+                    - iOS 27.0.1
                   target-architecture:
                     - arm64
                     - armv7
@@ -1031,7 +1031,7 @@ sdks:
                   minimum-os-version:
                     - tvOS 12.0
                   maximum-os-version:
-                    - tvOS 18.5
+                    - tvOS 27.0
                   target-architecture:
                     - arm64
                   target-devices:
@@ -1042,7 +1042,7 @@ sdks:
                   minimum-os-version:
                     - watchOS 4.0
                   maximum-os-version:
-                    - watchOS 11.5
+                    - watchOS 27.0.1
                   target-architecture:
                     - armv7k
                     - arm64_32

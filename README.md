@@ -89,7 +89,7 @@ final class PubNubHelloWorld {
       .subscription()
     
     subscription?.onMessage = { [weak self] message in
-      print(message.payload)
+      print(message.payload.stringOptional ?? "")
       
       // Done with the example: release the connection listener and the subscription.
       self?.pubnub.onConnectionStateChange = nil

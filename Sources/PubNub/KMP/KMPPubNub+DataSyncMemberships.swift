@@ -74,7 +74,7 @@ public extension KMPPubNub {
     channelId: String,
     userId: String,
     classVersion: Int,
-    id: String?,
+    id membershipId: String?,
     status: String?,
     payload: Any?,
     onSuccess: @escaping ((KMPDataSyncMembership) -> Void),
@@ -84,7 +84,7 @@ public extension KMPPubNub {
       channelId: channelId,
       userId: userId,
       classVersion: classVersion,
-      id: id,
+      id: membershipId,
       status: status,
       payload: asOptionalCodable(payload)
     ) {
@@ -98,7 +98,7 @@ public extension KMPPubNub {
   }
 
   func setDataSyncMembership(
-    id: String,
+    id membershipId: String,
     classVersion: Int,
     status: String?,
     payload: Any?,
@@ -107,7 +107,7 @@ public extension KMPPubNub {
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.dataSync.setMembership(
-      id: id,
+      id: membershipId,
       classVersion: classVersion,
       status: status,
       payload: asOptionalCodable(payload),

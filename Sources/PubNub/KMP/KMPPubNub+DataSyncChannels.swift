@@ -74,7 +74,7 @@ public extension KMPPubNub {
     className: String?,
     classVersion: Int,
     classLevel: String?,
-    id: String?,
+    id channelId: String?,
     status: String?,
     payload: Any?,
     onSuccess: @escaping ((KMPDataSyncChannel) -> Void),
@@ -84,7 +84,7 @@ public extension KMPPubNub {
       className: className,
       classVersion: classVersion,
       classLevel: dataSyncClassLevel(from: classLevel),
-      id: id,
+      id: channelId,
       status: status,
       payload: asOptionalCodable(payload)
     ) {
@@ -98,7 +98,7 @@ public extension KMPPubNub {
   }
 
   func setDataSyncChannel(
-    id: String,
+    id channelId: String,
     classVersion: Int,
     status: String?,
     payload: Any?,
@@ -107,7 +107,7 @@ public extension KMPPubNub {
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.dataSync.setChannel(
-      id: id,
+      id: channelId,
       classVersion: classVersion,
       status: status,
       payload: asOptionalCodable(payload),

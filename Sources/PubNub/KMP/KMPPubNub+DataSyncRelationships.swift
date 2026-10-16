@@ -77,7 +77,7 @@ public extension KMPPubNub {
     classVersion: Int,
     entityAId: String,
     entityBId: String,
-    id: String?,
+    id relationshipId: String?,
     status: String?,
     payload: Any?,
     onSuccess: @escaping ((KMPDataSyncRelationship) -> Void),
@@ -88,7 +88,7 @@ public extension KMPPubNub {
       classVersion: classVersion,
       entityAId: entityAId,
       entityBId: entityBId,
-      id: id,
+      id: relationshipId,
       status: status,
       payload: asOptionalCodable(payload)
     ) {
@@ -102,7 +102,7 @@ public extension KMPPubNub {
   }
 
   func setDataSyncRelationship(
-    id: String,
+    id relationshipId: String,
     classVersion: Int,
     status: String?,
     payload: Any?,
@@ -111,7 +111,7 @@ public extension KMPPubNub {
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.dataSync.setRelationship(
-      id: id,
+      id: relationshipId,
       classVersion: classVersion,
       status: status,
       payload: asOptionalCodable(payload),

@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "11.0.0"
+version: "11.0.1"
 schema: 1
 changelog:
+  - date: 2026-10-16
+    version: 11.0.1
+    changes:
+      - type: bug
+        text: "Fix KMP DataSync bridge ObjC header parsing (internal use)."
   - date: 2026-10-12
     version: 11.0.0
     changes:
@@ -881,7 +886,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/11.0.0.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/11.0.1.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

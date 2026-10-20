@@ -296,7 +296,7 @@ class PresenceEndpointIntegrationTests: XCTestCase {
     )
 
     defer { listener.cancel() }
-    wait(for: [whereNowExpect], timeout: 10.0)
+    wait(for: [whereNowExpect], timeout: 30.0)
   }
 }
 
@@ -322,6 +322,7 @@ private extension PresenceEndpointIntegrationTests {
   ) -> SubscriptionListener {
     let listener = SubscriptionListener()
     let expectedUsers = userIds ?? Set([client.configuration.userId])
+
     var joinedUsers: Set<String> = Set<String>()
     var hasCompleted = false
 

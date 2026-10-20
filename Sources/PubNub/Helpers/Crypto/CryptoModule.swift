@@ -231,15 +231,6 @@ public struct CryptoModule {
           data: contentData
         )
       )
-      .flatMap {
-        if $0.isEmpty {
-          return .failure(PubNubError(
-            .decryptionFailure,
-            additional: ["Decryption resulted in empty Data"]
-          ))
-        }
-        return .success($0)
-      }
       .mapError {
         PubNubError(.decryptionFailure, underlying: $0)
       }
@@ -548,15 +539,7 @@ public struct CryptoModule {
           metadata: cryptorDefinedData
         ),
         outputPath: outputPath
-      ).flatMap {
-        if outputPath.sizeOf == 0 {
-          return .failure(PubNubError(
-            .decryptionFailure,
-            additional: ["Decryption resulted in an empty File"]
-          ))
-        }
-        return .success($0)
-      }
+      )
       .mapError {
         PubNubError(.decryptionFailure, underlying: $0)
       }
@@ -591,7 +574,10 @@ public extension CryptoModule {
   ///   - key: Key used for encryption/decryption.
   ///   - withRandomIV: Whether the bundled ``LegacyCryptor`` should expect a random IV when decrypting older payloads. Does not affect new encryption.
   static func aesCbcCryptoModule(with key: String, withRandomIV: Bool = true) -> CryptoModule {
-    CryptoModule(default: AESCBCCryptor(key: key), cryptors: [LegacyCryptor(key: key, withRandomIV: withRandomIV)])
+    CryptoModule(
+      default: AESCBCCryptor(key: key),
+      cryptors: [LegacyCryptor(key: key, withRandomIV: withRandomIV), AESGCMCryptor(key: key)]
+    )
   }
 
   /// Returns a `CryptoModule` that encrypts in PubNub's older format.
@@ -607,7 +593,10 @@ public extension CryptoModule {
   ///
   /// - Warning: A fixed IV (`withRandomIV: false`) is insecure and exists only for the oldest payloads.
   static func legacyCryptoModule(with key: String, withRandomIV: Bool = true) -> CryptoModule {
-    CryptoModule(default: LegacyCryptor(key: key, withRandomIV: withRandomIV), cryptors: [AESCBCCryptor(key: key)])
+    CryptoModule(
+      default: LegacyCryptor(key: key, withRandomIV: withRandomIV),
+      cryptors: [AESCBCCryptor(key: key), AESGCMCryptor(key: key)]
+    )
   }
 }
 

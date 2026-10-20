@@ -41,6 +41,7 @@ extension AESGCMStrategy where Self == CommonCryptoGCMStrategy {
   }
 }
 
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension AESGCMStrategy where Self == CryptoKitGCMStrategy {
   /// Implementation built on top of CryptoKit, available from iOS 13, macOS 10.15, tvOS 13 and watchOS 6
   static var cryptoKit: Self {
@@ -50,10 +51,12 @@ extension AESGCMStrategy where Self == CryptoKitGCMStrategy {
 
 /// Helpers shared by the AES-256-GCM decrypt paths
 enum GCMDecrypt {
-  /// Length (in bytes) of the nonce carried in the cryptor-defined metadata
+  /// Length (in bytes) of the nonce stored first in the cryptor-defined metadata
   static let nonceLength = 12
-  /// Length (in bytes) of the authentication tag appended to the ciphertext
+  /// Length (in bytes) of the authentication tag stored after the nonce in the cryptor-defined metadata
   static let tagLength = 16
+  /// Length (in bytes) of the cryptor-defined metadata: the nonce followed by the tag
+  static let metadataLength = nonceLength + tagLength
 
   /// CryptoKit when the OS provides it, the CommonCrypto implementation otherwise
   static var automatic: AESGCMStrategy {

@@ -142,15 +142,15 @@ class AESGCMCryptorTests: XCTestCase {
     let nonce = randomNonce()
     let box = try seal(Data("payload".utf8), nonce: nonce)
     let cryptor = AESGCMCryptor(key: cipherKey)
-    let encrypted = box.ciphertext + box.tag
+    let metadata = nonce + box.tag
 
     let invalidInputs = [
-      EncryptedData(metadata: Data(nonce.prefix(11)), data: encrypted),
-      EncryptedData(metadata: nonce + Data([0x00]), data: encrypted),
-      EncryptedData(metadata: Data(), data: encrypted),
-      EncryptedData(metadata: nonce, data: Data(encrypted.prefix(15))),
-      EncryptedData(metadata: nonce, data: Data()),
-      EncryptedData(metadata: nonce, data: flipped(encrypted))
+      EncryptedData(metadata: Data(metadata.prefix(27)), data: box.ciphertext),
+      EncryptedData(metadata: metadata + Data([0x00]), data: box.ciphertext),
+      EncryptedData(metadata: nonce, data: box.ciphertext + box.tag),
+      EncryptedData(metadata: Data(), data: box.ciphertext),
+      EncryptedData(metadata: flipped(metadata), data: box.ciphertext),
+      EncryptedData(metadata: metadata, data: flipped(box.ciphertext))
     ]
     for input in invalidInputs {
       assertOpaqueDecryptionFailure(cryptor.decrypt(data: input).error)
@@ -162,7 +162,7 @@ class AESGCMCryptorTests: XCTestCase {
     let box = try seal(Data("payload".utf8), nonce: nonce)
     let cryptor = AESGCMCryptor(key: "not-the-key")
 
-    let result = cryptor.decrypt(data: EncryptedData(metadata: nonce, data: box.ciphertext + box.tag))
+    let result = cryptor.decrypt(data: EncryptedData(metadata: nonce + box.tag, data: box.ciphertext))
 
     assertOpaqueDecryptionFailure(result.error)
   }
@@ -227,8 +227,8 @@ class AESGCMCryptorTests: XCTestCase {
     let payload = try makePayload(Data("Hello from AES-GCM".utf8))
     let module = CryptoModule.aesCbcCryptoModule(with: cipherKey)
 
-    // Header and nonce occupy the first bytes, so flip a byte of every region in turn
-    for index in [0, 10, 12, 20, payload.count - 1] {
+    // Header, nonce and tag occupy the first bytes, so flip a byte of every region in turn
+    for index in [0, 10, 12, 20, 30, 45, payload.count - 1] {
       var tampered = payload
       tampered[index] ^= 0x01
       XCTAssertThrowsError(try module.decrypt(data: tampered).get(), "index: \(index)")
@@ -274,6 +274,7 @@ class AESGCMCryptorTests: XCTestCase {
   func test_ModuleStream_RejectsTamperedFile_AndWritesNothing() throws {
     var payload = try makePayload(Data("Hello from AES-GCM".utf8))
     payload[payload.count - 1] ^= 0x01
+
     let input = URL.randomTempPath
     let output = URL.randomTempPath
     try payload.write(to: input)
@@ -308,15 +309,15 @@ private extension AESGCMCryptorTests {
     )
   }
 
-  // Builds a complete wire payload: PNED header, nonce, ciphertext and tag
+  // Builds a complete wire payload: PNED header, nonce, tag and ciphertext
   func makePayload(_ plaintext: Data) throws -> Data {
     let nonce = randomNonce()
     let box = try seal(plaintext, nonce: nonce)
 
-    return CryptorHeader.v1(cryptorId: AESGCMCryptor.ID, dataLength: nonce.count).toData()
+    return CryptorHeader.v1(cryptorId: AESGCMCryptor.ID, dataLength: GCMDecrypt.metadataLength).toData()
       + nonce
-      + box.ciphertext
       + box.tag
+      + box.ciphertext
   }
 
   func decryptStream(_ payload: Data) throws -> URL {

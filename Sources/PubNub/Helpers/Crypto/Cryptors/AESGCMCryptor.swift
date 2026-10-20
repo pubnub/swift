@@ -12,8 +12,8 @@ import Foundation
 
 /// A ``Cryptor`` that decrypts AES-256-GCM payloads.
 ///
-/// The cryptor-defined metadata carries the 12-byte nonce, and the encrypted data is the ciphertext
-/// followed by a 16-byte authentication tag. The AES key is the SHA-256 digest of the cipher key.
+/// The cryptor-defined metadata is 28 bytes: the 12-byte nonce followed by the 16-byte authentication tag.
+/// The encrypted data is the bare ciphertext. The AES key is the SHA-256 digest of the cipher key.
 struct AESGCMCryptor: Cryptor {
   static let ID: CryptorId = [0x41, 0x43, 0x47, 0x4D]
 
@@ -36,7 +36,7 @@ struct AESGCMCryptor: Cryptor {
   }
 
   func decrypt(data: EncryptedData) -> Result<Data, Error> {
-    guard let plaintext = open(nonce: data.metadata, encrypted: data.data) else {
+    guard let plaintext = open(metadata: data.metadata, ciphertext: data.data) else {
       return .failure(GCMDecrypt.failure)
     }
     return .success(plaintext)
@@ -44,10 +44,9 @@ struct AESGCMCryptor: Cryptor {
 
   func decrypt(data: EncryptedStreamData, outputPath: URL) -> Result<InputStream, Error> {
     guard
-      data.metadata.count == GCMDecrypt.nonceLength,
-      data.contentLength >= GCMDecrypt.tagLength,
-      let encrypted = Self.readAll(from: data.stream),
-      let plaintext = open(nonce: data.metadata, encrypted: encrypted)
+      data.metadata.count == GCMDecrypt.metadataLength,
+      let ciphertext = Self.readAll(from: data.stream),
+      let plaintext = open(metadata: data.metadata, ciphertext: ciphertext)
     else {
       return .failure(GCMDecrypt.failure)
     }
@@ -72,17 +71,18 @@ private extension AESGCMCryptor {
 }
 
 private extension AESGCMCryptor {
-  func open(nonce: Data, encrypted: Data) -> Data? {
-    guard nonce.count == GCMDecrypt.nonceLength, encrypted.count >= GCMDecrypt.tagLength else {
+  func open(metadata: Data, ciphertext: Data) -> Data? {
+    guard metadata.count == GCMDecrypt.metadataLength else {
       return nil
     }
-    let tagStart = encrypted.endIndex - GCMDecrypt.tagLength
+
+    let tagStart = metadata.startIndex + GCMDecrypt.nonceLength
 
     return GCMDecrypt.open(
       key: key,
-      nonce: nonce,
-      ciphertext: Data(encrypted[encrypted.startIndex..<tagStart]),
-      tag: Data(encrypted[tagStart...]),
+      nonce: Data(metadata[metadata.startIndex..<tagStart]),
+      ciphertext: ciphertext,
+      tag: Data(metadata[tagStart...])
     )
   }
 

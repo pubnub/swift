@@ -31,7 +31,7 @@ struct CryptorHeaderWithinStreamFinder {
       continuationStream = MultipartInputStream(inputStreams: [InputStream(data: buffer), stream])
     case .v1(_, let dataLength):
       // Detects whether it's safe to extract metadata
-      guard headerLength + dataLength < buffer.count else {
+      guard headerLength + dataLength <= buffer.count else {
         throw PubNubError(.decryptionFailure, additional: ["Cannot extract metadata for CryptorHeader v1"])
       }
       // Extracts Cryptor-defined data from the supplied buffer

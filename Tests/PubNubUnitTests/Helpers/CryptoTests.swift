@@ -199,6 +199,16 @@ class CryptoTests: XCTestCase {
     )
   }
 
+  // MARK: - Description
+
+  func test_Description_ListsSecondaryCryptorIds() {
+    let cryptoModule = CryptoModule.aesCbcCryptoModule(with: "SomeTestString")
+    let description = cryptoModule.description
+
+    XCTAssertTrue(description.contains("defaultCryptor: \(AESCBCCryptor(key: "SomeTestString").id)"))
+    XCTAssertTrue(description.contains("cryptors: [\(LegacyCryptor.ID), \(AESGCMCryptor.ID)]"))
+  }
+
   // MARK: - CryptoError
 
   func test_CryptoError_SuccessRawValue_ReturnsNil() {

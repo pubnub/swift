@@ -619,7 +619,7 @@ extension CryptoModule: CustomStringConvertible {
       of: self,
       arguments: [
         ("defaultCryptor", defaultCryptor.id),
-        ("cryptors", defaultCryptor.id)
+        ("cryptors", cryptors.map { $0.id })
       ]
     )
   }

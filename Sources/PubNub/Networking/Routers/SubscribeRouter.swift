@@ -191,8 +191,6 @@ struct SubscribeDecoder: ResponseDecoder {
       switch message.messageType {
       case .message:
         messages[index] = decrypt(cryptoModule, message: message)
-      case .signal:
-        messages[index] = decrypt(cryptoModule, message: message)
       case .file:
         messages[index] = decrypt(cryptoModule, message: message)
       default:

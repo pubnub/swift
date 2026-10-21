@@ -437,6 +437,16 @@ extension PublishRouterTests {
     XCTAssertEqual(router.service, .publish)
   }
 
+  func test_SignalRouter_WithCryptoModule_DoesNotEncryptPayload() throws {
+    let plainConfig = TestPubNubFactory.makeConfig(authKey: "auth-key")
+    let cryptoConfig = TestPubNubFactory.makeConfig(authKey: "auth-key", cryptoModule: .aesCbcCryptoModule(with: "pubnubenigma"))
+    let endpoint = PublishRouter.Endpoint.signal(message: testMessage, channel: testChannel, customMessageType: nil)
+    let plainPath = try PublishRouter(endpoint, configuration: plainConfig).path.get()
+    let cryptoPath = try PublishRouter(endpoint, configuration: cryptoConfig).path.get()
+
+    XCTAssertEqual(plainPath, cryptoPath)
+  }
+
   func test_SignalRouter_WithEmptyMessage_ReturnsValidationError() throws {
     let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
     let router = PublishRouter(.signal(message: [], channel: testChannel, customMessageType: nil), configuration: config)

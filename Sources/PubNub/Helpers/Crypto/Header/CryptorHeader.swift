@@ -119,7 +119,6 @@ struct CryptorHeaderParser {
   }
 
   private func computeCryptorDataSize(with sizeIndicator: Int) throws -> UInt16 {
-    // A single byte below 0xFF is the size itself, 0xFF is followed by the size as two big-endian bytes
     guard sizeIndicator == 0xFF else {
       return UInt16(sizeIndicator)
     }

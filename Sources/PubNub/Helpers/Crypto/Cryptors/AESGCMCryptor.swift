@@ -13,7 +13,6 @@ import Foundation
 /// A ``Cryptor`` that decrypts AES-256-GCM payloads.
 ///
 /// The cryptor-defined metadata is 28 bytes: the 12-byte nonce followed by the 16-byte authentication tag.
-/// The encrypted data is the bare ciphertext. The AES key is the SHA-256 digest of the cipher key.
 struct AESGCMCryptor: Cryptor {
   static let ID: CryptorId = [0x41, 0x43, 0x47, 0x4D]
 

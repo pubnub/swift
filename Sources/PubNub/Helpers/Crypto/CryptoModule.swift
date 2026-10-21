@@ -606,7 +606,6 @@ extension CryptoModule: Equatable {
   }
 }
 
-// Opens the `any Cryptor` existential so that its concrete `Hashable` conformance (key included) is used
 private func erased<C: Cryptor>(_ cryptor: C) -> AnyHashable {
   AnyHashable(cryptor)
 }

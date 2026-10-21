@@ -14,7 +14,6 @@ import Foundation
 public struct CryptoModule {
   private let defaultCryptor: any Cryptor
   private let cryptors: [any Cryptor]
-  private let legacyCryptorId: CryptorId = []
   private let logger: PubNubLogger?
 
   typealias Base64EncodedString = String

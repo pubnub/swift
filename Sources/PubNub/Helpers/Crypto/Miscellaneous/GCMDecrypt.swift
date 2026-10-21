@@ -34,21 +34,6 @@ extension AESGCMStrategy {
   }
 }
 
-extension AESGCMStrategy where Self == CommonCryptoGCMStrategy {
-  /// Implementation built on top of CommonCrypto, available on every supported OS version
-  static var commonCrypto: Self {
-    CommonCryptoGCMStrategy()
-  }
-}
-
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-extension AESGCMStrategy where Self == CryptoKitGCMStrategy {
-  /// Implementation built on top of CryptoKit, available from iOS 13, macOS 10.15, tvOS 13 and watchOS 6
-  static var cryptoKit: Self {
-    CryptoKitGCMStrategy()
-  }
-}
-
 /// Helpers shared by the AES-256-GCM decrypt paths
 enum GCMDecrypt {
   /// Length (in bytes) of the nonce stored first in the cryptor-defined metadata
@@ -58,39 +43,43 @@ enum GCMDecrypt {
   /// Length (in bytes) of the cryptor-defined metadata: the nonce followed by the tag
   static let metadataLength = nonceLength + tagLength
 
-  /// CryptoKit when the OS provides it, the CommonCrypto implementation otherwise
-  static var automatic: AESGCMStrategy {
-    if #available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *) {
-      return .cryptoKit
-    } else {
-      return .commonCrypto
-    }
-  }
-
   /// A single, uniform decryption failure that never exposes an underlying decryption error.
   static var failure: PubNubError {
     PubNubError(.decryptionFailure, additional: ["Decryption failed"])
   }
 
-  /// Validates the input sizes and delegates decryption to the given strategy.
+  /// Validates the input sizes and delegates decryption to a strategy.
+  ///
+  /// When no strategy is given, CryptoKit is used on OS versions that provide it (iOS 13, macOS 10.15, tvOS 13, watchOS 6 and later); otherwise CommonCrypto is used.
   ///
   /// - Parameters:
   ///   - key: 32-byte AES key
   ///   - nonce: 12-byte nonce
   ///   - ciphertext: Encrypted bytes, without the tag. May be empty.
   ///   - tag: 16-byte authentication tag
-  ///   - strategy: Implementation to use
+  ///   - strategy: Implementation to use. Pass `nil` (default) to pick one based on the OS version.
   /// - Returns: The plaintext, or `nil` if the input is malformed or authentication fails
   static func open(
     key: Data,
     nonce: Data,
     ciphertext: Data,
     tag: Data,
-    strategy: AESGCMStrategy = GCMDecrypt.automatic
+    strategy: AESGCMStrategy? = nil
   ) -> Data? {
     guard key.count == kCCKeySizeAES256, nonce.count == nonceLength, tag.count == tagLength else {
       return nil
     }
-    return strategy.open(key: key, nonce: nonce, ciphertext: ciphertext, tag: tag)
+
+    let resolvedStrategy: AESGCMStrategy = if let strategy {
+      strategy
+    } else {
+      if #available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *) {
+        CryptoKitGCMStrategy()
+      } else {
+        CommonCryptoGCMStrategy()
+      }
+    }
+
+    return resolvedStrategy.open(key: key, nonce: nonce, ciphertext: ciphertext, tag: tag)
   }
 }

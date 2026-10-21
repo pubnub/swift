@@ -571,6 +571,7 @@
 		7A5E00012F00000100A1B2C3 /* AESGCMCryptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5E00022F00000100A1B2C3 /* AESGCMCryptor.swift */; };
 		7A5E00032F00000100A1B2C3 /* GCMDecrypt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5E00042F00000100A1B2C3 /* GCMDecrypt.swift */; };
 		7A5E00052F00000100A1B2C3 /* AESGCMCryptorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5E00062F00000100A1B2C3 /* AESGCMCryptorTests.swift */; };
+		C7A10001A0B0C0D0E0F00001 /* CryptorHeaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A10001A0B0C0D0E0F00002 /* CryptorHeaderTests.swift */; };
 		7A5E00072F00000100A1B2C3 /* CommonCryptoGCMStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5E00082F00000100A1B2C3 /* CommonCryptoGCMStrategy.swift */; };
 		7A5E00092F00000100A1B2C3 /* CryptoKitGCMStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5E000A2F00000100A1B2C3 /* CryptoKitGCMStrategy.swift */; };
 		7D06370D7AD0E46FC803436D /* TestPubNubFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4633F013726A54716BF2443 /* TestPubNubFactory.swift */; };
@@ -1350,6 +1351,7 @@
 		7A5E00022F00000100A1B2C3 /* AESGCMCryptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AESGCMCryptor.swift; sourceTree = "<group>"; };
 		7A5E00042F00000100A1B2C3 /* GCMDecrypt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GCMDecrypt.swift; sourceTree = "<group>"; };
 		7A5E00062F00000100A1B2C3 /* AESGCMCryptorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AESGCMCryptorTests.swift; sourceTree = "<group>"; };
+		C7A10001A0B0C0D0E0F00002 /* CryptorHeaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptorHeaderTests.swift; sourceTree = "<group>"; };
 		7A5E00082F00000100A1B2C3 /* CommonCryptoGCMStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonCryptoGCMStrategy.swift; sourceTree = "<group>"; };
 		7A5E000A2F00000100A1B2C3 /* CryptoKitGCMStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoKitGCMStrategy.swift; sourceTree = "<group>"; };
 		84AE887D2C0D9CFA009FB148 /* KMPAnyJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPAnyJSON.swift; sourceTree = "<group>"; };
@@ -1857,6 +1859,7 @@
 				35CDFEBB22E789B200F3B9F2 /* ConstantsTests.swift */,
 				35D0615123035E4300FDB2F9 /* CryptoTests.swift */,
 				7A5E00062F00000100A1B2C3 /* AESGCMCryptorTests.swift */,
+				C7A10001A0B0C0D0E0F00002 /* CryptorHeaderTests.swift */,
 				35D8D4C722EB7E1D001B07D9 /* AtomicTests.swift */,
 				3513AB2523A967C7002D4B57 /* PAMTokenTests.swift */,
 				35D061592303A61500FDB2F9 /* ValidatedTests.swift */,
@@ -4567,6 +4570,7 @@
 				357AEB8422E6954600C18250 /* Collection+PubNubTests.swift in Sources */,
 				35D0615223035E4300FDB2F9 /* CryptoTests.swift in Sources */,
 				7A5E00052F00000100A1B2C3 /* AESGCMCryptorTests.swift in Sources */,
+				C7A10001A0B0C0D0E0F00001 /* CryptorHeaderTests.swift in Sources */,
 				35CF54A3248DA8650099FE81 /* ObjectsMembershipsRouterTests.swift in Sources */,
 				357AEB8822E69B0800C18250 /* DispatchQueue+PubNub.swift in Sources */,
 				355BE9FF22C2B74A000EC334 /* AnyJSONTests.swift in Sources */,

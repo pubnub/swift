@@ -601,12 +601,21 @@ public extension CryptoModule {
 
 extension CryptoModule: Equatable {
   public static func == (lhs: CryptoModule, rhs: CryptoModule) -> Bool {
-    lhs.cryptors.map { $0.id } == rhs.cryptors.map { $0.id }
+    erased(lhs.defaultCryptor) == erased(rhs.defaultCryptor) &&
+      lhs.cryptors.map { erased($0) } == rhs.cryptors.map { erased($0) }
   }
+}
+
+// Opens the `any Cryptor` existential so that its concrete `Hashable` conformance (key included) is used
+private func erased<C: Cryptor>(_ cryptor: C) -> AnyHashable {
+  AnyHashable(cryptor)
 }
 
 extension CryptoModule: Hashable {
   public func hash(into hasher: inout Hasher) {
+    hasher.combine(defaultCryptor)
+    hasher.combine(cryptors.count)
+
     for cryptor in cryptors {
       hasher.combine(cryptor)
     }

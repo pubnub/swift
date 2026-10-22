@@ -31,7 +31,7 @@ enum CryptorHeader: Equatable {
   }
 
   func toData() -> Data {
-    guard case .v1(let cryptorId, let dataLength) = self else {
+    guard case let .v1(cryptorId, dataLength) = self else {
       return Data()
     }
 

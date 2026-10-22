@@ -14,14 +14,12 @@ import XCTest
 
 @testable import PubNubSDK
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 class AESGCMCryptorTests: XCTestCase {
   private let cipherKey = "enigma"
-  private let strategies: [AESGCMStrategy] = [.commonCrypto, .cryptoKit]
 
-  // MARK: - Strategies
+  // MARK: - Raw key
 
-  func test_Open_MatchesPublishedAES256Vectors() throws {
+  func test_Decrypt_MatchesPublishedAES256Vectors() throws {
     struct Vector {
       let key: String
       let nonce: String
@@ -56,84 +54,65 @@ class AESGCMCryptorTests: XCTestCase {
     ]
 
     for vector in vectors {
-      for strategy in strategies {
-        let plaintext = GCMDecrypt.open(
-          key: try hex(vector.key),
-          nonce: try hex(vector.nonce),
-          ciphertext: try hex(vector.ciphertext),
-          tag: try hex(vector.tag),
-          strategy: strategy
-        )
-        XCTAssertEqual(plaintext, try hex(vector.plaintext))
-      }
+      let cryptor = AESGCMCryptor(rawKey: try hex(vector.key))
+      let result = cryptor.decrypt(data: EncryptedData(
+        metadata: try hex(vector.nonce) + hex(vector.tag),
+        data: try hex(vector.ciphertext)
+      ))
+      XCTAssertEqual(try result.get(), try hex(vector.plaintext))
     }
   }
 
-  func test_Open_CommonCryptoStrategyAgreesWithCryptoKit_ForAllLengths() throws {
+  func test_Decrypt_RoundTripsCryptoKitOutput_ForAllLengths() throws {
     let key = SymmetricKey(size: .bits256)
-    let lengths = [0, 1, 15, 16, 17, 31, 32, 33, 255, 1_000, 70_000]
+    let cryptor = AESGCMCryptor(rawKey: key.withUnsafeBytes { Data($0) })
 
-    for length in lengths {
+    for length in [0, 1, 15, 16, 17, 31, 32, 33, 255, 1_000, 70_000] {
       let plaintext = Data((0..<length).map { _ in UInt8.random(in: 0...255) })
       let box = try AES.GCM.seal(plaintext, using: key)
-      let rawKey = key.withUnsafeBytes { Data($0) }
+      let result = cryptor.decrypt(data: EncryptedData(metadata: Data(box.nonce) + box.tag, data: box.ciphertext))
 
-      for backend in strategies {
-        let opened = GCMDecrypt.open(
-          key: rawKey,
-          nonce: Data(box.nonce),
-          ciphertext: box.ciphertext,
-          tag: box.tag,
-          strategy: backend
-        )
-        XCTAssertEqual(opened, plaintext, "length: \(length), backend: \(backend)")
-      }
+      XCTAssertEqual(try result.get(), plaintext, "length: \(length)")
     }
   }
 
-  func test_Open_RejectsAnyModifiedInput() throws {
+  func test_Decrypt_RejectsAnyModifiedInput() throws {
     let key = Data(repeating: 0x42, count: 32)
     let nonce = Data(repeating: 0x07, count: 12)
-
     let box = try AES.GCM.seal(
       Data("authenticated".utf8),
       using: SymmetricKey(data: key),
       nonce: AES.GCM.Nonce(data: nonce)
     )
+    let metadata = nonce + box.tag
 
-    for strategy in strategies {
-      XCTAssertNotNil(
-        GCMDecrypt.open(key: key, nonce: nonce, ciphertext: box.ciphertext, tag: box.tag, strategy: strategy)
-      )
-      XCTAssertNil(
-        GCMDecrypt.open(key: key, nonce: nonce, ciphertext: flipped(box.ciphertext), tag: box.tag, strategy: strategy)
-      )
-      XCTAssertNil(
-        GCMDecrypt.open(key: key, nonce: nonce, ciphertext: box.ciphertext, tag: flipped(box.tag), strategy: strategy)
-      )
-      XCTAssertNil(
-        GCMDecrypt.open(key: key, nonce: flipped(nonce), ciphertext: box.ciphertext, tag: box.tag, strategy: strategy)
-      )
-      XCTAssertNil(
-        GCMDecrypt.open(key: flipped(key), nonce: nonce, ciphertext: box.ciphertext, tag: box.tag, strategy: strategy)
-      )
+    let valid = AESGCMCryptor(rawKey: key).decrypt(data: EncryptedData(metadata: metadata, data: box.ciphertext))
+    XCTAssertEqual(try valid.get(), Data("authenticated".utf8))
+
+    let failures = [
+      AESGCMCryptor(rawKey: key).decrypt(data: EncryptedData(metadata: metadata, data: flipped(box.ciphertext))),
+      AESGCMCryptor(rawKey: key).decrypt(data: EncryptedData(metadata: flipped(metadata), data: box.ciphertext)),
+      AESGCMCryptor(rawKey: flipped(key)).decrypt(data: EncryptedData(metadata: metadata, data: box.ciphertext))
+    ]
+    for failure in failures {
+      assertOpaqueDecryptionFailure(failure.error)
     }
   }
 
-  func test_Open_RejectsMalformedLengths() {
-    let key = Data(repeating: 0x42, count: 32)
+  func test_Decrypt_RejectsRawKeysOfWrongLength() throws {
+    let nonce = randomNonce()
+    let box = try seal(Data("payload".utf8), nonce: nonce)
+    let input = EncryptedData(metadata: nonce + box.tag, data: box.ciphertext)
 
-    for strategy in strategies {
-      XCTAssertNil(GCMDecrypt.open(
-        key: key, nonce: Data(count: 11), ciphertext: Data(), tag: Data(count: 16), strategy: strategy
-      ))
-      XCTAssertNil(GCMDecrypt.open(
-        key: key, nonce: Data(count: 12), ciphertext: Data(), tag: Data(count: 15), strategy: strategy
-      ))
-      XCTAssertNil(GCMDecrypt.open(
-        key: Data(count: 16), nonce: Data(count: 12), ciphertext: Data(), tag: Data(count: 16), strategy: strategy
-      ))
+    for length in [0, 16, 24, 31, 33] {
+      assertOpaqueDecryptionFailure(AESGCMCryptor(rawKey: Data(count: length)).decrypt(data: input).error)
     }
+  }
+
+  func test_StringInitializer_ForwardsToRawKeyInitializer() {
+    let derived = CryptorUtils.SHA256.hash(from: Data(cipherKey.utf8))
+
+    XCTAssertEqual(AESGCMCryptor(key: cipherKey), AESGCMCryptor(rawKey: derived))
   }
 
   // MARK: - Cryptor
@@ -295,10 +274,9 @@ class AESGCMCryptorTests: XCTestCase {
 
 // MARK: - Helpers
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 private extension AESGCMCryptorTests {
   func randomNonce() -> Data {
-    Data((0..<GCMDecrypt.nonceLength).map { _ in UInt8.random(in: 0...255) })
+    Data((0..<AESGCMCryptor.nonceLength).map { _ in UInt8.random(in: 0...255) })
   }
 
   func seal(_ plaintext: Data, nonce: Data) throws -> AES.GCM.SealedBox {
@@ -314,7 +292,7 @@ private extension AESGCMCryptorTests {
     let nonce = randomNonce()
     let box = try seal(plaintext, nonce: nonce)
 
-    return CryptorHeader.v1(cryptorId: AESGCMCryptor.ID, dataLength: GCMDecrypt.metadataLength).toData()
+    return CryptorHeader.v1(cryptorId: AESGCMCryptor.ID, dataLength: AESGCMCryptor.metadataLength).toData()
       + nonce
       + box.tag
       + box.ciphertext

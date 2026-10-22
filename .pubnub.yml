@@ -903,7 +903,7 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - iOS 12.0
+                    - iOS 13.0
                   maximum-os-version:
                     - iOS 27.0.1
                   target-architecture:
@@ -915,7 +915,7 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - tvOS 12.0
+                    - tvOS 13.0
                   maximum-os-version:
                     - tvOS 27.0
                   target-architecture:
@@ -926,7 +926,7 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - watchOS 4.0
+                    - watchOS 6.0
                   maximum-os-version:
                     - watchOS 27.0.1
                   target-architecture:
@@ -964,7 +964,7 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - iOS 12.0
+                    - iOS 13.0
                   maximum-os-version:
                     - iOS 27.0.1
                   target-architecture:
@@ -976,7 +976,7 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - tvOS 12.0
+                    - tvOS 13.0
                   maximum-os-version:
                     - tvOS 27.0
                   target-architecture:
@@ -987,7 +987,7 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - watchOS 4.0
+                    - watchOS 6.0
                   maximum-os-version:
                     - watchOS 27.0.1
                   target-architecture:
@@ -1016,7 +1016,7 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - iOS 12.0
+                    - iOS 13.0
                   maximum-os-version:
                     - iOS 27.0.1
                   target-architecture:
@@ -1029,7 +1029,7 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - tvOS 12.0
+                    - tvOS 13.0
                   maximum-os-version:
                     - tvOS 27.0
                   target-architecture:
@@ -1040,7 +1040,7 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - watchOS 4.0
+                    - watchOS 6.0
                   maximum-os-version:
                     - watchOS 27.0.1
                   target-architecture:
@@ -1052,7 +1052,7 @@ sdks:
 supported-platforms:
   - version: PubNub Swift SDK
     platforms:
-      - iOS 12.0 or higher
+      - iOS 13.0 or higher
       - macOS 10.15 or higher
-      - tvOS 12.0 or higher
-      - watchOS 4.0 or higher
+      - tvOS 13.0 or higher
+      - watchOS 6.0 or higher

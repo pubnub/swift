@@ -7,14 +7,11 @@ type_body_length:
 file_length:
   warning: 1000
   error: 1500
-opening_brace:
-  ignore_multiline_statement_conditions: true
 disabled_rules:
   - identifier_name
   - type_name
   - function_body_length
   - function_parameter_count
-  - trailing_comma
 excluded:
   - .build
   - bundle

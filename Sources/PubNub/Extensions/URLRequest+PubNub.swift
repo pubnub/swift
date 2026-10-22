@@ -39,7 +39,7 @@ public extension URLRequest {
     prefixData.append(
       response.uploadFormFields.map { $0.multipartyDescription(boundary: response.fileId) }.joined()
     )
-    // swiftlint:disable:next line_length
+    // swiftlint:disable:next line_length superfluous_disable_command
     prefixData.append("--\(response.fileId)\r\nContent-Disposition: form-data; name=\"file\"; filename=\"\(response.filename)\"\r\n")
     prefixData.append("Content-Type: \(content.contentType)\r\n\r\n")
 

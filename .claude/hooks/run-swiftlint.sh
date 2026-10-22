@@ -1,30 +1,34 @@
 #!/bin/bash
+# PostToolUse hook (Edit|Write): keeps Swift files SwiftLint-clean.
+#
+# Stays silent unless Claude has to act, to avoid polluting its context:
+#   - Auto-fixable issues are fixed on disk without any output (the harness reports the modification itself).
+#   - Remaining violations are printed on stderr with exit 2, so Claude fixes them.
+
 INPUT=$(cat)
-FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
 
-# Skip non-Swift files
-if [[ "$FILE_PATH" != *.swift ]]; then
-  exit 0
-fi
+command -v jq >/dev/null 2>&1 || exit 0
+command -v swiftlint >/dev/null 2>&1 || exit 0
 
-# Skip when SwiftLint isn't installed, rather than blocking every Swift edit
-if ! command -v swiftlint >/dev/null 2>&1; then
-  exit 0
-fi
+FILE_PATH=$(jq -r '.tool_input.file_path // empty' <<<"$INPUT")
 
-# Auto-fix what we can. This rewrites the file after the write, so report it:
-# the on-disk result can differ from what was just written.
-BEFORE=$(shasum "$FILE_PATH" 2>/dev/null)
-swiftlint --fix "$FILE_PATH" 2>/dev/null
-if [[ "$(shasum "$FILE_PATH" 2>/dev/null)" != "$BEFORE" ]]; then
-  echo "SwiftLint --fix reformatted $FILE_PATH; re-read it before further edits"
-fi
+[[ "$FILE_PATH" == *.swift && -f "$FILE_PATH" ]] || exit 0
 
-# Validate remaining violations (--strict so warnings block too)
-OUTPUT=$(swiftlint --strict "$FILE_PATH" 2>&1)
-if [[ $? -ne 0 ]]; then
-  echo "SwiftLint violations remain in $FILE_PATH" >&2
-  echo "$OUTPUT" >&2
+cd "${CLAUDE_PROJECT_DIR:-$PWD}" || exit 0
+
+# --force-exclude makes explicitly passed files honor `excluded:` in .swiftlint.yml
+LINT_ARGS=(--quiet --force-exclude)
+
+swiftlint --fix "${LINT_ARGS[@]}" "$FILE_PATH" >/dev/null 2>&1
+
+# --strict so warnings count too; capture output instead of streaming it
+OUTPUT=$(swiftlint lint --strict "${LINT_ARGS[@]}" "$FILE_PATH" 2>&1)
+
+if [[ $? -ne 0 && -n "$OUTPUT" ]]; then
+  {
+    echo "SwiftLint violations remain; fix them:"
+    echo "$OUTPUT" | sed "s|^$PWD/||"
+  } >&2
   exit 2
 fi
 

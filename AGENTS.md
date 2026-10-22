@@ -60,7 +60,7 @@ Additional CI and Xcode-based validation is defined in `fastlane/Fastfile`.
 ## Editing Rules
 
 - Preserve existing PubNub copyright headers.
-- Swift writes trigger `.claude/hooks/run-swiftlint.sh`: `swiftlint --fix` then `swiftlint --strict`. Violations block the edit; re-read the file after a reported reformat. Usual blockers: 130-char lines, force unwraps.
+- Swift writes trigger `.claude/hooks/run-swiftlint.sh`: `swiftlint --fix` then `swiftlint --strict`. The edit itself is already applied; remaining violations are reported back and must be fixed. Re-read the file after a reported reformat. Usual violations: 130-char lines, force unwraps.
 - Snippets in `Snippets/{Area}/` use `// snippet.<id>` / `// snippet.end` markers for doc tooling. Keep markers intact and add snippets for new public API.
 - Prefer updating tests when changing public behavior.
 - Do not expose unreleased, internal, or not-yet-announced features in documentation, snippets, comments intended for users, or user-facing output.

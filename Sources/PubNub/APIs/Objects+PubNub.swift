@@ -190,8 +190,9 @@ public extension PubNub {
     }
   }
 
-  // swiftlint:disable:next line_length
+  // swiftlint:disable line_length
   @available(*, deprecated, message: "Will be replaced with PubNub.UserIncludeFields and PubNub.ChannelIncludeFields for the User and Channel methods, respectively")
+  // swiftlint:enable line_length
   /// Fields that include additional data inside the response for Channel or User metadata
   struct IncludeFields: Hashable {
     /// The `custom` dictionary for the Object
@@ -1299,7 +1300,7 @@ public extension PubNub {
   ///     - **Success**: A `Tuple` containing an `Array` of `PubNubMembershipMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
   ///     - **Failure**: An `Error` describing the failure
   @available(*, deprecated, renamed: "manageMemberships(userId:setting:removing:include:filter:sort:limit:page:custom:completion:)")
-  // swiftlint:disable:previous line_length
+  // swiftlint:disable:previous line_length superfluous_disable_command
   func manageMemberships(
     uuid: String?,
     setting channelMembershipSets: [PubNubMembershipMetadata],

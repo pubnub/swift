@@ -40,9 +40,9 @@ enum CryptorHeader: Equatable {
     finalData += Data(bytes: cryptorId, count: cryptorId.count)
 
     if dataLength < 255 {
-      finalData += Data(bytes: [dataLength], count: 1)
+      finalData.append(UInt8(dataLength))
     } else {
-      finalData += Data(bytes: [0xFF, dataLength >> 8, dataLength & 0xFF], count: 3)
+      finalData += [0xFF, UInt8((dataLength >> 8) & 0xFF), UInt8(dataLength & 0xFF)]
     }
     return finalData
   }
@@ -119,14 +119,12 @@ struct CryptorHeaderParser {
   }
 
   private func computeCryptorDataSize(with sizeIndicator: Int) throws -> UInt16 {
-    guard sizeIndicator > 255 else {
+    guard sizeIndicator == 0xFF else {
       return UInt16(sizeIndicator)
     }
     guard let nextBytes = scanner.nextBytes(2) else {
       throw PubNubError(.unknownCryptorFailure, additional: ["Could not find next Cryptor data-size bytes"])
     }
-    return nextBytes.withUnsafeBytes {
-      $0.load(as: UInt16.self)
-    }
+    return nextBytes.reduce(UInt16(0)) { ($0 << 8) | UInt16($1) }
   }
 }

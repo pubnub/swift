@@ -86,7 +86,9 @@ struct PublishRouter: HTTPRouter {
     case let .compressedPublish(_, channel, _, _, _, _):
       return .success("/publish/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0")
     case let .signal(message, channel, _):
-      return append(message: message, to: "/signal/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0/")
+      return message.jsonStringifyResult.map {
+        "/signal/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0/\($0.urlEncodeSlash)"
+      }
     case let .file(message, _, _, _, _):
       return append(
         message: message,

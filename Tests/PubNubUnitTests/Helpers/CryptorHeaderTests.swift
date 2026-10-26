@@ -41,7 +41,8 @@ class CryptorHeaderTests: XCTestCase {
   func test_Parse_RoundTripsMetadataLengths() throws {
     for length in [0, 1, 254, 255, 256, 513, 65535] {
       let header = CryptorHeader.v1(cryptorId: cryptorId, dataLength: length)
-      let parsed = try CryptorHeader.from(data: header.toData())
+      let metadata = Data(repeating: 0xAB, count: length)
+      let parsed = try CryptorHeader.from(data: header.toData() + metadata)
 
       XCTAssertEqual(parsed, header, "Round trip failed for metadata length \(length)")
     }

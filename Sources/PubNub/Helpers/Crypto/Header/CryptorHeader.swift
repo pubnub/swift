@@ -31,7 +31,7 @@ enum CryptorHeader: Equatable {
   }
 
   func toData() -> Data {
-    guard case .v1(let cryptorId, let dataLength) = self else {
+    guard case let .v1(cryptorId, dataLength) = self else {
       return Data()
     }
 
@@ -58,6 +58,10 @@ private class CryptorHeaderDataScanner {
 
   init(data: Data) {
     self.data = data
+  }
+
+  var remainingBytes: Int {
+    data.count - nextIndex
   }
 
   func nextBytes(_ count: Int) -> Data? {
@@ -111,6 +115,9 @@ struct CryptorHeaderParser {
     }
     guard let finalCryptorDataSize = try? computeCryptorDataSize(with: Int(cryptorDataSizeByte)) else {
       throw PubNubError(.decryptionFailure, additional: ["Could not retrieve Cryptor-defined data size"])
+    }
+    guard Int(finalCryptorDataSize) <= scanner.remainingBytes else {
+      throw PubNubError(.decryptionFailure, additional: ["Payload is shorter than the declared Cryptor data size"])
     }
     return .v1(
       cryptorId: cryptorId.map { $0 },

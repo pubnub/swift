@@ -66,7 +66,7 @@ struct AESGCMCryptor: Cryptor {
   func decrypt(data: EncryptedStreamData, outputPath: URL) -> Result<InputStream, Error> {
     guard
       data.metadata.count == Self.metadataLength,
-      let ciphertext = Self.readAll(from: data.stream),
+      let ciphertext = Self.readAll(from: data.stream, contentLength: data.contentLength),
       let plaintext = open(metadata: data.metadata, ciphertext: ciphertext)
     else {
       return .failure(Self.decryptionFailure)
@@ -113,26 +113,30 @@ private extension AESGCMCryptor {
     return try? AES.GCM.open(sealedBox, using: SymmetricKey(data: key))
   }
 
-  static func readAll(from stream: InputStream) -> Data? {
+  static func readAll(from stream: InputStream, contentLength: Int) -> Data? {
     if stream.streamStatus == .notOpen {
       stream.open()
     }
     defer { stream.close() }
 
+    guard contentLength >= 0 else {
+      return nil
+    }
+
     var content = Data()
     var buffer = [UInt8](repeating: 0, count: 64 * 1024)
+    var remaining = contentLength
 
-    while true {
-      let bytesRead = stream.read(&buffer, maxLength: buffer.count)
+    while remaining > 0 {
+      let bytesRead = stream.read(&buffer, maxLength: min(buffer.count, remaining))
 
-      if bytesRead < 0 {
+      if bytesRead <= 0 {
         return nil
       }
-      if bytesRead == 0 {
-        return content
-      }
       content.append(buffer, count: bytesRead)
+      remaining -= bytesRead
     }
+    return content
   }
 }
 

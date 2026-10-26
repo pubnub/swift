@@ -17,6 +17,18 @@ enum CryptorHeader: Equatable {
   case none
   case v1(cryptorId: CryptorId, dataLength: Int)
 
+  static func makeV1(cryptorId: CryptorId, dataLength: Int) -> Result<Self, PubNubError> {
+    let maxDataLength = Int(UInt16.max)
+
+    guard dataLength <= maxDataLength else {
+      return .failure(PubNubError(
+        .encryptionFailure,
+        additional: ["Cryptor metadata is \(dataLength) bytes, exceeding the maximum of \(maxDataLength)"]
+      ))
+    }
+    return .success(.v1(cryptorId: cryptorId, dataLength: dataLength))
+  }
+
   func length() -> Int {
     toData().count
   }

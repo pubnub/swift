@@ -114,16 +114,18 @@ public struct CryptoModule {
         additional: ["Cannot encrypt empty Data"]
       ))
     }
-    return defaultCryptor.encrypt(data: data).map {
-      if defaultCryptor.id == LegacyCryptor.ID {
-        return $0.data
-      }
-      return CryptorHeader.v1(
-        cryptorId: defaultCryptor.id,
-        dataLength: $0.metadata.count
-      ).toData() + $0.metadata + $0.data
-    }.mapError {
+    return defaultCryptor.encrypt(data: data).mapError {
       PubNubError(.encryptionFailure, underlying: $0)
+    }.flatMap { encrypted in
+      if defaultCryptor.id == LegacyCryptor.ID {
+        return .success(encrypted.data)
+      }
+      return CryptorHeader.makeV1(
+        cryptorId: defaultCryptor.id,
+        dataLength: encrypted.metadata.count
+      ).map {
+        $0.toData() + encrypted.metadata + encrypted.data
+      }
     }
   }
 
@@ -353,26 +355,34 @@ public struct CryptoModule {
     return defaultCryptor.encrypt(
       stream: stream,
       contentLength: contentLength
-    ).map {
-      let header = defaultCryptor.id != LegacyCryptor.ID ? CryptorHeader.v1(
-        cryptorId: defaultCryptor.id,
-        dataLength: $0.metadata.count
-      ) : .none
+    ).mapError {
+      PubNubError(.encryptionFailure, underlying: $0)
+    }.flatMap { encrypted in
+      let header: CryptorHeader
+
+      if defaultCryptor.id != LegacyCryptor.ID {
+        switch CryptorHeader.makeV1(cryptorId: defaultCryptor.id, dataLength: encrypted.metadata.count) {
+        case .success(let v1Header):
+          header = v1Header
+        case .failure(let error):
+          return .failure(error)
+        }
+      } else {
+        header = .none
+      }
 
       switch header {
       case .none:
-        return MultipartInputStream(
-          inputStreams: [InputStream(data: header.toData()), $0.stream],
-          length: $0.contentLength
-        )
+        return .success(MultipartInputStream(
+          inputStreams: [InputStream(data: header.toData()), encrypted.stream],
+          length: encrypted.contentLength
+        ))
       case .v1(_, let dataLength):
-        return MultipartInputStream(
-          inputStreams: [InputStream(data: header.toData() + $0.metadata), $0.stream],
-          length: $0.contentLength + header.toData().count + dataLength
-        )
+        return .success(MultipartInputStream(
+          inputStreams: [InputStream(data: header.toData() + encrypted.metadata), encrypted.stream],
+          length: encrypted.contentLength + header.toData().count + dataLength
+        ))
       }
-    }.mapError {
-      PubNubError(.encryptionFailure, underlying: $0)
     }
   }
 

@@ -33,7 +33,7 @@ struct AESGCMCryptor: Cryptor {
   /// Use a long, random, high-entropy key; short or guessable keys remain weak.
   ///
   /// - Parameter key: Secret used to derive the AES key.
-  public init(key: String) {
+  init(key: String) {
     self.init(rawKey: CryptorUtils.SHA256.hash(from: key.data(using: .utf8) ?? Data()))
   }
 

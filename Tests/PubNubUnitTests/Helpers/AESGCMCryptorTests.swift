@@ -59,6 +59,7 @@ class AESGCMCryptorTests: XCTestCase {
         metadata: try hex(vector.nonce) + hex(vector.tag),
         data: try hex(vector.ciphertext)
       ))
+
       XCTAssertEqual(try result.get(), try hex(vector.plaintext))
     }
   }
@@ -79,14 +80,11 @@ class AESGCMCryptorTests: XCTestCase {
   func test_Decrypt_RejectsAnyModifiedInput() throws {
     let key = Data(repeating: 0x42, count: 32)
     let nonce = Data(repeating: 0x07, count: 12)
-    let box = try AES.GCM.seal(
-      Data("authenticated".utf8),
-      using: SymmetricKey(data: key),
-      nonce: AES.GCM.Nonce(data: nonce)
-    )
-    let metadata = nonce + box.tag
+    let box = try AES.GCM.seal(Data("authenticated".utf8), using: SymmetricKey(data: key), nonce: AES.GCM.Nonce(data: nonce))
 
+    let metadata = nonce + box.tag
     let valid = AESGCMCryptor(rawKey: key).decrypt(data: EncryptedData(metadata: metadata, data: box.ciphertext))
+
     XCTAssertEqual(try valid.get(), Data("authenticated".utf8))
 
     let failures = [
@@ -189,6 +187,7 @@ class AESGCMCryptorTests: XCTestCase {
   func test_Module_DecryptsEmptyPlaintext_ForCBC() throws {
     let cryptor = AESCBCCryptor(key: cipherKey)
     let encrypted = try cryptor.encrypt(data: Data()).get()
+
     let payload = CryptorHeader.v1(cryptorId: cryptor.id, dataLength: encrypted.metadata.count).toData()
       + encrypted.metadata
       + encrypted.data

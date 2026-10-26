@@ -1,9 +1,28 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "11.0.1"
+version: "11.1.0"
 schema: 1
 changelog:
+  - date: 2026-10-26
+    version: 11.1.0
+    changes:
+      - type: feature
+        text: "Raise minimum deployment targets to iOS 13, tvOS 13, and watchOS 6. Since September 9, 2026, iOS and iPadOS apps uploaded to App Store Connect must target iOS 13 or later. tvOS and watchOS minimums are raised to the matching OS generation. macOS is unchanged."
+      - type: bug
+        text: "Read and write cryptor header metadata of 255 bytes or more."
+      - type: bug
+        text: "Accept cryptor header metadata ending exactly at the buffer end in stream decryption."
+      - type: bug
+        text: "Include default cryptor and keys in `CryptoModule` equality and hashing."
+      - type: bug
+        text: "Print secondary cryptors in `CryptoModule.description`."
+      - type: bug
+        text: "Allow empty plaintext when decrypting data and files."
+      - type: bug
+        text: "Signals are no longer encrypted when published or decrypted when received. Signals were previously sent through the encryption path when a `CryptoModule` was configured, which is a bug: the signal payload is not encrypted by other PubNub SDKs, so it could not be read by them and failed to decode when received from them."
+      - type: improvement
+        text: "Remove unused `legacyCryptorId`."
   - date: 2026-10-16
     version: 11.0.1
     changes:
@@ -886,7 +905,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/11.0.1.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/11.1.0.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

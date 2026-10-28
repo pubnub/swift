@@ -6,7 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/run-swiftlint.sh"
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/run-swiftlint.sh",
+            "timeout": 60
           }
         ]
       }
@@ -26,7 +27,6 @@
       "Bash(gem list:*)",
       "Bash(gem search:*)",
       "Bash(swiftlint:*)",
-      "Bash(swiftformat:*)",
       "Bash(ls:*)",
       "Bash(which:*)",
       "Bash(man:*)",

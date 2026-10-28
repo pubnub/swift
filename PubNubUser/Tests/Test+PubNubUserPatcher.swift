@@ -35,7 +35,6 @@ class PubNubUserPatcherTests: XCTestCase {
     type: .some("TestType"),
     status: .some("TestStatus"),
     externalId: .some("TestExternalId"),
-    // swiftlint:disable:next force_unwrapping
     profileURL: .some(URL(string: "http://example.com")!),
     email: .some("TestEmail"),
     custom: .some(UserCustom(value: "Tester"))
@@ -62,7 +61,6 @@ class PubNubUserPatcherTests: XCTestCase {
     XCTAssertEqual(patcher.type, .some("TestType"))
     XCTAssertEqual(patcher.status, .some("TestStatus"))
     XCTAssertEqual(patcher.externalId, .some("TestExternalId"))
-    // swiftlint:disable:next force_unwrapping
     XCTAssertEqual(patcher.profileURL, .some(URL(string: "http://example.com")!))
     XCTAssertEqual(patcher.email, .some("TestEmail"))
     XCTAssertEqual(

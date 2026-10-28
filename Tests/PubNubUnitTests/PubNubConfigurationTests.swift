@@ -18,7 +18,14 @@ class PubNubConfigurationTests: XCTestCase {
   let plistSubscribeKeyValue = "demo"
   let publishKeyValue = "NotARealPublishKey"
   let subscribeKeyValue = "NotARealSubscribeKey"
-  let testsBundle = Bundle(for: PubNubConfigurationTests.self)
+
+  func makeTestsBundle() throws -> Bundle {
+    try XCTUnwrap(StubInfoBundle(info: [
+      "PubNubPublishKey": "demo",
+      "PubNubSubscribeKey": "demo",
+      "PubNubUuid": "test-uuid"
+    ]))
+  }
 
   func testDefault() {
     let config = PubNubConfiguration(publishKey: nil, subscribeKey: plistSubscribeKeyValue, userId: UUID().uuidString)
@@ -43,8 +50,8 @@ class PubNubConfigurationTests: XCTestCase {
     XCTAssertEqual(config.durationUntilTimeout, 20)
   }
 
-  func testInit_Bundle() {
-    let config = PubNubConfiguration(bundle: testsBundle)
+  func testInit_Bundle() throws {
+    let config = PubNubConfiguration(bundle: try makeTestsBundle())
 
     XCTAssertEqual(config.publishKey, plistPublishKeyValue)
     XCTAssertEqual(config.subscribeKey, plistSubscribeKeyValue)
@@ -61,7 +68,9 @@ class PubNubConfigurationTests: XCTestCase {
     XCTAssertEqual(config.subscribeKey, subscribeKeyValue)
   }
 
-  func testConfigurations_DifferentCryptoModules() {
+  func testConfigurations_DifferentCryptoModules() throws {
+    let testsBundle = try makeTestsBundle()
+
     let firstConfig = PubNubConfiguration(
       publishKey: PubNubConfiguration(bundle: testsBundle).publishKey,
       subscribeKey: PubNubConfiguration(bundle: testsBundle).subscribeKey,
@@ -77,4 +86,16 @@ class PubNubConfigurationTests: XCTestCase {
 
     XCTAssertNotEqual(firstConfig.hashValue, secondConfig.hashValue)
   }
+}
+
+// SwiftPM test bundles carry no Info.plist, so supply the Info Dictionary explicitly
+private final class StubInfoBundle: Bundle, @unchecked Sendable {
+  private let info: [String: Any]
+
+  init?(info: [String: Any]) {
+    self.info = info
+    super.init(path: NSTemporaryDirectory())
+  }
+
+  override var infoDictionary: [String: Any]? { info }
 }

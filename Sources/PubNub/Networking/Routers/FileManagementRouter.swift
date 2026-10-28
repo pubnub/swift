@@ -86,10 +86,10 @@ struct FileManagementRouter: HTTPRouter {
     case let .list(channel, _, _):
       path = "/v1/files/\(subscribeKey)/channels/\(channel.urlEncodeSlash)/files"
     case let .fetchURL(channel, fileId, filename):
-      // swiftlint:disable:next line_length
+      // swiftlint:disable:next line_length superfluous_disable_command
       path = "/v1/files/\(subscribeKey)/channels/\(channel.urlEncodeSlash)/files/\(fileId.urlEncodeSlash)/\(filename.urlEncodeSlash)"
     case let .delete(channel, fileId, filename):
-      // swiftlint:disable:next line_length
+      // swiftlint:disable:next line_length superfluous_disable_command
       path = "/v1/files/\(subscribeKey)/channels/\(channel.urlEncodeSlash)/files/\(fileId.urlEncodeSlash)/\(filename.urlEncodeSlash)"
     }
     return .success(path)

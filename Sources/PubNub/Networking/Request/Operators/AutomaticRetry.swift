@@ -234,7 +234,11 @@ private extension AutomaticRetry {
     }
   }
 
-  static func validateRetryLimit(_ retryLimit: UInt, for policy: ReconnectionPolicy, warnings: inout [String]) -> UInt {
+  static func validateRetryLimit(
+    _ retryLimit: UInt,
+    for policy: ReconnectionPolicy,
+    warnings: inout [String]
+  ) -> UInt {
     // Get the maximum retry limit for the policy
     let maxRetryLimit = UInt(policy.maximumRetryLimit())
 

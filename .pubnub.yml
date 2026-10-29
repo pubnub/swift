@@ -1,9 +1,30 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "11.0.1"
+version: "11.1.0"
 schema: 1
 changelog:
+  - date: 2026-10-26
+    version: 11.1.0
+    changes:
+      - type: feature
+        text: "Raise minimum deployment targets to iOS 13, tvOS 13, and watchOS 6. Since September 9, 2026, iOS and iPadOS apps uploaded to App Store Connect must target iOS 13 or later. tvOS and watchOS minimums are raised to the matching OS generation. macOS is unchanged."
+      - type: feature
+        text: "Decrypt AES-GCM payloads in `CryptoModule.aesCbcCryptoModule` and `CryptoModule.legacyCryptoModule`. Both factory methods can now read AES-GCM payloads published by other PubNub SDKs, with no configuration change. What these modules encrypt is unchanged."
+      - type: bug
+        text: "Read and write cryptor header metadata of 255 bytes or more."
+      - type: bug
+        text: "Accept cryptor header metadata ending exactly at the buffer end in stream decryption."
+      - type: bug
+        text: "Include default cryptor and keys in `CryptoModule` equality and hashing."
+      - type: bug
+        text: "Print secondary cryptors in `CryptoModule.description`."
+      - type: bug
+        text: "Allow empty plaintext when decrypting data and files."
+      - type: bug
+        text: "Signals are no longer encrypted when published or decrypted when received. Signals were previously sent through the encryption path when a `CryptoModule` was configured, which is a bug: the signal payload is not encrypted by other PubNub SDKs, so it could not be read by them and failed to decode when received from them."
+      - type: improvement
+        text: "Remove unused `legacyCryptorId`."
   - date: 2026-10-16
     version: 11.0.1
     changes:
@@ -886,7 +907,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/11.0.1.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/11.1.0.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:
@@ -903,7 +924,7 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - iOS 12.0
+                    - iOS 13.0
                   maximum-os-version:
                     - iOS 27.0.1
                   target-architecture:
@@ -915,7 +936,7 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - tvOS 12.0
+                    - tvOS 13.0
                   maximum-os-version:
                     - tvOS 27.0
                   target-architecture:
@@ -926,7 +947,7 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - watchOS 4.0
+                    - watchOS 6.0
                   maximum-os-version:
                     - watchOS 27.0.1
                   target-architecture:
@@ -964,7 +985,7 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - iOS 12.0
+                    - iOS 13.0
                   maximum-os-version:
                     - iOS 27.0.1
                   target-architecture:
@@ -976,7 +997,7 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - tvOS 12.0
+                    - tvOS 13.0
                   maximum-os-version:
                     - tvOS 27.0
                   target-architecture:
@@ -987,7 +1008,7 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - watchOS 4.0
+                    - watchOS 6.0
                   maximum-os-version:
                     - watchOS 27.0.1
                   target-architecture:
@@ -1016,7 +1037,7 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - iOS 12.0
+                    - iOS 13.0
                   maximum-os-version:
                     - iOS 27.0.1
                   target-architecture:
@@ -1029,7 +1050,7 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - tvOS 12.0
+                    - tvOS 13.0
                   maximum-os-version:
                     - tvOS 27.0
                   target-architecture:
@@ -1040,7 +1061,7 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - watchOS 4.0
+                    - watchOS 6.0
                   maximum-os-version:
                     - watchOS 27.0.1
                   target-architecture:
@@ -1052,7 +1073,7 @@ sdks:
 supported-platforms:
   - version: PubNub Swift SDK
     platforms:
-      - iOS 12.0 or higher
+      - iOS 13.0 or higher
       - macOS 10.15 or higher
-      - tvOS 12.0 or higher
-      - watchOS 4.0 or higher
+      - tvOS 13.0 or higher
+      - watchOS 6.0 or higher

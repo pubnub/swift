@@ -199,6 +199,65 @@ class CryptoTests: XCTestCase {
     )
   }
 
+  // MARK: - Equality and hashing
+
+  func test_Equality_WithSameTypeAndKey_IsEqualWithEqualHashes() {
+    let lhs = CryptoModule.aesCbcCryptoModule(with: "SomeTestString")
+    let rhs = CryptoModule.aesCbcCryptoModule(with: "SomeTestString")
+
+    XCTAssertEqual(lhs, rhs)
+    XCTAssertEqual(lhs.hashValue, rhs.hashValue)
+  }
+
+  func test_Equality_WithDifferentKey_IsNotEqual() {
+    XCTAssertNotEqual(
+      CryptoModule.aesCbcCryptoModule(with: "KeyA"),
+      CryptoModule.aesCbcCryptoModule(with: "KeyB")
+    )
+    XCTAssertNotEqual(
+      CryptoModule.legacyCryptoModule(with: "KeyA"),
+      CryptoModule.legacyCryptoModule(with: "KeyB")
+    )
+  }
+
+  func test_Equality_WithDifferentDefaultCryptor_IsNotEqual() {
+    let key = "SomeTestString"
+    let lhs = CryptoModule(default: AESCBCCryptor(key: key), cryptors: [LegacyCryptor(key: key)])
+    let rhs = CryptoModule(default: LegacyCryptor(key: key), cryptors: [LegacyCryptor(key: key)])
+
+    XCTAssertNotEqual(lhs, rhs)
+  }
+
+  func test_Equality_WithDifferentSecondaryCryptorOrder_IsNotEqual() {
+    let key = "SomeTestString"
+    let lhs = CryptoModule(default: AESCBCCryptor(key: key), cryptors: [LegacyCryptor(key: key), AESGCMCryptor(key: key)])
+    let rhs = CryptoModule(default: AESCBCCryptor(key: key), cryptors: [AESGCMCryptor(key: key), LegacyCryptor(key: key)])
+
+    XCTAssertNotEqual(lhs, rhs)
+  }
+
+  func test_Equality_WithDifferentSecondaryCryptorCount_IsNotEqual() {
+    let key = "SomeTestString"
+    let lhs = CryptoModule(default: AESCBCCryptor(key: key), cryptors: [LegacyCryptor(key: key)])
+    let rhs = CryptoModule(default: AESCBCCryptor(key: key), cryptors: [])
+
+    XCTAssertNotEqual(lhs, rhs)
+  }
+
+  func test_Configuration_DifferingOnlyInCipherKey_IsNotEqual() {
+    func configuration(key: String) -> PubNubConfiguration {
+      PubNubConfiguration(
+        publishKey: "pub",
+        subscribeKey: "sub",
+        userId: "user",
+        cryptoModule: CryptoModule.aesCbcCryptoModule(with: key)
+      )
+    }
+
+    XCTAssertEqual(configuration(key: "KeyA"), configuration(key: "KeyA"))
+    XCTAssertNotEqual(configuration(key: "KeyA"), configuration(key: "KeyB"))
+  }
+
   // MARK: - CryptoError
 
   func test_CryptoError_SuccessRawValue_ReturnsNil() {

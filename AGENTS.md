@@ -16,7 +16,7 @@ Prefer guidance in this file over assumptions from source layout alone. If repos
 
 ## Coding Standards
 
-Follow the shared Swift coding guidance in `CODING_STANDARDS.md`. Treat that file as the source of truth for production Swift library code and Swift SDK test code standards.
+Read and follow `CODING_STANDARDS.md` before writing or changing code. It is the only place for code quality and style rules (production Swift library code and Swift SDK test code). This file does not restate them.
 
 ## Dependencies
 
@@ -28,8 +28,8 @@ Follow the shared Swift coding guidance in `CODING_STANDARDS.md`. Treat that fil
 
 ### Unit Tests (`Tests/PubNubUnitTests/`)
 
-- The SwiftPM test target is `PubNubTests`, but local SwiftPM test runs currently have fixture/configuration parity issues. Prefer Xcode-based unit test validation until that is resolved.
-- Unit tests are part of `PubNub.xcodeproj`. When adding, moving, or renaming test files or shared test helpers, update the Xcode project tree and `PubNubTests` build phase, then run the affected tests through Xcode.
+- Run unit tests through Xcode (`xcodebuild`, see Validation), not `swift test`. The SwiftPM test target is `PubNubTests`.
+- Unit tests are part of `PubNub.xcodeproj`. When adding, moving, or renaming test files or shared test helpers, update the Xcode project tree and `PubNubTests` build phase, then run the affected tests.
 - Mock all HTTP interactions via `MockURLSession`; do not make real network calls.
 - JSON response fixtures live in `Tests/PubNubUnitTests/Support/Responses/{Feature}/`.
 - Helpers in `Tests/PubNubUnitTests/Support/`.
@@ -60,8 +60,12 @@ Additional CI and Xcode-based validation is defined in `fastlane/Fastfile`.
 ## Editing Rules
 
 - Preserve existing PubNub copyright headers.
-- Swift writes trigger `.claude/hooks/run-swiftlint.sh`: `swiftlint --fix` then `swiftlint --strict`. The edit itself is already applied; remaining violations are reported back and must be fixed. Re-read the file after a reported reformat. Usual violations: 130-char lines, force unwraps.
+- Swift files must pass `swiftlint --fix` followed by `swiftlint --strict` before a change is complete.
 - Snippets in `Snippets/{Area}/` use `// snippet.<id>` / `// snippet.end` markers for doc tooling. Keep markers intact and add snippets for new public API.
 - Prefer updating tests when changing public behavior.
 - Do not expose unreleased, internal, or not-yet-announced features in documentation, snippets, comments intended for users, or user-facing output.
 - If you change repository structure, test targets, or validation commands, update this file in the same change.
+
+## Tooling
+
+- Claude Code runs `.claude/hooks/run-swiftlint.sh` after every Swift edit (`swiftlint --fix`, then `swiftlint --strict`). The edit is already applied; remaining violations are reported back and must be fixed. Re-read the file after a reported reformat.

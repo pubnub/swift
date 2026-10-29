@@ -1293,7 +1293,6 @@
 		3DBFF2C22C2300F500142985 /* KMPSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPSubscription.swift; sourceTree = "<group>"; };
 		3DD1FB982B5A7804005A14E3 /* PubNubPresenceStateContainer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubPresenceStateContainer.swift; sourceTree = "<group>"; };
 		3DD6AB102F879B34004196D1 /* AGENTS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AGENTS.md; sourceTree = "<group>"; };
-		3DD6AB112F879B34004196D1 /* CLAUDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CLAUDE.md; sourceTree = "<group>"; };
 		3DD6AB122F879C05004196D1 /* run-swiftlint.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "run-swiftlint.sh"; sourceTree = "<group>"; };
 		3DD6AB142F879C05004196D1 /* settings.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = settings.json; sourceTree = "<group>"; };
 		3DD6AB4C2F87F8A8004196D1 /* access-manager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "access-manager.swift"; sourceTree = "<group>"; };
@@ -2235,7 +2234,6 @@
 				3D3686792F7C0A5300918788 /* .github */,
 				3D3686832F7C0B4200918788 /* fastlane */,
 				3DD6AB102F879B34004196D1 /* AGENTS.md */,
-				3DD6AB112F879B34004196D1 /* CLAUDE.md */,
 				3DAB88AF2FB4729A00E2982F /* CODING_STANDARDS.md */,
 				OBJ_21 /* LICENSE */,
 				35DA9AAC2331674000867989 /* .swiftformat */,

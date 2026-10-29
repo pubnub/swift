@@ -1,27 +1,41 @@
 # Coding Standards
 
-This document contains shared Swift standards for this repository.
+This document is the source of truth for code quality and style in this repository. Repository layout, workflow, and validation commands live in `AGENTS.md`.
 
 ## Production Swift Library Code
 
-Apply these standards to production Swift library code:
+Apply these rules to production Swift library code:
 
-- Prefer value semantics and immutability where practical; use `let` instead of `var` unless mutation is required.
-- Minimize access levels: default to `private` or `internal`; expose as `public` only what SDK consumers explicitly need. Do not widen access without justification.
-- Avoid force unwraps and other crash-prone patterns.
-- Prefer clear, idiomatic Swift naming and small focused types/functions over overly clever abstractions.
-- Preserve useful error information; do not ignore failures or replace specific errors with vague ones.
+- Use `struct` or `enum` unless the type needs identity, inheritance, or Objective-C interoperability. State the reason in a comment on any new `class`.
+- Use `let` unless the value is mutated after initialization.
+- Default to `internal`. Use `private` for helpers used by a single type or file. Use `public` only for API that SDK consumers call or implement. Do not widen the access level of an existing declaration without noting it in the PR description.
+- Do not use force unwraps (`!`), `try!`, `as!`, implicitly unwrapped optionals, `fatalError`, or `preconditionFailure`.
+- Do not introduce a new protocol or generic parameter unless at least two production types conform to it or use it, or a test double requires it.
+- Name types, functions, and properties so they read at the call site without a comment; follow the Swift API Design Guidelines.
+- Do not discard errors with `try?` or an empty `catch`. When converting an error into another type, keep the original as the underlying or associated error.
+- Split long or complex code to fit the limits in `.swiftlint.yml` instead of disabling a rule.
 
 ## Swift SDK Test Code
 
-Apply these standards to Swift SDK test code:
+Apply these rules to Swift SDK test code:
 
-- Test names should clearly describe the scenario and expected outcome.
-- Prefer a clear Arrange-Act-Assert structure when practical.
-- Cover edge cases and failure paths introduced by the change.
-- Keep tests deterministic and isolated; avoid hidden shared state, order dependence, and timing-sensitive assertions.
-- Prefer focused tests over broad tests that verify many behaviors at once.
-- In throwing contexts, mark test methods as `throws` and prefer `try` / `try XCTUnwrap()` over optional unwrapping patterns to keep tests flat.
-- Each test method should create its own mutable state and reference-type dependencies locally — do not share them via class-level `var` properties or `setUp()`/`tearDown()`. Class-level `let` constants for static test data are fine, including value types (structs, enums).
-- Use clearly-typed test doubles with consistent prefixes: `Mock` (verifies interactions), `Stub` (returns canned data), `NoOp` (null object), `Expector` (spy with XCTestExpectation).
-- `unowned` captures in test code are acceptable; they reduce unwrapping noise and surface lifecycle bugs immediately.
+- Name each test `test<Scenario>_<ExpectedOutcome>` or an equivalent form that states both the scenario and the expected outcome.
+- Structure each test as Arrange, Act, Assert, separated by blank lines.
+- Add at least one failure-path test for every new throwing or error-returning code path, and one test for each boundary value (empty, nil, minimum, maximum) the change handles.
+- Do not use `sleep`, fixed delays, or wall-clock comparisons. Wait with `XCTestExpectation` and an explicit timeout.
+- Do not depend on test execution order or on state shared between tests.
+- Verify one behavior per test method.
+- Mark a test method `throws` when it can throw, and use `try` and `try XCTUnwrap()` instead of `if let` or `guard let`.
+- Create mutable state and reference-type dependencies inside each test method. Do not hold them in class-level `var` properties or create them in `setUp()` / `tearDown()`. Class-level `let` constants for static test data (including structs and enums) are allowed.
+- Use `unowned` in a test closure only when the captured object outlives the closure.
+
+### Test doubles
+
+Name every test double with exactly one of these prefixes, chosen by what the double does:
+
+- `Mock`: records calls and is asserted on by the test (verifies interactions). Example: `MockURLSession`.
+- `Stub`: returns canned data and is never asserted on. Example: `StubDispatcher`.
+- `NoOp`: does nothing and only satisfies a dependency. Example: `NoOpEffectHandler`.
+- `Expector`: a spy that fulfills an `XCTestExpectation` when observed events occur. Example: `SessionExpector`.
+
+A double that both returns canned data and records calls is a `Mock`. Do not add other prefixes (`Fake`, `Spy`, `Dummy`).

@@ -13,18 +13,18 @@ import Foundation
 
 /// A ``Cryptor`` that decrypts AES-256-GCM payloads.
 ///
-/// The cryptor-defined metadata is 28 bytes: the 12-byte nonce followed by the 16-byte authentication tag.
+/// The cryptor-defined metadata is the 12-byte nonce. The encrypted data is the ciphertext followed by the  16-byte authentication tag.
 struct AESGCMCryptor: Cryptor {
   static let ID: CryptorId = [0x41, 0x43, 0x47, 0x4D]
 
   /// Length (in bytes) of the AES-256 key
   static let keyLength = 32
-  /// Length (in bytes) of the nonce stored first in the cryptor-defined metadata
+  /// Length (in bytes) of the nonce, which is the whole cryptor-defined metadata
   static let nonceLength = 12
-  /// Length (in bytes) of the authentication tag stored after the nonce in the cryptor-defined metadata
+  /// Length (in bytes) of the authentication tag stored after the ciphertext
   static let tagLength = 16
-  /// Length (in bytes) of the cryptor-defined metadata: the nonce followed by the tag
-  static let metadataLength = nonceLength + tagLength
+  /// Length (in bytes) of the cryptor-defined metadata
+  static let metadataLength = nonceLength
 
   private let key: Data
 
@@ -98,15 +98,19 @@ private extension AESGCMCryptor {
 
 private extension AESGCMCryptor {
   func open(metadata: Data, ciphertext: Data) -> Data? {
-    guard key.count == Self.keyLength, metadata.count == Self.metadataLength else {
+    guard key.count == Self.keyLength, metadata.count == Self.metadataLength, ciphertext.count >= Self.tagLength else {
       return nil
     }
 
-    let tagStart = metadata.startIndex + Self.nonceLength
+    let tagStart = ciphertext.endIndex - Self.tagLength
 
     guard
-      let nonce = try? AES.GCM.Nonce(data: metadata[metadata.startIndex..<tagStart]),
-      let sealedBox = try? AES.GCM.SealedBox(nonce: nonce, ciphertext: ciphertext, tag: metadata[tagStart...])
+      let nonce = try? AES.GCM.Nonce(data: metadata),
+      let sealedBox = try? AES.GCM.SealedBox(
+        nonce: nonce,
+        ciphertext: ciphertext[ciphertext.startIndex..<tagStart],
+        tag: ciphertext[tagStart...]
+      )
     else {
       return nil
     }

@@ -56,8 +56,8 @@ class AESGCMCryptorTests: XCTestCase {
     for vector in vectors {
       let cryptor = AESGCMCryptor(rawKey: try hex(vector.key))
       let result = cryptor.decrypt(data: EncryptedData(
-        metadata: try hex(vector.nonce) + hex(vector.tag),
-        data: try hex(vector.ciphertext)
+        metadata: try hex(vector.nonce),
+        data: try hex(vector.ciphertext) + hex(vector.tag)
       ))
 
       XCTAssertEqual(try result.get(), try hex(vector.plaintext))
@@ -71,7 +71,7 @@ class AESGCMCryptorTests: XCTestCase {
     for length in [0, 1, 15, 16, 17, 31, 32, 33, 255, 1_000, 70_000] {
       let plaintext = Data((0..<length).map { _ in UInt8.random(in: 0...255) })
       let box = try AES.GCM.seal(plaintext, using: key)
-      let result = cryptor.decrypt(data: EncryptedData(metadata: Data(box.nonce) + box.tag, data: box.ciphertext))
+      let result = cryptor.decrypt(data: EncryptedData(metadata: Data(box.nonce), data: box.ciphertext + box.tag))
 
       XCTAssertEqual(try result.get(), plaintext, "length: \(length)")
     }
@@ -82,15 +82,17 @@ class AESGCMCryptorTests: XCTestCase {
     let nonce = Data(repeating: 0x07, count: 12)
     let box = try AES.GCM.seal(Data("authenticated".utf8), using: SymmetricKey(data: key), nonce: AES.GCM.Nonce(data: nonce))
 
-    let metadata = nonce + box.tag
-    let valid = AESGCMCryptor(rawKey: key).decrypt(data: EncryptedData(metadata: metadata, data: box.ciphertext))
+    let sealed = box.ciphertext + box.tag
+    let metadata = nonce
+    let valid = AESGCMCryptor(rawKey: key).decrypt(data: EncryptedData(metadata: metadata, data: sealed))
 
     XCTAssertEqual(try valid.get(), Data("authenticated".utf8))
 
     let failures = [
-      AESGCMCryptor(rawKey: key).decrypt(data: EncryptedData(metadata: metadata, data: flipped(box.ciphertext))),
-      AESGCMCryptor(rawKey: key).decrypt(data: EncryptedData(metadata: flipped(metadata), data: box.ciphertext)),
-      AESGCMCryptor(rawKey: flipped(key)).decrypt(data: EncryptedData(metadata: metadata, data: box.ciphertext))
+      AESGCMCryptor(rawKey: key).decrypt(data: EncryptedData(metadata: metadata, data: flipped(sealed))),
+      AESGCMCryptor(rawKey: key).decrypt(data: EncryptedData(metadata: metadata, data: flippedLast(sealed))),
+      AESGCMCryptor(rawKey: key).decrypt(data: EncryptedData(metadata: flipped(metadata), data: sealed)),
+      AESGCMCryptor(rawKey: flipped(key)).decrypt(data: EncryptedData(metadata: metadata, data: sealed))
     ]
     for failure in failures {
       assertOpaqueDecryptionFailure(failure.error)
@@ -100,7 +102,7 @@ class AESGCMCryptorTests: XCTestCase {
   func test_Decrypt_RejectsRawKeysOfWrongLength() throws {
     let nonce = randomNonce()
     let box = try seal(Data("payload".utf8), nonce: nonce)
-    let input = EncryptedData(metadata: nonce + box.tag, data: box.ciphertext)
+    let input = EncryptedData(metadata: nonce, data: box.ciphertext + box.tag)
 
     for length in [0, 16, 24, 31, 33] {
       assertOpaqueDecryptionFailure(AESGCMCryptor(rawKey: Data(count: length)).decrypt(data: input).error)
@@ -119,15 +121,19 @@ class AESGCMCryptorTests: XCTestCase {
     let nonce = randomNonce()
     let box = try seal(Data("payload".utf8), nonce: nonce)
     let cryptor = AESGCMCryptor(key: cipherKey)
-    let metadata = nonce + box.tag
+    let sealed = box.ciphertext + box.tag
 
     let invalidInputs = [
-      EncryptedData(metadata: Data(metadata.prefix(27)), data: box.ciphertext),
-      EncryptedData(metadata: metadata + Data([0x00]), data: box.ciphertext),
-      EncryptedData(metadata: nonce, data: box.ciphertext + box.tag),
-      EncryptedData(metadata: Data(), data: box.ciphertext),
-      EncryptedData(metadata: flipped(metadata), data: box.ciphertext),
-      EncryptedData(metadata: metadata, data: flipped(box.ciphertext))
+      EncryptedData(metadata: Data(nonce.prefix(11)), data: sealed),
+      EncryptedData(metadata: nonce + Data([0x00]), data: sealed),
+      EncryptedData(metadata: nonce + box.tag, data: box.ciphertext),
+      EncryptedData(metadata: Data(), data: sealed),
+      EncryptedData(metadata: nonce, data: Data(sealed.prefix(15))),
+      EncryptedData(metadata: nonce, data: box.ciphertext),
+      EncryptedData(metadata: nonce, data: box.tag + box.ciphertext),
+      EncryptedData(metadata: flipped(nonce), data: sealed),
+      EncryptedData(metadata: nonce, data: flipped(sealed)),
+      EncryptedData(metadata: nonce, data: flippedLast(sealed))
     ]
     for input in invalidInputs {
       assertOpaqueDecryptionFailure(cryptor.decrypt(data: input).error)
@@ -139,7 +145,7 @@ class AESGCMCryptorTests: XCTestCase {
     let box = try seal(Data("payload".utf8), nonce: nonce)
     let cryptor = AESGCMCryptor(key: "not-the-key")
 
-    let result = cryptor.decrypt(data: EncryptedData(metadata: nonce + box.tag, data: box.ciphertext))
+    let result = cryptor.decrypt(data: EncryptedData(metadata: nonce, data: box.ciphertext + box.tag))
 
     assertOpaqueDecryptionFailure(result.error)
   }
@@ -205,8 +211,8 @@ class AESGCMCryptorTests: XCTestCase {
     let payload = try makePayload(Data("Hello from AES-GCM".utf8))
     let module = CryptoModule.aesCbcCryptoModule(with: cipherKey)
 
-    // Header, nonce and tag occupy the first bytes, so flip a byte of every region in turn
-    for index in [0, 10, 12, 20, 30, 45, payload.count - 1] {
+    // Flip a byte in the header, nonce, ciphertext and trailing tag in turn
+    for index in [0, 10, 12, 20, 30, payload.count - 20, payload.count - 1] {
       var tampered = payload
       tampered[index] ^= 0x01
       XCTAssertThrowsError(try module.decrypt(data: tampered).get(), "index: \(index)")
@@ -286,15 +292,15 @@ private extension AESGCMCryptorTests {
     )
   }
 
-  // Builds a complete wire payload: PNED header, nonce, tag and ciphertext
+  // Builds a complete wire payload: PNED header, nonce, ciphertext and tag
   func makePayload(_ plaintext: Data) throws -> Data {
     let nonce = randomNonce()
     let box = try seal(plaintext, nonce: nonce)
 
     return CryptorHeader.v1(cryptorId: AESGCMCryptor.ID, dataLength: AESGCMCryptor.metadataLength).toData()
       + nonce
-      + box.tag
       + box.ciphertext
+      + box.tag
   }
 
   func decryptStream(_ payload: Data) throws -> URL {
@@ -310,6 +316,12 @@ private extension AESGCMCryptorTests {
   func flipped(_ data: Data) -> Data {
     var copy = data
     copy[copy.startIndex] ^= 0x01
+    return copy
+  }
+
+  func flippedLast(_ data: Data) -> Data {
+    var copy = data
+    copy[copy.endIndex - 1] ^= 0x01
     return copy
   }
 

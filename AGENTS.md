@@ -68,4 +68,8 @@ Additional CI and Xcode-based validation is defined in `fastlane/Fastfile`.
 
 ## Tooling
 
-- Claude Code runs `.claude/hooks/run-swiftlint.sh` after every Swift edit (`swiftlint --fix`, then `swiftlint --strict`). The edit is already applied; remaining violations are reported back and must be fixed. Re-read the file after a reported reformat.
+Hooks in `.claude/hooks/` (registered in `.claude/settings.json`) are silent on success; they write to stderr and exit 2 only when Claude must act, and never block on their own failures.
+
+- `run-swiftlint.sh`: after every Swift edit, runs `swiftlint --fix` then `--strict`. The edit is already applied; fix remaining violations and re-read the file after a reformat.
+- `check-test-registered.sh`: after a unit or integration test edit, reports if the file is missing from `project.pbxproj`.
+- `run-swift-build.sh` (`Stop`): runs `swift build` when `Sources/` changed and reports errors only. Passing does not guarantee the Xcode build compiles.

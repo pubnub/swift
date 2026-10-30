@@ -16,7 +16,7 @@ Prefer guidance in this file over assumptions from source layout alone. If repos
 
 ## Coding Standards
 
-Read and follow `CODING_STANDARDS.md` before writing or changing code. It is the only place for code quality and style rules (production Swift library code and Swift SDK test code). This file does not restate them.
+Read and follow `CODING_STANDARDS.md` before writing or changing production Swift library code. It is the only place for production code quality and style rules. This file does not restate them.
 
 ## Dependencies
 
@@ -26,20 +26,17 @@ Read and follow `CODING_STANDARDS.md` before writing or changing code. It is the
 
 ## Testing
 
+To write, change, or review a unit or integration test, use the `swift-test-writer` skill (`.agents/skills/swift-test-writer/SKILL.md`). It is the only place for test code rules and the test-writing procedure.
+
 ### Unit Tests (`Tests/PubNubUnitTests/`)
 
-- Run unit tests through Xcode (`xcodebuild`, see Validation), not `swift test`. The SwiftPM test target is `PubNubTests`.
-- Unit tests are part of `PubNub.xcodeproj`. When adding, moving, or renaming test files or shared test helpers, update the Xcode project tree and `PubNubTests` build phase, then run the affected tests.
-- Mock all HTTP interactions via `MockURLSession`; do not make real network calls.
-- JSON response fixtures live in `Tests/PubNubUnitTests/Support/Responses/{Feature}/`.
+- SwiftPM test target `PubNubTests`; also part of `PubNub.xcodeproj`, which is what CI runs.
 - Helpers in `Tests/PubNubUnitTests/Support/`.
 
 ### Integration Tests (`Tests/PubNubIntegrationTests/`)
 
-- Require real PubNub API keys loaded from `PubNubTests_Info.plist`.
-- Make actual network requests. Run through Xcode / Fastlane only (not `swift test`).
+- Require real PubNub API keys and make actual network requests. Run through Xcode / Fastlane only (not `swift test`).
 - Helpers in `Tests/PubNubIntegrationTests/Support/`.
-- DataSync healthcare classes must already exist on the keyset. If missing, create them with `Scripts/DataSync/`; keep it in step with `Support/DataSyncHealthcareFixtures.swift`.
 
 ### Contract Tests (`Tests/PubNubContractTests/`)
 
@@ -47,13 +44,16 @@ Read and follow `CODING_STANDARDS.md` before writing or changing code. It is the
 
 ### Validation
 
-Use the smallest relevant validation step first.
+Use the smallest relevant validation step first. For unit tests that is `swift test`; use `xcodebuild` when test files were added, moved, or renamed, when the Xcode project changed, or for platform-specific changes. `MACOSX_DEPLOYMENT_TARGET=12.0` is required because the project's own 10.15 target is rejected by current Xcode. If the project target is raised, drop the override here.
 
 ```bash
 swift build
-xcodebuild test -project PubNub.xcodeproj -scheme PubNub -destination 'platform=macOS' -only-testing:PubNubTests/<TestClassName>
+swift test --filter <TestClassName>
+xcodebuild test -project PubNub.xcodeproj -scheme PubNub -destination 'platform=macOS' -only-testing:PubNubTests/<TestClassName> MACOSX_DEPLOYMENT_TARGET=12.0
 swiftlint
 ```
+
+`test_Constant_PubnubSwiftSDKVersion_MatchesBundleVersion` is skipped under `swift test`; only Xcode builds carry the bundle version.
 
 Additional CI and Xcode-based validation is defined in `fastlane/Fastfile`.
 

@@ -57,6 +57,10 @@ swiftlint
 
 Additional CI and Xcode-based validation is defined in `fastlane/Fastfile`.
 
+## Pull Requests
+
+To write a PR title or PR description, or to open or edit a PR, use the `swift-pr-writer` skill (`.agents/skills/swift-pr-writer/SKILL.md`). It is the only place for PR text rules. Pull requests are squash-merged, so branch commit messages are free-form.
+
 ## Editing Rules
 
 - Preserve existing PubNub copyright headers.

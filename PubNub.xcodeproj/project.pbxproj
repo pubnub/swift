@@ -1168,6 +1168,8 @@
 		3D387C323098991A0099FB1E /* check-test-registered.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "check-test-registered.sh"; sourceTree = "<group>"; };
 		3D387C33309899270099FB1E /* run-swift-build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "run-swift-build.sh"; sourceTree = "<group>"; };
 		3D387C343098A2520099FB1E /* SKILL.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = SKILL.md; sourceTree = "<group>"; };
+		3D387C363098B7400099FB1E /* style-guide.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "style-guide.md"; sourceTree = "<group>"; };
+		3D387C383098B7400099FB1E /* SKILL.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = SKILL.md; sourceTree = "<group>"; };
 		3D389FC32B35AF4A006928E7 /* TransitionProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransitionProtocol.swift; sourceTree = "<group>"; };
 		3D389FC42B35AF4A006928E7 /* Dispatcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dispatcher.swift; sourceTree = "<group>"; };
 		3D389FC52B35AF4A006928E7 /* EffectHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EffectHandler.swift; sourceTree = "<group>"; };
@@ -2457,6 +2459,23 @@
 			path = "swift-pr-writer";
 			sourceTree = "<group>";
 		};
+		3D387C373098B7400099FB1E /* references */ = {
+			isa = PBXGroup;
+			children = (
+				3D387C363098B7400099FB1E /* style-guide.md */,
+			);
+			path = references;
+			sourceTree = "<group>";
+		};
+		3D387C393098B7400099FB1E /* swift-docc-author */ = {
+			isa = PBXGroup;
+			children = (
+				3D387C373098B7400099FB1E /* references */,
+				3D387C383098B7400099FB1E /* SKILL.md */,
+			);
+			path = "swift-docc-author";
+			sourceTree = "<group>";
+		};
 		3D389FC12B35AF4A006928E7 /* EventEngine */ = {
 			isa = PBXGroup;
 			children = (
@@ -3328,6 +3347,7 @@
 		DA7C5C200000000000000006 /* skills */ = {
 			isa = PBXGroup;
 			children = (
+				3D387C393098B7400099FB1E /* swift-docc-author */,
 				3D387C353098A2520099FB1E /* swift-pr-writer */,
 				DA7C5C200000000000000005 /* swift-test-writer */,
 			);

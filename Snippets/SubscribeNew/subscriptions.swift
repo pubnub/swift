@@ -105,6 +105,20 @@ let dataSyncSubscription = pubnub
 
 // snippet.end
 
+// snippet.data-sync-entity-subscription
+// Subscribe to the entity's own ID channel and receive its Data Sync events
+let entitySubscription = pubnub
+  .dataSyncEntity("product-sneaker-42")
+  .subscription()
+
+entitySubscription.onDataSync = { dataSyncEvent in
+  print("Received on \(dataSyncEvent.channel): \(dataSyncEvent.change)")
+}
+
+entitySubscription.subscribe()
+
+// snippet.end
+
 // snippet.data-sync-projection-channels
 // Subscribe to the base projection and to a named projection of the same entity
 let baseProjectionSubscription = pubnub

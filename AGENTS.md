@@ -72,4 +72,4 @@ Hooks in `.claude/hooks/` (registered in `.claude/settings.json`) are silent on 
 
 - `run-swiftlint.sh`: after every Swift edit, runs `swiftlint --fix` then `--strict`. The edit is already applied; fix remaining violations and re-read the file after a reformat.
 - `check-test-registered.sh`: after a unit or integration test edit, reports if the file is missing from `project.pbxproj`.
-- `run-swift-build.sh` (`Stop`): runs `swift build` when `Sources/` changed and reports errors only. Passing does not guarantee the Xcode build compiles.
+- `run-swift-build.sh` (`Stop`): runs `swift build --build-tests` when `Sources/` changed and reports errors only. Passing does not guarantee the Xcode build compiles.

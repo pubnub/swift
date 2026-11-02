@@ -1,11 +1,12 @@
 #!/bin/bash
-# Stop hook: runs `swift build` when Claude finishes a turn, so compile errors that per-file SwiftLint
-# cannot catch are fixed before control is handed back.
+#
+# Stop hook: runs `swift build --build-tests` when Claude finishes a turn, so compile errors (including
+# test targets broken by a Sources/ API change) that per-file SwiftLint cannot catch are fixed before
+# control is handed back.
 #
 # Stays silent unless Claude has to act:
 #   - No-op unless .swift files under Sources/ have changed (per git status).
-#   - On failure the full log is saved to /tmp; only deduplicated, capped `error:` lines and the log path
-#     are printed on stderr with exit 2.
+#   - On failure the full log is saved to /tmp; only deduplicated, capped `error:` lines and the log path are printed on stderr with exit 2.
 #
 # Never blocks on its own failures:
 #   - stop_hook_active=true: exit 0 immediately. Claude already got one chance to fix the errors in this
@@ -37,7 +38,7 @@ ROOT=$PWD
 LOG=$(mktemp /tmp/swift-build.XXXXXX) || exit 0
 
 # `timeout` is not available on stock macOS, so use a watchdog
-swift build >"$LOG" 2>&1 &
+swift build --build-tests >"$LOG" 2>&1 &
 BUILD_PID=$!
 (
   sleep "$BUILD_TIMEOUT"

@@ -22,7 +22,6 @@ Apply these rules to every test:
 - When an asynchronous API completes with a `Result`, assert inside the real completion handler: switch over the result, call `XCTFail` on the unexpected case, and fulfill the expectation last.
 - When failure is expected, assert the exact `PubNubError` reason (`error.pubNubError?.reason`), not only that the call failed.
 - Write fixed expected values inline in the assertion. Do not derive expected values from a fixture or from the production result being asserted.
-- Keep tests compatible with the Swift language mode, deployment targets, and XCTest APIs declared by `Package.swift` and the Xcode project. Do not use newer-only features unless the change explicitly raises those requirements; use conditional compilation only for genuinely platform-specific behavior.
 - Do not widen production access or add test-only behavior to production code solely to enable a test.
 - Mark a test method `throws` when it can throw, and use `try` and `try XCTUnwrap()` instead of `if let` or `guard let`.
 - Create mutable state and reference-type dependencies inside each test method. Do not hold them in class-level `var` properties or create them in `setUp()` / `tearDown()`. Class-level `let` constants for static test data (including structs and enums) are allowed.

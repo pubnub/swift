@@ -90,8 +90,8 @@ Trigger the event through the subject's real interface. Assert the delivered val
 ```swift
 func test_MessagePayload_WhenReceived_NotifiesListenerOnce() {
   let messageExpect = XCTestExpectation(description: "Message received")
-
   messageExpect.assertForOverFulfill = true
+
   let client = TestPubNubFactory.make()
   let subscription = client.channel("test-channel").subscription()
 

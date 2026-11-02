@@ -1,4 +1,5 @@
 #!/bin/bash
+#
 # PostToolUse hook (Edit|Write): warns when a test file is missing from PubNub.xcodeproj.
 #
 # Test files that are not registered in project.pbxproj compile nowhere and never run in CI, while
@@ -28,7 +29,8 @@ case "$FILE_PATH" in
   *) exit 0 ;;
 esac
 
-# Fixed-string match on the file name, which is how pbxproj references sources
+# Quick check: if the file name appears anywhere in project.pbxproj, we assume it's registered.
+# This can't confirm it's in the right target, but it catches the common "forgot to add it" case
 if ! grep -qF -- "$(basename "$FILE_PATH")" "$PBXPROJ" 2>/dev/null; then
   echo "${FILE_PATH#"$ROOT"/} is not in PubNub.xcodeproj/project.pbxproj; add it to the $TARGET target." >&2
   exit 2

@@ -9,10 +9,8 @@
 #   - On failure the full log is saved to /tmp; only deduplicated, capped `error:` lines and the log path are printed on stderr with exit 2.
 #
 # Never blocks on its own failures:
-#   - stop_hook_active=true: exit 0 immediately. Claude already got one chance to fix the errors in this
-#     turn; blocking again could loop forever. The next turn's Stop hook reports them again.
-#   - Missing swift/jq or a build exceeding BUILD_TIMEOUT: exit 0 with a one-line note. A concurrent
-#     `swift build` holding the .build lock is covered by the same timeout.
+#   - stop_hook_active=true: exit 0 at once, to avoid an endless fix loop; the next turn reports again.
+#   - Missing swift/jq or a build exceeding BUILD_TIMEOUT (this includes a concurrent `swift build` holding the .build lock): exit 0 with a one-line note.
 #
 # Limitation: a passing `swift build` does not guarantee that the Xcode build compiles.
 

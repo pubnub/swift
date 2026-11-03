@@ -1170,6 +1170,8 @@
 		3D387C343098A2520099FB1E /* SKILL.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = SKILL.md; sourceTree = "<group>"; };
 		3D387C363098B7400099FB1E /* style-guide.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "style-guide.md"; sourceTree = "<group>"; };
 		3D387C383098B7400099FB1E /* SKILL.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = SKILL.md; sourceTree = "<group>"; };
+		DA7C5C300000000000000001 /* SKILL.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = SKILL.md; sourceTree = "<group>"; };
+		DA7C5C300000000000000002 /* migration-guide-conventions.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "migration-guide-conventions.md"; sourceTree = "<group>"; };
 		3D389FC32B35AF4A006928E7 /* TransitionProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransitionProtocol.swift; sourceTree = "<group>"; };
 		3D389FC42B35AF4A006928E7 /* Dispatcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dispatcher.swift; sourceTree = "<group>"; };
 		3D389FC52B35AF4A006928E7 /* EffectHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EffectHandler.swift; sourceTree = "<group>"; };
@@ -3344,10 +3346,28 @@
 			path = "swift-test-writer";
 			sourceTree = "<group>";
 		};
+		DA7C5C300000000000000003 /* references */ = {
+			isa = PBXGroup;
+			children = (
+				DA7C5C300000000000000002 /* migration-guide-conventions.md */,
+			);
+			path = references;
+			sourceTree = "<group>";
+		};
+		DA7C5C300000000000000004 /* swift-migration-guide-writer */ = {
+			isa = PBXGroup;
+			children = (
+				DA7C5C300000000000000001 /* SKILL.md */,
+				DA7C5C300000000000000003 /* references */,
+			);
+			path = "swift-migration-guide-writer";
+			sourceTree = "<group>";
+		};
 		DA7C5C200000000000000006 /* skills */ = {
 			isa = PBXGroup;
 			children = (
 				3D387C393098B7400099FB1E /* swift-docc-author */,
+				DA7C5C300000000000000004 /* swift-migration-guide-writer */,
 				3D387C353098A2520099FB1E /* swift-pr-writer */,
 				DA7C5C200000000000000005 /* swift-test-writer */,
 			);

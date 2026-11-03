@@ -61,6 +61,10 @@ Additional CI and Xcode-based validation is defined in `fastlane/Fastfile`.
 
 To write, change, or review DocC comments on public API, use the `swift-docc-author` skill (`.agents/skills/swift-docc-author/SKILL.md`). It is the only place for DocC comment rules.
 
+## Migration Guides
+
+To draft or review a major-version migration guide, use the `swift-migration-guide-writer` skill (`.agents/skills/swift-migration-guide-writer/SKILL.md`). It is the only place for migration guide scope, evidence, and writing rules.
+
 ## Pull Requests
 
 To write a PR title or PR description, or to open or edit a PR, use the `swift-pr-writer` skill (`.agents/skills/swift-pr-writer/SKILL.md`). It is the only place for PR text rules. Pull requests are squash-merged, so branch commit messages are free-form.

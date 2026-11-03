@@ -34,11 +34,10 @@ Documentation/PubNub_<major>_0_Migration_Guide.md
 
 Use this overall structure, omitting empty sections:
 
-```markdown
+````markdown
 # PubNub <major>.0 Migration Guide
 
-<Established introduction describing the major release, supported platforms,
-Semantic Versioning context, and the purpose of the guide.>
+<Established introduction describing the major release, supported platforms, Semantic Versioning context, and the purpose of the guide.>
 
 ## Breaking API Changes
 
@@ -59,7 +58,7 @@ Semantic Versioning context, and the purpose of the guide.>
 ### <Deprecated API>
 
 <What is deprecated, what replaces it, and whether existing code still works.>
-```
+````
 
 The deprecations section is optional. Include it only when the target major introduces relevant deprecations with a verified replacement; otherwise omit the entire section. Do not repeat deprecations that already existed at the baseline.
 

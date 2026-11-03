@@ -17,10 +17,22 @@ Create a complete migration guide that tells SDK consumers what they must change
    - Record inferred versions, refs, and release scope as assumptions and continue.
 3. Read the closest existing migration guides, giving the latest guide the most weight. Use them for structure, scope, and tone, not as evidence that a change applies to the target release.
 4. Build a candidate inventory from independent repository sources:
-   - **Public API:** Compare `Sources/PubNub/` between the baseline and target. Inspect removals, visibility changes, renamed symbols or labels, changed types or defaults, protocol requirements, conformances, enum cases, and new or changed deprecations.
-   - **Distribution and compatibility:** Compare `Package.swift`, `PubNubSwift.podspec`, the Xcode project, module and product names, supported platforms, and deployment targets.
-   - **Focused history:** Inspect source history only when needed to establish a candidate's intent, consumer impact, or supported replacement.
-   - **Excluded sources:** Do not use `.pubnub.yml` or generated release metadata as evidence.
+   - **Swift API diagnostic**
+     - Run from the target checkout or worktree: `swift package diagnose-api-breaking-changes <baseline-ref> --products PubNubSDK`
+     - Treat diagnostics as candidates, not verified migration claims.
+     - Consolidate related symbol, accessor, and conformance diagnostics into consumer-level changes.
+     - Consider a nonzero exit status successful when breakage diagnostics were produced.
+     - If the command cannot complete, record the failure and continue.
+   - **Public API source comparison**
+     - Compare `Sources/PubNub/` between the baseline and target.
+     - Verify diagnostic candidates and find unreported changes, including deprecations and behavior changes.
+     - Inspect removals, visibility changes, renamed symbols or labels, changed types or defaults, protocol requirements, conformances, and enum cases.
+   - **Distribution and compatibility**
+     - Compare `Package.swift`, `PubNubSwift.podspec`, the Xcode project, module and product names, supported platforms, and deployment targets.
+   - **Focused history**
+     - Inspect source history only when needed to establish intent, consumer impact, or the supported replacement.
+   - **Excluded sources**
+     - Do not use `.pubnub.yml` or generated release metadata as evidence.
 5. Classify every candidate:
    - Include a breaking change when existing consumer code, configuration, packaging, or documented behavior requires action.
    - Include a deprecation introduced by the target release when consumers should start migrating to a supported replacement.

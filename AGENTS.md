@@ -61,6 +61,16 @@ Additional CI and Xcode-based validation is defined in `fastlane/Fastfile`.
 
 To write, change, or review DocC comments on public API, use the `swift-docc-author` skill (`.agents/skills/swift-docc-author/SKILL.md`). It is the only place for DocC comment rules.
 
+## Documentation Snippets
+
+Snippets in `Snippets/{Area}/` are compiled, consumer-facing examples used by documentation tooling.
+
+- Use only released public `PubNubSDK` APIs and follow the closest snippet in the same area.
+- Keep each file compilable. Use wrapper functions when examples need declaration isolation or availability checks.
+- Preserve `// snippet.<id>` / `// snippet.end` boundaries and existing IDs.
+- Use `// snippet.hide` / `// snippet.show` for compilation scaffolding that should not appear in extracted output.
+- Add snippets for new public API and validate snippet changes with `swift build`.
+
 ## Migration Guides
 
 To draft or review a major-version migration guide, use the `swift-migration-guide-writer` skill (`.agents/skills/swift-migration-guide-writer/SKILL.md`). It is the only place for migration guide scope, evidence, and writing rules.
@@ -73,7 +83,6 @@ To write a PR title or PR description, or to open or edit a PR, use the `swift-p
 
 - Preserve existing PubNub copyright headers.
 - Swift files must pass `swiftlint --fix` followed by `swiftlint --strict` before a change is complete.
-- Snippets in `Snippets/{Area}/` use `// snippet.<id>` / `// snippet.end` markers for doc tooling. Keep markers intact and add snippets for new public API.
 - Prefer updating tests when changing public behavior.
 - Do not expose unreleased, internal, or not-yet-announced features in documentation, snippets, comments intended for users, or user-facing output.
 - If you change repository structure, test targets, or validation commands, update this file in the same change.

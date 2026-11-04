@@ -1,674 +1,599 @@
-## 11.1.0
+# Changelog
 
-October 29, 2026
+All notable public changes to this project are documented in this file.
 
-**Added**
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/).
 
-- Raise minimum deployment targets to iOS 13, tvOS 13, and watchOS 6. Since September 9, 2026, iOS and iPadOS apps uploaded to App Store Connect must target iOS 13 or later. tvOS and watchOS minimums are raised to the matching OS generation. macOS is unchanged.
+## [11.1.0] - 2026-10-29
 
-- Decrypt AES-GCM payloads in `CryptoModule.aesCbcCryptoModule` and `CryptoModule.legacyCryptoModule`. Both factory methods can now read AES-GCM payloads published by other PubNub SDKs, with no configuration change. What these modules encrypt is unchanged.
+> **Upgrade required:** This release raises the minimum supported versions of
+> iOS, tvOS, and watchOS.
 
-**Fixed**
+### Added
 
-- Signals are no longer encrypted when published or decrypted when received. Signals were previously sent through the encryption path when a `CryptoModule` was configured, which is a bug: the signal payload is not encrypted by other PubNub SDKs, so it could not be read by them and failed to decode when received from them.
-- Read and write cryptor header metadata of 255 bytes or more.
-- Accept cryptor header metadata ending exactly at the buffer end in stream decryption.
-- Include default cryptor and keys in `CryptoModule` equality and hashing.
-- Print secondary cryptors in `CryptoModule.description`.
-- Allow empty plaintext when decrypting data and files.
+- Decrypt AES-GCM payloads with [`aesCbcCryptoModule(with:withRandomIV:)`](https://github.com/pubnub/swift/blob/b59243badb7d8dd60c1339ff8bbfe8d3abde10bd/Sources/PubNub/Helpers/Crypto/CryptoModule.swift#L585) and [`legacyCryptoModule(with:withRandomIV:)`](https://github.com/pubnub/swift/blob/b59243badb7d8dd60c1339ff8bbfe8d3abde10bd/Sources/PubNub/Helpers/Crypto/CryptoModule.swift#L604), improving compatibility with payloads produced by other PubNub SDKs without changing their encryption formats.
 
-## 11.0.1
+### Changed
 
-October 16, 2026
+- **Breaking:** Require iOS 13, tvOS 13, and watchOS 6 or later while retaining macOS 10.15 support. **Migration:** Raise the affected application deployment targets before upgrading.
 
-**Fixed**
+### Fixed
 
-- Fix KMP DataSync bridge ObjC header parsing (internal use)
+- Prevent [`signal(channel:message:customMessageType:custom:completion:)`](https://github.com/pubnub/swift/blob/b59243badb7d8dd60c1339ff8bbfe8d3abde10bd/Sources/PubNub/APIs/Publish%2BPubNub.swift#L168-L174) payloads from being encrypted when published or decrypted when received, restoring interoperability with other PubNub SDKs.
+- Read and write cryptor-header metadata of 255 bytes or more, including metadata ending exactly at the end of a stream.
+- Decrypt empty data and files without rejecting the plaintext as malformed.
+- Include default and secondary cryptors when comparing, hashing, and describing `CryptoModule` values.
 
-## 11.0.0
+## [11.0.1] - 2026-10-16
 
-October 12, 2026
+No public SDK contract changes.
 
-**This version introduces breaking changes. Please visit [PubNub 11.0 Migration Guide](https://github.com/pubnub/swift/blob/master/Documentation/PubNub_11_0_Migration_Guide.md) for detailed information and instructions**
+## [11.0.0] - 2026-10-12
 
-**Added**
+> **Upgrade required:** This release contains breaking changes. See the
+> [PubNub 11.0 Migration Guide](https://github.com/pubnub/swift/blob/11.0.0/Documentation/PubNub_11_0_Migration_Guide.md)
+> for detailed migration instructions.
 
-- Adds the `pubnub.dataSync` namespace with paged fetch, create, replace, update, and remove operations for entities, users, channels, memberships, and relationships. Object changes are delivered to subscribe listeners as `PubNubDataSyncEvent`, and DataSync subscribe targets support both base and projection subscriptions.
+### Added
 
-- Access Manager tokens now parse DataSync resource permissions and expose the new `create` permission alongside the existing ones.
+- Perform paginated create, fetch, replace, update, and remove operations through `PubNub.dataSync` for entities, users, channels, memberships, and relationships.
+- Receive DataSync object changes as `PubNubDataSyncEvent` values through subscription listeners, including base and projection subscriptions.
+- Parse DataSync resource permissions from Access Manager tokens, including the `create` permission.
+- Configure `PubNubConfiguration` from a bundle containing an `originAt` key, falling back to `PubNubOrigin`.
 
-- `PubNubConfiguration.init(bundle:)` accepts an `originAt:` plist key, defaulting to `PubNubOrigin`.
+### Changed
 
-**Removed**
+- **Breaking:** Use `target` instead of `entity` throughout the subscription API and remove the `Representation` suffix from subscription target types. **Migration:** Replace the renamed symbols with their `target`-based equivalents.
+- **Breaking:** Create `Subscription` and `SubscriptionSet` instances through their `PubNub` factory methods. **Migration:** Replace direct initialization with the corresponding factory method.
+- Emit the same `PubNubEvent` values from legacy and modern subscription listeners, including the new `dataSyncChanged` case.
+- Configure `BaseSubscriptionListener.queue` and `supressCancellationErrors` during initialization, preventing unsafe mutation on an active listener.
 
-- `PubNubUser`, `PubNubSpace`, and `PubNubMembership` are no longer built or distributed via SPM
+### Deprecated
 
-**Changed**
+- Deprecate catch-all `SubscriptionListener` callbacks in favor of granular, event-specific callbacks. **Migration:** Register the callback corresponding to each event type the application handles.
 
-- `entity` now means a DataSync record, so the subscribe API uses `target` instead; the subscribe target types drop the `Representation` suffix, and `Subscription` / `SubscriptionSet` are created only through the `PubNub` factory methods.
+### Removed
 
-- The legacy `SubscriptionListener` emits the same `PubNubEvent` type as the modern listener API, and the catch-all event callbacks are deprecated in favor of the granular per-type ones. `PubNubEvent` gains a `dataSyncChanged` case.
+- **Breaking:** Remove the `PubNubUser`, `PubNubSpace`, and `PubNubMembership` products from Swift Package Manager distribution. **Migration:** Use the corresponding APIs distributed through `PubNubSDK`.
 
-- `BaseSubscriptionListener.queue` and `supressCancellationErrors` are now passed to the initializer, removing a data race when they were mutated on a live listener.
+### Fixed
 
-**Fixed**
+- Decode `yyyy-MM-dd` values as dates when a full ISO 8601 representation is unavailable.
+- Prevent dictionaries from comparing equal to supersets containing additional keys.
+- Ignore unrecognized subscribe-event types without interrupting delivery of valid events from the same response.
 
-- `yyyy-MM-dd` values now decode as dates, as an ISO 8601 fallback.
+## [10.2.0] - 2026-09-03
 
-- Fixes an issue where a dictionary compared equal to any superset of itself, because only the left operand's keys were checked. Key counts are now compared first.
+### Added
 
-- The SDK now skips subscribe messages whose `e` value it does not recognize. Messages that omit `e` preserve current inference behavior, while malformed entries no longer disrupt delivery of the remaining batch.
+- Configure non-alert APNs notifications with [`PubNubAPNSPayload.pushType`](https://github.com/pubnub/swift/blob/cddc5c38d44b9218c8a6ab80dcc593e91abf331e/Sources/PubNub/Models/PubNubAPNSPayload.swift#L34); when omitted, APNs continues to treat the notification as an alert.
 
-## 10.2.0
+## [10.1.8] - 2026-07-08
 
-September 3, 2026
+### Changed
 
-**Added**
+- Keep presence state isolated between `PubNub` instances.
 
-- Add an optional `pushType` property that maps to the `apns-push-type` header required for non-alert notifications such as VoIP. When omitted, the payload excludes the key, and APNs defaults to alert.
+### Fixed
 
-## 10.1.8
+- Invoke message-action add and remove completion handlers only once when an error occurs.
 
-July 8, 2026
+### Security
 
-**Fixed**
+- Reject invalid initialization-vector lengths, misaligned ciphertext, and legacy random-IV payloads too short to contain an IV before decryption.
+- Return uniform `encryptionFailure` and `decryptionFailure` errors without exposing CommonCrypto status details.
+- Redact authentication keys and tokens from logs.
+- Default `PubNubLogger` to the `.none` log level and warn that verbose logging can expose sensitive data.
 
-- Validate IV length and ciphertext block-alignment before decrypting.
-- Return a uniform .decryptionFailure that never exposes the underlying CommonCrypto status.
-- Guard LegacyCryptor random-IV path against payloads too short to contain an IV.
-- Map encrypt-path errors to .encryptionFailure instead of .decryptionFailure .
-- Redact authKey and authToken in instance logs instead of emitting them in cleartext.
-- Use .none as the default log level for the PubNubLogger public initializer to avoid an insecure default.
-- Make message action add/remove fire completion only once on error.
+## [10.1.7] - 2026-06-15
 
-**Modified**
+No public SDK contract changes.
 
-- Warn that verbose log levels may expose sensitive data and recommend long, high-entropy cipher keys.
-- Make every PubNub instance manage its own presence-state container.
+## [10.1.6] - 2026-05-12
 
-## 10.1.7
+### Added
 
-June 15, 2026
+- Log the negotiated transport protocol from `URLSessionTaskMetrics` for network diagnostics.
+- Expose readable diagnostic output by adding `CustomStringConvertible` conformance to `RequestConfiguration`.
 
-**Fixed**
+### Fixed
 
-- Improve inline docs for CryptoModule and LegacyCryptor APIs.
+- Format `SubscribeMessagePayload` and `EmitMessagesEffect` descriptions as readable multiline output.
 
-## 10.1.6
+## [10.1.5] - 2026-04-23
 
-May 12, 2026
+### Changed
 
-**Added**
+- Rename `URL.appending(queryItems:)` to `appendingQueryItems(_:)`, avoiding an ambiguity with the Foundation API of the same name.
 
-- Log negotiated transport protocol from `URLSessionTaskMetrics` for network diagnostics.
+### Fixed
 
-**Fixed**
+- Preserve the warning category when forwarding SDK log messages.
+- Report the correct channel groups in local `subscriptionChanged(.subscribed)` events.
 
-- Pretty-print `SubscribeMessagePayload` and `EmitMessagesEffect` descriptions with multi-line formatting.
-- Adds `CustomStringConvertible` conformance to `RequestConfiguration` for improved debug output.
+## [10.1.4] - 2026-04-20
 
-## 10.1.5
+### Fixed
 
-April 23, 2026
+- Preserve message actions in history responses when `CryptoModule` is enabled.
 
-**Fixed**
+## [10.1.3] - 2026-04-08
 
-- Forward missing `category` parameter when PubNub internally logs a warning message.
-- Fix wrong channel groups reported in the local `subscriptionChanged(.subscribed)` event.
-- Rename `URL.appending(queryItems:)` to `appendingQueryItems(_:)` to resolve ambiguity with the same method Apple added to Foundation.
+### Fixed
 
-## 10.1.4
+- Apply configuration changes immediately and safely to active Subscribe and Presence workflows.
 
-April 20, 2026
+## [10.1.2] - 2026-01-22
 
-**Fixed**
+No public SDK contract changes.
 
-- Fixed an issue where message actions were silently dropped from history responses when CryptoModule was enabled.
+## [10.1.1] - 2025-12-11
 
-## 10.1.3
+No public SDK contract changes.
 
-April 8, 2026
+## [10.1.0] - 2025-11-13
 
-**Fixed**
+> **Upgrade required:** This release removes support for Microsoft Push
+> Notification Service.
 
-- Added a `didSet` observer on the strategy's `configuration` property to immediately refresh Subscribe & Presence workflow dependencies on any config change. Made `EventEngine.dependencies` thread-safe with the existing recursive lock.
+### Removed
 
-## 10.1.2
+- **Breaking:** Remove Microsoft Push Notification Service support following its end of life. **Migration:** Use APNs or FCM for supported mobile push notifications.
 
-January 22, 2026
+## [10.0.1] - 2025-10-23
 
-**Fixed**
+No public SDK contract changes.
 
-- Pass limit and offset parameters in KMP hereNow Presence call (internal use).
+## [10.0.0] - 2025-10-21
 
-## 10.1.1
+> **Upgrade required:** This release contains breaking changes. See the
+> [PubNub 10.0 Migration Guide](https://github.com/pubnub/swift/blob/10.0.0/Documentation/PubNub_10_0_Migration_Guide.md)
+> for detailed migration instructions.
 
-December 11, 2025
+### Changed
 
-**Added**
+- **Breaking:** Pass a `LogMessage` and `LogMetadata` to `LogWriter` implementations. **Migration:** Update custom writers to accept the structured message and metadata parameters.
+- **Breaking:** Limit `hereNow` results to 1,000 occupants per channel. **Migration:** Paginate requests for channels that may contain more than 1,000 occupants.
 
-- Expose logLevel property in the Objective-C layer for KMP (internal use).
+### Removed
 
-## 10.1.0
+- **Breaking:** Remove public logger convenience methods such as `debug` and `warning`. **Migration:** Write log events through an attached logger.
+- **Breaking:** Remove the static `log` and `logLog` properties from `PubNub`. **Migration:** Attach a logger when creating the `PubNub` instance.
 
-November 13, 2025
+## [9.3.5] - 2025-10-16
 
-**Modified**
+### Fixed
 
-- Remove MPNS (Microsoft Push Notification Service) support due to its end-of-life.
+- Return `"fcm"` from `PubNub.PushService.fcm` while preserving the deprecated `.gcm` value as `"gcm"` for compatibility.
 
-## 10.0.1
+## [9.3.4] - 2025-09-15
 
-October 23, 2025
+### Fixed
 
-**Fixed**
+- Handle history file-list responses that omit `limit` or `next` in `listFiles(channel:limit:next:custom:completion:)`.
 
-- Remove redundant string joining in subscription logging.
+## [9.3.3] - 2025-08-07
 
-## 10.0.0
+### Fixed
 
-October 21, 2025
+- Prevent crashes when application-performance monitoring libraries intercept URL session invalidation.
 
-**This version introduces breaking changes. Please visit [PubNub 10.0 Migration Guide](https://github.com/pubnub/swift/blob/10.0.0/Documentation/PubNub_10_0_Migration_Guide.md) for detailed information and instructions**
+## [9.3.2] - 2025-08-06
 
-**Added**
+No public SDK contract changes.
 
-- The `LogWriter` protocol method signature has been refined to accept a `LogMessage` object representing the logged content. It now also takes a `LogMetadata` parameter, allowing logging decisions to be made without evaluating the message itself.
+## [9.3.1] - 2025-07-31
 
-**Removed**
+### Fixed
 
-- Logging methods such as `debug`, `warning`, etc, are no longer public. They are now internal as part of the logging encapsulation improvements.
+- Prevent recursive locking when disposing a `SubscriptionSet`.
 
-- The static `log` and `logLog` properties have been removed from the PubNub instance. You can now attach a logger instance via the PubNub initializer instead.
+## [9.3.0] - 2025-07-29
 
-**Changed**
+> **Upgrade required:** This release changes the presence unsubscription API.
 
-- The `HereNow` method now returns a maximum of 1,000 occupants per channel. Previously, it would return all occupants regardless of count. If you have channels with more than 1,000 occupants, you must use pagination to retrieve the complete list.
+### Added
 
-## 9.3.5
+- Subscribe directly to presence channels and channel groups without subscribing to their main counterparts.
 
-October 16, 2025
+### Changed
 
-**Fixed**
+- **Breaking:** Remove the `presenceOnly` parameter from `PubNub.unsubscribe(from:and:)`. **Migration:** Pass presence channels or channel groups explicitly.
 
-- Update underlying string values for `PubNub.PushService`. This change updates .fcm to return "fcm" instead of "gcm", while the deprecated .gcm continues to return "gcm" for backward compatibility.
+## [9.2.3] - 2025-07-29
 
-## 9.3.4
+No public SDK contract changes.
 
-September 15, 2025
+## [9.2.2] - 2025-07-18
 
-**Fixed**
+No public SDK contract changes.
 
-- Handle missing `limit` and `next` parameters in the `listFiles(channel:limit:next:custom:completion:)` method.
+## [9.2.1] - 2025-06-20
 
-## 9.3.3
+### Fixed
 
-August 7, 2025
+- Send a heartbeat after changing subscribed channels or channel groups, keeping presence state current.
 
-**Fixed**
+## [9.2.0] - 2025-05-15
 
-- APM libraries crash fix: Removed `deinit` methods that were calling `session.invalidateAndCancel()` from `PresenceEffectFactory` and `SubscribeEffectFactory` to prevent race conditions with Application Performance Monitoring libraries. Session cleanup now happens exclusively in [HTTPSession.deinit](https://github.com/pubnub/swift/blob/9.3.2/Sources/PubNub/Networking/HTTPSession.swift#L96-L99), which ensures request cancellation before invalidation. This prevents crashes from occurring inside APM libraries when they intercept network operations during session invalidation.
+### Added
 
-## 9.3.2
+- Encrypt a local file with [`encryptStream(from:)`](https://github.com/pubnub/swift/blob/094d029c2bf55886dbf0e292398638d7a278a39b/Sources/PubNub/Helpers/Crypto/CryptoModule.swift#L217) without manually creating an `InputStream` or calculating its content length.
 
-August 6, 2025
+## [9.1.0] - 2025-05-13
 
-**Fixed**
+### Added
 
-- Implement missing token parsing logic in KMP layer (internal use).
+- Return both the encrypted stream and its content length from [`encrypt(stream:contentLength:)`](https://github.com/pubnub/swift/blob/56b8f5ee4e1d6932f7e8b4efb2b0ea76fd9ac826/Sources/PubNub/Helpers/Crypto/CryptoModule.swift#L184).
+- Decrypt local files with [`decryptStream(from:to:)`](https://github.com/pubnub/swift/blob/56b8f5ee4e1d6932f7e8b4efb2b0ea76fd9ac826/Sources/PubNub/Helpers/Crypto/CryptoModule.swift#L287) without manually creating an input stream or specifying its content length.
 
-## 9.3.1
+## [9.0.1] - 2025-03-20
 
-July 31, 2025
+### Fixed
 
-**Fixed**
+- Include the endpoint error message in `PubNubError.details`.
 
-- Fix the issue with recursive locking introduced in 9.3.0 when disposing a SubscriptionSet.
+## [9.0.0] - 2025-03-06
 
-## 9.3.0
+> **Upgrade required:** Custom `LogWriter` implementations must be updated. See
+> the [PubNub 9.0 Migration Guide](https://github.com/pubnub/swift/blob/9.0.0/Documentation/PubNub_9_0_Migration_Guide.md)
+> for detailed migration instructions.
 
-July 29, 2025
+### Added
 
-**Added**
+- Provide `OSLogWriter` as the recommended adapter for Apple unified logging.
+- Provide readable object diagnostics through `CustomStringConvertible`.
 
-- Add the ability to subscribe to presence channels only, without their main counterparts.
+### Changed
 
-This version introduces presence-only subscription support, allowing users to subscribe to presence channels/channel groups without requiring their main channel/channel groups counterparts. Also, the `unsubscribe(from:and:)` method in a PubNub class has been simplified by removing the `presenceOnly:` parameter. If you were using `presenceOnly: true`, pass presence channels or channel groups explicitly as parameters instead.
+- **Breaking:** Refine the `LogWriter` protocol to support Apple's `Logger`. **Migration:** Update custom writers to the new protocol signature.
 
-## 9.2.3
+## [8.3.1] - 2025-01-24
 
-July 29, 2025
+### Fixed
 
-**Fixed**
+- Invoke request completion handlers in scenarios where they were previously skipped.
 
-- Fix WeakBox hash stability.
+## [8.3.0] - 2025-01-20
 
-## 9.2.2
+### Added
 
-July 18, 2025
+- Support `ETag` values when setting channel and user metadata.
 
-**Fixed**
+## [8.2.5] - 2025-01-16
 
-- Add a wrapper around the reconnecting method for KMP (internal use).
+### Fixed
 
-## 9.2.1
+- Prevent crashes caused by concurrent access to subscription state.
 
-June 20, 2025
+## [8.2.4] - 2025-01-10
 
-**Fixed**
+No public SDK contract changes.
 
-- Add missing heartbeat call when changing channels or channel groups.
+## [8.2.3] - 2025-01-03
 
-## 9.2.0
+No public SDK contract changes.
 
-May 15, 2025
+## [8.2.2] - 2024-12-11
 
-**Added**
+### Fixed
 
-- The `encryptStream(from:)` convenience method in CryptoModule is designed to encrypt a local file. It eliminates the need for the caller to provide an `InputStream` and its content length - these are handled internally. You only need to pass a local file URL.
+- Reduce excessive memory usage when processing high message volumes.
+- Populate `PubNubFileEvent.customMessageType` in received file events.
 
-## 9.1.0
+## [8.2.1] - 2024-12-09
 
-May 13, 2025
+No public SDK contract changes.
 
-**Added**
+## [8.2.0] - 2024-12-04
 
-- The `encrypt(stream:contentLength:)` method in `CryptoModule` now returns an `EncryptedStreamResult` containing both the encrypted stream and its total content length
+### Added
 
-```swift
-// Before
-if case .success(let result) = cryptoModule.encrypt(stream: fileStream, contentLength: fileSize) {
-  // The `result` variable is of type `InputStream` representing an encoded stream.
-  // There's no information about the total length of the encoded stream
-}
+- Expose the `type` field on `PubNubMembershipMetadata`.
+- Provide `PubNub.ChannelIncludeFields` and `PubNub.UserIncludeFields` for type-safe App Context include options.
 
-// Now
-if case .success(let result) = cryptoModule.encrypt(stream: fileStream, contentLength: fileSize) {
-  // The `result` variable is of type `EncryptedStreamResult`, containing both the encrypted stream 
-  // and its content length:
-  let stream = result.stream 
-  let totalLength = result.contentLength
-}
-```
+### Deprecated
 
-- The new `decryptStream(from:to:)` method in `CryptoModule` simplifies file decryption by accepting two local file URLs - one for the source and one for the destination - and automatically handling the low-level details, unlike `decrypt(stream:contentLength:to:)`, which required manually creating an InputStream and specifying the content length
+- Deprecate App Context methods whose signatures use `uuid`, `uuids`, or Boolean `include` parameters. **Migration:** Use their user-oriented and typed-include replacements.
+- Deprecate `remove(channel:custom:completion:)`. **Migration:** Use its replacement overload.
+- Deprecate `uuidMetadataId` and `uuid` on `PubNubMembershipMetadata`. **Migration:** Use the corresponding user-oriented properties.
+- Deprecate `PubNubUUIDMetadata`, `PubNubUUIDMetadataBase`, and `PubNubUUIDMetadataChangeset`. **Migration:** Use `PubNubUserMetadata`, `PubNubUserMetadataBase`, and `PubNubUserMetadataChangeset`; compatibility aliases remain available.
 
-## 9.0.1
+## [8.1.0] - 2024-11-18
 
-March 20, 2025
+### Added
 
-**Fixed**
+- Support custom message types in publish, signal, file-sharing, subscribe, and history APIs.
 
-- Include endpoint error message in PubNubError's `details` property.
-- Defer computing the textual representation of EventEngine's current and previous states until needed.
+## [8.0.1] - 2024-10-17
 
-## 9.0.0
+No public SDK contract changes.
 
-March 6, 2025
+## [8.0.0] - 2024-09-23
 
-**This version introduces breaking changes when providing a custom `LogWriter`. Please visit [PubNub 9.0 Migration Guide](https://github.com/pubnub/swift/blob/9.0.0/Documentation/PubNub_9_0_Migration_Guide.md) for detailed information and instructions**
+> **Upgrade required:** This release contains breaking changes. See the
+> [PubNub 8.0 Migration Guide](https://github.com/pubnub/swift/blob/8.0.0/Documentation/PubNub_8_0_Migration_Guide.md)
+> for detailed migration instructions.
 
-**Added**
+### Added
 
-- Add `OSLogWriter` as the recommended `LogWriter` to use.
-- Refine `LogWriter` protocol signature to support built-in `Logger` from the `os` framework.
-- Enhance object descriptions with `CustomStringConvertible`.
-- Add explanatory documentation for debug-level logging messages.
+- Attach additional listeners to `Subscription` and `SubscriptionSet`.
+- Fetch additional fields through `PubNub.MembershipInclude` and `PubNub.MemberInclude`.
 
-## 8.3.1
+### Changed
 
-January 24, 2025
+- **Breaking:** Rename the imported module to `PubNubSDK`. **Migration:** Replace `import PubNub` with `import PubNubSDK`.
+- Enable automatic retry for subscribe requests by default using an exponential reconnection policy.
 
-**Fixed**
+### Removed
 
-- Fix the issue where the request's completion handler is not invoked in certain scenarios.
+- **Breaking:** Remove the deprecated `connecting` and `reconnecting` connection statuses. **Migration:** Handle `subscriptionChanged(channels:groups:)` instead.
+- **Breaking:** Remove `.legacyExponential(base:scale:maxDelay:)`. **Migration:** Use a supported automatic-retry policy.
 
-## 8.3.0
+### Fixed
 
-January 20, 2025
+- Prevent the SDK from retaining subscriptions after application references are released.
 
-**Added**
+## [7.3.3] - 2024-09-13
 
-- Add `ETag` support for setting Channel and User metadata.
+### Fixed
 
-## 8.2.5
+- Synchronize access to weak and global subscription collections, preventing inconsistent state during concurrent updates.
 
-January 16, 2025
+## [7.3.2] - 2024-07-25
 
-**Fixed**
+### Fixed
 
-- Fix the crash issue caused by multiple accesses to the `state` property in multithreaded scenarios.
+- Allow applications to construct `EncryptedData` and `EncryptedStreamData` through their public initializers.
 
-## 8.2.4
+## [7.3.1] - 2024-06-18
 
-January 10, 2025
+### Fixed
 
-**Fixed**
+- Send presence leave requests when unsubscribing, including when heartbeat processing is inactive or stopped.
 
-- Fix the issue of passing an invalid value for the `storeTTL` parameter in the KMP layer (internal use).
-- Handle `shouldCompress` parameter in the KMP layer (internal use).
+## [7.3.0] - 2024-06-12
 
-## 8.2.3
+### Changed
 
-January 3, 2025
+- Send Firebase Cloud Messaging notifications through the FCM HTTP v1 API.
 
-**Added**
+## [7.2.1] - 2024-05-09
 
-- Handle all possible values for the `include` field in the KMP layer (internal usage).
+### Added
 
-## 8.2.2
+- Support visionOS.
 
-December 11, 2024
+### Fixed
 
-**Fixed**
+- Refresh Event Engine dependencies after adding a subscription listener.
 
-- Fix excessive memory usage in the high-volume messages use case.
-- Add missing `customMessageType` in `PubNubFileEvent`.
+## [7.2.0] - 2024-04-16
 
-## 8.2.1
+### Added
 
-December 9, 2024
+- Bundle `PrivacyInfo.xcprivacy` so applications can include the SDK's required privacy declarations.
 
-**Added**
+## [7.1.0] - 2024-03-18
 
-- Add support for`customMessageType` in the KMP layer (internal usage).
+### Fixed
 
-## 8.2.0
+- Keep an active subscription connected when subscribing through `PubNub` to an already-subscribed channel.
+- Compute stable and consistent hash values for `CryptoModule`.
 
-December 4, 2024
+## [7.0.0] - 2024-02-21
 
-**Added**
+> **Upgrade required:** This release enables Event Engine subscription handling
+> by default.
 
-- Add the `type` field in `PubNubMembershipMetadata`
-- Deprecate the methods of AppContext that contain `uuid` or `uuids` in their signatures,  introduce new versions.
-- Deprecate the methods of AppContext that contain `include` parameter of the `Bool` type, introduce new versions.
-- Deprecate `remove(channel:custom:completion:)`, introduce new version.
-- Deprecate `uuidMetadataId` and `uuid` in `PubNubMembershipMetadata`, introduce new properties.
-- Deprecate `PubNub.IncludeFields`, introduce `PubNub.ChannelIncludeFields` and `PubNub.UserIncludeFields` instead
-- Replace `PubNubUUIDMetadata` with `PubNubUserMetadata`.
-- Replace `PubNubUUIDMetadataBase` with `PubNubUserMetadataBase`.
-- Add an alias for backward compatibility with the customer code using `PubNubUUIDMetadata`.
-- Add an alias for backward compatibility with the customer code using `PubNubUUIDMetadataBase`.
-- Replace `PubNubUUIDMetadataChangeset` with `PubNubUserMetadataChangeset`.
-- Add an alias for backward compatibility with the customer code using `PubNubUUIDMetadataChangeset`.
+### Added
 
-## 8.1.0
+- Provide the listener-based subscription API.
 
-November 18, 2024
+### Changed
 
-**Added**
+- Enable Event Engine as the default Subscribe and Presence implementation.
 
-- Add custom message type support for the following APIs: publish, signal, share file, subscribe, and history.
+## [6.3.0] - 2024-01-22
 
-## 8.0.1
+### Added
 
-October 17, 2024
+- Introduce Event Engine implementations for Subscribe and Presence workflows.
 
-**Added**
+## [6.2.3] - 2023-11-28
 
-- Add getToken() method for KMPPubNub (internal usage).
+### Fixed
 
-## 8.0.0
+- Receive unencrypted messages when `CryptoModule` is configured.
 
-September 23, 2024
+## [6.2.2] - 2023-10-30
 
-**This version introduces breaking changes. Please visit [PubNub 8.0 Migration Guide](https://github.com/pubnub/swift/blob/8.0.0/Documentation/PubNub_8_0_Migration_Guide.md) for detailed information and instructions**
+### Changed
 
-**Added**
+- Change the project license to the PubNub Software Development Kit License.
 
-- Replace module name with `PubNubSDK` due to compiler error when a public type shares the same name as the module.
--  Add new `subscriptionChanged(channels, groups)` connection status and remove previously deprecated `connecting` and `reconnecting` cases.
-- Remove previously deprecated `.legacyExponential(base, scale, maxDelay)` reconnection policy.
-- Added additional fields to fetch in `PubNub.MembershipInclude` and `PubNub.MemberInclude`.
-- Set default `AutomaticRetry` for retrying subscribe requests with exponential reconnection policy.
-- Add support for attaching additional listeners to `Subscription` and `SubscriptionSet`.
+## [6.2.1] - 2023-10-23
 
-**Fixed**
+> **Upgrade required:** This release renames the public crypto module.
 
-- Ensure that subscriptions are always internally stored as weak references.
+### Changed
 
-## 7.3.3
+- **Breaking:** Rename `CryptorModule` to `CryptoModule`. **Migration:** Replace references to `CryptorModule` with `CryptoModule`.
 
-September 13, 2024
+## [6.2.0] - 2023-10-16
 
-**Fixed**
+### Added
 
-- Added synchronized access inside `WeakSet` and for global subscriptions. Fixed the following issues reported by @cmriboldi: #186.
+- Configure SDK message and file encryption through `CryptorModule`.
 
-## 7.3.2
+### Security
 
-July 25, 2024
+- Use `AESCBCCryptor` to strengthen the default cryptographic implementation.
 
-**Fixed**
+## [6.1.0] - 2023-08-30
 
-- Add missing public initializers for `EncryptedData` and `EncryptedStreamData`. Fixed the following issues reported by @OwenHarper1: #182.
+### Added
 
-## 7.3.1
+- Set `$PubNubAsStaticFramework` in a Podfile to choose whether CocoaPods integrates `PubNubSwift` as a static framework.
 
-June 18, 2024
+## [6.0.5] - 2023-05-18
 
-**Fixed**
+### Fixed
 
-- Calling .leave request in missing cases.
+- Send the `excluded_devices` field using the uppercase format expected by the push-notification API.
 
-## 7.3.0
+## [6.0.4] - 2023-03-16
 
-June 12, 2024
+### Changed
 
-**Added**
+- Limit concurrent subscribe connections per host.
+- Send presence leave requests through the subscribe URL session, reducing presence race conditions.
 
-- Adjusting to FCM HTTP v1 API.
+## [6.0.3] - 2023-01-05
 
-## 7.2.1
+### Fixed
 
-May 9, 2024
+- Release subscription listeners after applications remove their final strong reference.
 
-**Added**
+## [6.0.2] - 2022-12-14
 
-- Adding support for visionOS.
+### Fixed
 
-**Fixed**
+- Release subscription sessions when they are no longer in use.
 
-- Updating EventEngine dependencies after adding a new listener.
+## [6.0.1] - 2022-09-05
 
-## 7.2.0
+### Fixed
 
-April 16, 2024
+- Build the example project without a missing Swift reference error.
+- Build the SDK through Carthage without schemes that reference missing targets.
 
-**Added**
+## [6.0.0] - 2022-07-05
 
-- Adding PrivacyInfo.xcprivacy.
-- Moving retry logic away from EventEngine.
+> **Upgrade required:** This release changes `PubNub` from a value type to a
+> reference type.
 
-**Modified**
+### Added
 
-- Removing SubscribeSessionFactory with SubscriptionConfiguration.
-- Making SubscriptionSession class an internal.
+- Expose VSP methods and models through modules on `PubNub`.
+- Expose `HTTPSession` for per-request network-session overrides.
 
-## 7.1.0
+### Changed
 
-March 18, 2024
+- **Breaking:** Change `PubNub` from a `struct` to a `class`. **Migration:** Review code that depends on copying `PubNub` values or value semantics.
+- Replace `[String: JSONCodableScalar]` with `FlatJSONCodable` in VSP models.
 
-**Fixed**
+## [5.1.0] - 2022-02-02
 
-- Preventing disconnection when subscribing via `PubNub` to a channel that was already subscribed to.
-- Fixes for computing a hash value in `CryptoModule`.
+### Added
 
-## 7.0.0
+- Include affected channels and channel groups in `PubNubError.affected`.
 
-February 21, 2024
+## [5.0.1] - 2022-01-19
 
-**Added**
+### Fixed
 
-- Adding the new Listeners API.
-- Enabling EventEngine by default.
+- Apply updated access tokens to active subscription sessions.
 
-## 6.3.0
+## [5.0.0] - 2022-01-12
 
-January 22, 2024
+> **Upgrade required:** Applications must now provide a UUID explicitly.
 
-**Added**
+### Changed
 
-- Introducing Subscribe & Presence EventEngine.
+- **Breaking:** Stop generating UUIDs automatically in `PubNubConfiguration`. **Migration:** Supply a UUID when creating the configuration.
 
-## 6.2.3
+## [4.1.2] - 2021-11-08
 
-November 28, 2023
+### Changed
 
-**Fixed**
+- Allow channel and UUID metadata to omit `name`.
 
-- Handle unencrypted message while getting it with CryptoModule configured.
+## [4.1.1] - 2021-11-05
 
-## 6.2.2
+### Fixed
 
-October 30, 2023
+- Apply configured request mutators to outgoing requests.
 
-**Changed**
+## [4.1.0] - 2021-09-16
 
-Changed license type to `PubNub Software Development Kit License`
+### Added
 
-## 6.2.1
+- Parse resource permissions from Access Manager tokens.
+- Attach component identifiers to requests.
 
-October 23, 2023
+### Changed
 
-**Fixed**
+- Prefer an access token over `authKey` when both are configured.
 
-Renaming `CryptorModule` with `CryptoModule`
+### Fixed
 
-## 6.2.0
+- Resize temporary file-encryption buffers when the configured stream buffer is too small.
+- Send FCM device tokens as raw data instead of hexadecimal text.
 
-October 16, 2023
-
-**Fixed**
-
-Improved security of crypto implementation by adding `AESCBCCryptor`
-
-**Added**
-
-`CryptorModule` that allows configuring SDK to encrypt and decrypt messages
-
-## 6.1.0
-
-August 30, 2023
-
-**Added**
-
-- To make client integration more flexible for different projects setup, the `$PubNubAsStaticFramework` flag has been added to `PubNubSwift.podspec`.  With `$PubNubAsStaticFramework = true` in `Podfile` SDK will be integrated as a static library. Fixed the following issues reported by @Krisztiaan: #142.
-
-## 6.0.5
-
-May 18, 2023
-
-**Fixed**
-
-- Uppercasing of the `excluded_devices` field to match the format expected by the REST API.
-
-## 6.0.4
-
-March 16, 2023
-
-**Modified**
-
-- Change the settings for subscribe `URLSession` and limit the number of concurrent connections per host.
-- Call presence leave using subscribe `URLSession` to avoid potential presence race of condition.
-
-## 6.0.3
-
-January 5, 2023
-
-**Fixed**
-
-- Fix issue because of which listener wasn't `deinit` even when reference on it has been nullified. Fixed the following issues reported by @AirBlack: #92.
-
-## 6.0.2
-
-December 14, 2022
-
-**Fixed**
-
-- Fix memory leak within Subscription Session.
-
-**Modified**
-
-- Use specific GitHub action for `.pubnub.yml` validation.
-
-## 6.0.1
-
-September 5, 2022
-
-**Fixed**
-
-- Fix issue because of which `Example` project didn't built with missing `swift` reference error. Fixed the following issues reported by @SSheldon: #113.
-- Fix issue because of which Carthage was unable to build caused by schemas without targets. Fixed the following issues reported by @SSheldon: #111 and #112.
-
-## 6.0.0
-
-July 5, 2022
-
-**Added**
-
-- VSP methods and models have been exposed via modules on the PubNub instance.
-- `FlatJSONCodable` replaces `[String: JSONCodableScalar]` inside the VSP models.
-
-**Modified**
-
-- PubNub instances has been changed from a `struct` to a `class`.
-- `HTTPSession` has been made public for easier per-request overrides of the Network Session.
-
-## 5.1.0
-
-February 2, 2022
-
-**Added**
-
-- Add affected channels and groups under `affected` resources list.
-
-## 5.0.1
-
-January 19, 2022
-
-**Fixed**
-
-- Fix issue because of which access token not updated in subscription session.
-
-## 5.0.0
-
-January 12, 2022
-
-**Modified**
-
-- BREAKING CHANGES: Disable automated `uuid` generation and make it mandatory to specify during PubNubConfiguration instance creation.
-
-## 4.1.2
-
-November 8, 2021
-
-**Fixed**
-
-- Make `name` field optional for channel and UUID metadata.
-
-## 4.1.1
-
-November 5, 2021
-
-**Fixed**
-
-- Fix issue because of which request with applied mutators not used.
-
-## 4.1.0
-
-September 16, 2021
-
-**Added**
-
-- Add ability to parse permissions from token provided by servers.
-- Make it possible to add component identifiers for requests.
-
-**Fixed**
-
-- Fix `bufferTooSmall` and make temporary buffers for files encryption / decryption adaptive in size to provided stream buffer size.
-- Don't perform HEX-encoding of `Data` with FCM token which should be used as-is.
-
-**Modified**
-
-- Use `token` instead of `authKey` (if specified) for query `auth`.
+[11.1.0]: https://github.com/pubnub/swift/compare/11.0.1...11.1.0
+[11.0.1]: https://github.com/pubnub/swift/compare/11.0.0...11.0.1
+[11.0.0]: https://github.com/pubnub/swift/compare/10.2.0...11.0.0
+[10.2.0]: https://github.com/pubnub/swift/compare/10.1.8...10.2.0
+[10.1.8]: https://github.com/pubnub/swift/compare/10.1.7...10.1.8
+[10.1.7]: https://github.com/pubnub/swift/compare/10.1.6...10.1.7
+[10.1.6]: https://github.com/pubnub/swift/compare/10.1.5...10.1.6
+[10.1.5]: https://github.com/pubnub/swift/compare/10.1.4...10.1.5
+[10.1.4]: https://github.com/pubnub/swift/compare/10.1.3...10.1.4
+[10.1.3]: https://github.com/pubnub/swift/compare/10.1.2...10.1.3
+[10.1.2]: https://github.com/pubnub/swift/compare/10.1.1...10.1.2
+[10.1.1]: https://github.com/pubnub/swift/compare/10.1.0...10.1.1
+[10.1.0]: https://github.com/pubnub/swift/compare/10.0.1...10.1.0
+[10.0.1]: https://github.com/pubnub/swift/compare/10.0.0...10.0.1
+[10.0.0]: https://github.com/pubnub/swift/compare/9.3.5...10.0.0
+[9.3.5]: https://github.com/pubnub/swift/compare/9.3.4...9.3.5
+[9.3.4]: https://github.com/pubnub/swift/compare/9.3.3...9.3.4
+[9.3.3]: https://github.com/pubnub/swift/compare/9.3.2...9.3.3
+[9.3.2]: https://github.com/pubnub/swift/compare/9.3.1...9.3.2
+[9.3.1]: https://github.com/pubnub/swift/compare/9.3.0...9.3.1
+[9.3.0]: https://github.com/pubnub/swift/compare/9.2.3...9.3.0
+[9.2.3]: https://github.com/pubnub/swift/compare/9.2.2...9.2.3
+[9.2.2]: https://github.com/pubnub/swift/compare/9.2.1...9.2.2
+[9.2.1]: https://github.com/pubnub/swift/compare/9.2.0...9.2.1
+[9.2.0]: https://github.com/pubnub/swift/compare/9.1.0...9.2.0
+[9.1.0]: https://github.com/pubnub/swift/compare/9.0.1...9.1.0
+[9.0.1]: https://github.com/pubnub/swift/compare/9.0.0...9.0.1
+[9.0.0]: https://github.com/pubnub/swift/compare/8.3.1...9.0.0
+[8.3.1]: https://github.com/pubnub/swift/compare/8.3.0...8.3.1
+[8.3.0]: https://github.com/pubnub/swift/compare/8.2.5...8.3.0
+[8.2.5]: https://github.com/pubnub/swift/compare/8.2.4...8.2.5
+[8.2.4]: https://github.com/pubnub/swift/compare/8.2.3...8.2.4
+[8.2.3]: https://github.com/pubnub/swift/compare/8.2.2...8.2.3
+[8.2.2]: https://github.com/pubnub/swift/compare/8.2.1...8.2.2
+[8.2.1]: https://github.com/pubnub/swift/compare/8.2.0...8.2.1
+[8.2.0]: https://github.com/pubnub/swift/compare/8.1.0...8.2.0
+[8.1.0]: https://github.com/pubnub/swift/compare/8.0.1...8.1.0
+[8.0.1]: https://github.com/pubnub/swift/compare/8.0.0...8.0.1
+[8.0.0]: https://github.com/pubnub/swift/compare/7.3.3...8.0.0
+[7.3.3]: https://github.com/pubnub/swift/compare/7.3.2...7.3.3
+[7.3.2]: https://github.com/pubnub/swift/compare/7.3.1...7.3.2
+[7.3.1]: https://github.com/pubnub/swift/compare/7.3.0...7.3.1
+[7.3.0]: https://github.com/pubnub/swift/compare/7.2.1...7.3.0
+[7.2.1]: https://github.com/pubnub/swift/compare/7.2.0...7.2.1
+[7.2.0]: https://github.com/pubnub/swift/compare/7.1.0...7.2.0
+[7.1.0]: https://github.com/pubnub/swift/compare/7.0.0...7.1.0
+[7.0.0]: https://github.com/pubnub/swift/compare/6.3.0...7.0.0
+[6.3.0]: https://github.com/pubnub/swift/compare/6.2.3...6.3.0
+[6.2.3]: https://github.com/pubnub/swift/compare/6.2.2...6.2.3
+[6.2.2]: https://github.com/pubnub/swift/compare/6.2.1...6.2.2
+[6.2.1]: https://github.com/pubnub/swift/compare/6.2.0...6.2.1
+[6.2.0]: https://github.com/pubnub/swift/compare/6.1.0...6.2.0
+[6.1.0]: https://github.com/pubnub/swift/compare/6.0.5...6.1.0
+[6.0.5]: https://github.com/pubnub/swift/compare/6.0.4...6.0.5
+[6.0.4]: https://github.com/pubnub/swift/compare/6.0.3...6.0.4
+[6.0.3]: https://github.com/pubnub/swift/compare/6.0.2...6.0.3
+[6.0.2]: https://github.com/pubnub/swift/compare/6.0.1...6.0.2
+[6.0.1]: https://github.com/pubnub/swift/compare/6.0.0...6.0.1
+[6.0.0]: https://github.com/pubnub/swift/compare/5.1.0...6.0.0
+[5.1.0]: https://github.com/pubnub/swift/compare/5.0.1...5.1.0
+[5.0.1]: https://github.com/pubnub/swift/compare/5.0.0...5.0.1
+[5.0.0]: https://github.com/pubnub/swift/compare/4.1.2...5.0.0
+[4.1.2]: https://github.com/pubnub/swift/compare/4.1.1...4.1.2
+[4.1.1]: https://github.com/pubnub/swift/compare/4.1.0...4.1.1
+[4.1.0]: https://github.com/pubnub/swift/compare/4.0.2...4.1.0

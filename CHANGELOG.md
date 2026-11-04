@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- Decrypt AES-GCM payloads with [`aesCbcCryptoModule(with:withRandomIV:)`](https://github.com/pubnub/swift/blob/b59243badb7d8dd60c1339ff8bbfe8d3abde10bd/Sources/PubNub/Helpers/Crypto/CryptoModule.swift#L585) and [`legacyCryptoModule(with:withRandomIV:)`](https://github.com/pubnub/swift/blob/b59243badb7d8dd60c1339ff8bbfe8d3abde10bd/Sources/PubNub/Helpers/Crypto/CryptoModule.swift#L604), improving compatibility with payloads produced by other PubNub SDKs without changing their encryption formats.
+- Decrypt AES-GCM payloads with `aesCbcCryptoModule(with:withRandomIV:)` and `legacyCryptoModule(with:withRandomIV:)`, improving compatibility with payloads produced by other PubNub SDKs without changing their encryption formats.
 
 ### Changed
 
@@ -20,14 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
-- Prevent [`signal(channel:message:customMessageType:custom:completion:)`](https://github.com/pubnub/swift/blob/b59243badb7d8dd60c1339ff8bbfe8d3abde10bd/Sources/PubNub/APIs/Publish%2BPubNub.swift#L168-L174) payloads from being encrypted when published or decrypted when received, restoring interoperability with other PubNub SDKs.
+- Prevent `signal(channel:message:customMessageType:custom:completion:)` payloads from being encrypted when published or decrypted when received, restoring interoperability with other PubNub SDKs.
 - Read and write cryptor-header metadata of 255 bytes or more, including metadata ending exactly at the end of a stream.
 - Decrypt empty data and files without rejecting the plaintext as malformed.
 - Include default and secondary cryptors when comparing, hashing, and describing `CryptoModule` values.
-
-## 11.0.1 - 2026-10-16
-
-No public SDK contract changes.
 
 ## 11.0.0 - 2026-10-12
 
@@ -44,23 +40,15 @@ No public SDK contract changes.
 
 ### Changed
 
-- **Breaking:** Use `target` instead of `entity` throughout the subscription API and remove the `Representation` suffix from subscription target types; use the corresponding `target`-based symbols.
+- **Breaking:** Rename `ChannelRepresentation`, `ChannelGroupRepresentation`, `UserMetadataRepresentation`, and `ChannelMetadataRepresentation` to `Channel`, `ChannelGroup`, `UserMetadata`, and `ChannelMetadata`.
+- **Breaking:** Rename `Subscription.entity` to `Subscription.target` and replace `entities:` labels with `targets:` in subscription APIs.
 - **Breaking:** Require `Subscription` and `SubscriptionSet` instances to be created through their `PubNub` factory methods instead of direct initialization.
-
-  ```swift
-  // Before
-  let subscription = Subscription(entity: pubnub.channel("my-channel"))
-
-  // Now
-  let subscription = pubnub.channel("my-channel").subscription()
-  ```
-
-- Emit the same `PubNubEvent` values from legacy and modern subscription listeners, including the new `dataSyncChanged` case.
-- Configure `BaseSubscriptionListener.queue` and `supressCancellationErrors` during initialization, preventing unsafe mutation on an active listener.
+- For applications using the legacy `SubscriptionListener`, emit the same `PubNubEvent` values as the modern listener API, including `dataSyncChanged(PubNubDataSyncEvent)`.
+- Make `BaseSubscriptionListener.queue` and `BaseSubscriptionListener.supressCancellationErrors` immutable after initialization.
 
 ### Deprecated
 
-- Deprecate catch-all `SubscriptionListener` callbacks in favor of registering granular callbacks for each event type the application handles.
+- Deprecate `onEvent`, `onEvents`, `didReceiveSubscription`, and `didReceiveBatchSubscription` in favor of granular callbacks such as `onMessage`, `onSignal`, and `onPresence`.
 
 ### Removed
 
@@ -76,13 +64,13 @@ No public SDK contract changes.
 
 ### Added
 
-- Configure non-alert APNs notifications with [`PubNubAPNSPayload.pushType`](https://github.com/pubnub/swift/blob/cddc5c38d44b9218c8a6ab80dcc593e91abf331e/Sources/PubNub/Models/PubNubAPNSPayload.swift#L34); when omitted, APNs continues to treat the notification as an alert.
+- Configure non-alert APNs notifications with `PubNubAPNSPayload.pushType`; when omitted, APNs continues to treat the notification as an alert.
 
 ## 10.1.8 - 2026-07-08
 
 ### Changed
 
-- Keep presence state isolated between `PubNub` instances.
+- For applications using multiple `PubNub` instances, keep each client's presence state isolated.
 
 ### Fixed
 
@@ -95,10 +83,6 @@ No public SDK contract changes.
 - Redact authentication keys and tokens from logs.
 - Default `PubNubLogger` to the `.none` log level and warn that verbose logging can expose sensitive data.
 
-## 10.1.7 - 2026-06-15
-
-No public SDK contract changes.
-
 ## 10.1.6 - 2026-05-12
 
 ### Added
@@ -108,13 +92,15 @@ No public SDK contract changes.
 
 ### Fixed
 
-- Format `SubscribeMessagePayload` and `EmitMessagesEffect` descriptions as readable multiline output.
+- Format `SubscribeMessagePayload.description` as readable multiline output.
 
 ## 10.1.5 - 2026-04-23
 
+> **Upgrade required:** This release renames the public URL query-item helper.
+
 ### Changed
 
-- Rename `URL.appending(queryItems:)` to `appendingQueryItems(_:)`, avoiding an ambiguity with the Foundation API of the same name.
+- **Breaking:** Rename `URL.appending(queryItems:)` to `URL.appendingQueryItems(_:)`, avoiding ambiguity with the Foundation API of the same name.
 
 ### Fixed
 
@@ -133,14 +119,6 @@ No public SDK contract changes.
 
 - Apply configuration changes immediately and safely to active Subscribe and Presence workflows.
 
-## 10.1.2 - 2026-01-22
-
-No public SDK contract changes.
-
-## 10.1.1 - 2025-12-11
-
-No public SDK contract changes.
-
 ## 10.1.0 - 2025-11-13
 
 > **Upgrade required:** This release removes support for Microsoft Push
@@ -150,10 +128,6 @@ No public SDK contract changes.
 
 - **Breaking:** Remove Microsoft Push Notification Service support following its end of life; applications must use APNs or FCM for mobile push notifications.
 
-## 10.0.1 - 2025-10-23
-
-No public SDK contract changes.
-
 ## 10.0.0 - 2025-10-21
 
 > **Upgrade required:** This release contains breaking changes. See the
@@ -162,24 +136,14 @@ No public SDK contract changes.
 
 ### Changed
 
-- **Breaking:** Pass a `LogMessage` and `LogMetadata` to `LogWriter` implementations, requiring custom writers to accept the structured parameters.
-
-  ```swift
-  // Before
-  func send(message: @escaping @autoclosure () -> String,
-            withType logType: LogType, withCategory category: LogCategory)
-
-  // Now
-  func send(message: @escaping @autoclosure () -> LogMessage,
-            metadata: LogMetadata)
-  ```
-
-- **Breaking:** Limit `hereNow` results to 1,000 occupants per channel; applications must paginate requests for larger channel populations.
+- **Breaking:** For custom `LogWriter` implementations, replace `send(message:withType:withCategory:)` with `send(message:metadata:)`, which receives `LogMessage` and `LogMetadata`.
+- **Breaking:** Rename `LogType` to `LogLevel` and add the `.trace` level.
+- **Breaking:** Add `limit` and `offset` to `hereNow`; results are limited to 1,000 occupants per channel, so applications must paginate larger channel populations.
 
 ### Removed
 
-- **Breaking:** Remove public logger convenience methods such as `debug` and `warning`; write log events through an attached logger.
-- **Breaking:** Remove the static `log` and `logLog` properties from `PubNub`; attach a logger when creating a `PubNub` instance.
+- **Breaking:** Remove public `PubNubLogger.debug`, `info`, `event`, `warn`, and `error` methods; applications must use their own logging API for application messages.
+- **Breaking:** Remove `PubNub.log` and `PubNub.logLog`; configure SDK logging through `PubNub.init(configuration:logger:)`.
 
 ## 9.3.5 - 2025-10-16
 
@@ -197,11 +161,7 @@ No public SDK contract changes.
 
 ### Fixed
 
-- Prevent crashes when application-performance monitoring libraries intercept URL session invalidation.
-
-## 9.3.2 - 2025-08-06
-
-No public SDK contract changes.
+- For applications using performance-monitoring libraries that intercept URL sessions, prevent crashes during session invalidation.
 
 ## 9.3.1 - 2025-07-31
 
@@ -221,14 +181,6 @@ No public SDK contract changes.
 
 - **Breaking:** Remove the `presenceOnly` parameter from `PubNub.unsubscribe(from:and:)`; pass presence channels or channel groups explicitly.
 
-## 9.2.3 - 2025-07-29
-
-No public SDK contract changes.
-
-## 9.2.2 - 2025-07-18
-
-No public SDK contract changes.
-
 ## 9.2.1 - 2025-06-20
 
 ### Fixed
@@ -239,14 +191,14 @@ No public SDK contract changes.
 
 ### Added
 
-- Encrypt a local file with [`encryptStream(from:)`](https://github.com/pubnub/swift/blob/094d029c2bf55886dbf0e292398638d7a278a39b/Sources/PubNub/Helpers/Crypto/CryptoModule.swift#L217) without manually creating an `InputStream` or calculating its content length.
+- Encrypt a local file with `encryptStream(from:)` without manually creating an `InputStream` or calculating its content length.
 
 ## 9.1.0 - 2025-05-13
 
 ### Added
 
-- Return both the encrypted stream and its content length from [`encrypt(stream:contentLength:)`](https://github.com/pubnub/swift/blob/56b8f5ee4e1d6932f7e8b4efb2b0ea76fd9ac826/Sources/PubNub/Helpers/Crypto/CryptoModule.swift#L184).
-- Decrypt local files with [`decryptStream(from:to:)`](https://github.com/pubnub/swift/blob/56b8f5ee4e1d6932f7e8b4efb2b0ea76fd9ac826/Sources/PubNub/Helpers/Crypto/CryptoModule.swift#L287) without manually creating an input stream or specifying its content length.
+- Return both the encrypted stream and its content length from `encrypt(stream:contentLength:)`.
+- Decrypt local files with `decryptStream(from:to:)` without manually creating an input stream or specifying its content length.
 
 ## 9.0.1 - 2025-03-20
 
@@ -267,13 +219,13 @@ No public SDK contract changes.
 
 ### Changed
 
-- **Breaking:** Refine the `LogWriter` protocol to support Apple's `Logger`, requiring custom writers to conform to the new signature.
+- **Breaking:** For custom `LogWriter` implementations, replace `send(message:)` with `send(message:withType:withCategory:)`.
 
 ## 8.3.1 - 2025-01-24
 
 ### Fixed
 
-- Invoke request completion handlers in scenarios where they were previously skipped.
+- Return a `PubNubError` with reason `.clientCancelled` through the request completion handler when a session is invalidated before its initialized task starts.
 
 ## 8.3.0 - 2025-01-20
 
@@ -287,24 +239,12 @@ No public SDK contract changes.
 
 - Prevent crashes caused by concurrent access to subscription state.
 
-## 8.2.4 - 2025-01-10
-
-No public SDK contract changes.
-
-## 8.2.3 - 2025-01-03
-
-No public SDK contract changes.
-
 ## 8.2.2 - 2024-12-11
 
 ### Fixed
 
 - Reduce excessive memory usage when processing high message volumes.
 - Populate `PubNubFileEvent.customMessageType` in received file events.
-
-## 8.2.1 - 2024-12-09
-
-No public SDK contract changes.
 
 ## 8.2.0 - 2024-12-04
 
@@ -324,11 +264,7 @@ No public SDK contract changes.
 
 ### Added
 
-- Support custom message types in publish, signal, file-sharing, subscribe, and history APIs.
-
-## 8.0.1 - 2024-10-17
-
-No public SDK contract changes.
+- Add `customMessageType` to publish, signal, and file-sharing requests and expose it on received `PubNubMessage` and `PubNubFileEvent` values, including history results.
 
 ## 8.0.0 - 2024-09-23
 
@@ -359,7 +295,7 @@ No public SDK contract changes.
 
 ### Fixed
 
-- Synchronize access to weak and global subscription collections, preventing inconsistent state during concurrent updates.
+- Prevent inconsistent subscription state when applications update subscriptions concurrently.
 
 ## 7.3.2 - 2024-07-25
 
@@ -387,7 +323,7 @@ No public SDK contract changes.
 
 ### Fixed
 
-- Refresh Event Engine dependencies after adding a subscription listener.
+- Ensure subscription listeners added after Event Engine initialization receive subsequent events.
 
 ## 7.2.0 - 2024-04-16
 
@@ -409,17 +345,17 @@ No public SDK contract changes.
 
 ### Added
 
-- Provide the listener-based subscription API.
+- Add `EventListener` and `StatusListener` APIs for receiving subscription events and connection-status changes.
 
 ### Changed
 
-- Enable Event Engine as the default Subscribe and Presence implementation.
+- **Breaking:** Enable Event Engine as the default Subscribe and Presence implementation.
 
 ## 6.3.0 - 2024-01-22
 
 ### Added
 
-- Introduce Event Engine implementations for Subscribe and Presence workflows.
+- Allow applications to opt into the experimental Subscribe and Presence Event Engine with `PubNubConfiguration.enableEventEngine`.
 
 ## 6.2.3 - 2023-11-28
 
@@ -445,7 +381,11 @@ No public SDK contract changes.
 
 ### Added
 
-- Configure SDK message and file encryption through `CryptorModule`.
+- Configure message and file encryption through `PubNubConfiguration.cryptorModule` using `CryptorModule`, `AESCBCCryptor`, `LegacyCryptor`, or a custom `Cryptor`.
+
+### Deprecated
+
+- Deprecate `PubNubConfiguration.cipherKey` in favor of `PubNubConfiguration.cryptorModule`.
 
 ### Security
 
@@ -470,7 +410,7 @@ No public SDK contract changes.
 - Limit concurrent subscribe connections per host.
 - Send presence leave requests through the subscribe URL session, reducing presence race conditions.
 
-## 6.0.3 - 2023-01-05
+## 6.0.3 - 2023-01-04
 
 ### Fixed
 
@@ -486,7 +426,6 @@ No public SDK contract changes.
 
 ### Fixed
 
-- Build the example project without a missing Swift reference error.
 - Build the SDK through Carthage without schemes that reference missing targets.
 
 ## 6.0.0 - 2022-07-05
@@ -496,13 +435,14 @@ No public SDK contract changes.
 
 ### Added
 
-- Expose VSP methods and models through modules on `PubNub`.
-- Expose `HTTPSession` for per-request network-session overrides.
+- Add App Context APIs for UUID metadata, channel metadata, memberships, and members, including `allUUIDMetadata`, `allChannelMetadata`, `fetchMemberships`, and `fetchMembers`.
+- Add `FlatJSONCodable` and `OptionalChange` for App Context custom fields and partial updates.
+- Expose `HTTPSession` and `HTTPSessionDelegate` for per-request network-session overrides.
 
 ### Changed
 
 - **Breaking:** Change `PubNub` from a `struct` to a `class`; applications that copy `PubNub` values can no longer rely on value semantics.
-- Replace `[String: JSONCodableScalar]` with `FlatJSONCodable` in VSP models.
+- **Breaking:** Replace `[String: JSONCodableScalar]` custom fields with `FlatJSONCodable` in App Context models.
 
 ## 5.1.0 - 2022-02-02
 
@@ -522,26 +462,26 @@ No public SDK contract changes.
 
 ### Changed
 
-- **Breaking:** Stop generating UUIDs automatically in `PubNubConfiguration`, requiring applications to supply one when creating the configuration.
+- **Breaking:** Stop generating UUIDs automatically in `PubNubConfiguration`, requiring applications to supply the `uuid` parameter when creating the configuration.
 
-## 4.1.2 - 2021-11-08
+## 4.1.2 - 2021-11-09
 
 ### Changed
 
-- Allow channel and UUID metadata to omit `name`.
+- Make `PubNubChannelMetadata.name` and `PubNubUUIDMetadata.name` optional, with a default value of `nil` in their base-model initializers.
 
 ## 4.1.1 - 2021-11-05
 
 ### Fixed
 
-- Apply configured request mutators to outgoing requests.
+- Send the mutated `URLRequest` returned by a `RequestOperator` instead of the original request.
 
-## 4.1.0 - 2021-09-16
+## 4.1.0 - 2021-09-17
 
 ### Added
 
-- Parse resource permissions from Access Manager tokens.
-- Attach component identifiers to requests.
+- Parse `PAMToken.authorizedUUID`, UUID resources, and `PAMPermission.get`, `update`, and `join` from Access Manager tokens.
+- Add component identifiers to the `pnsdk` request parameter with `PubNub.setConsumer(identifier:value:)` or `PubNubConfiguration.consumerIdentifiers`.
 
 ### Changed
 

@@ -105,13 +105,6 @@ lane :lint_swift_package_manager do
   end
 end
 
-desc "Lints Swift sources using SwiftLint"
-lane :lint_swiftlint do
-  Dir.chdir("..") do
-    Action.sh('swiftlint --strict')
-  end
-end
-
 desc "Builds SDK example applications"
 lane :build_example do
   xcodebuild(

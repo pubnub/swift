@@ -13,7 +13,6 @@ import XCTest
 
 extension XCTestCase {
   func waitForCompletion<T: Any>(
-    suppressErrorIfAny: Bool = false,
     timeout: TimeInterval = 10.0,
     file: StaticString = #file,
     line: UInt = #line,
@@ -25,10 +24,10 @@ extension XCTestCase {
 
     operation { result in
       if case .failure(let failure) = result {
-        preconditionFailure("Operation failed with error: \(failure)", file: file, line: line)
-      } else {
-        expect.fulfill()
+        XCTFail("Operation failed with error: \(failure)", file: file, line: line)
       }
+
+      expect.fulfill()
     }
 
     wait(

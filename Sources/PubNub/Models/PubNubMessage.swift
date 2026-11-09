@@ -40,7 +40,7 @@ public protocol PubNubMessage {
   var messageType: PubNubMessageType { get set }
   /// A user-provided custom message type
   var customMessageType: String? { get set }
-  /// An error (if any) occured while getting this message
+  /// An error (if any) occurred while getting this message
   var error: PubNubError? { get set }
 
   /// Allows for transcoding between different MessageEvent types

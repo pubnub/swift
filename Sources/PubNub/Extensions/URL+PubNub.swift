@@ -81,7 +81,7 @@ public extension URL {
       return lastPathComponent
     }
 
-    // pathExtension.count + 1 represents the extension and the assumed '.' seperator
+    // pathExtension.count + 1 represents the extension and the assumed '.' separator
     return String(lastPathComponent.prefix(lastPathComponent.count - (pathExtension.count + 1)))
   }
 }

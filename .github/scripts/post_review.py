@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 
-"""Posts Codex review findings (findings.json) to a pull request as one review.
+"""Posts Codex review findings (findings.json) to a pull request.
 
-Every finding must be anchored to an added, modified or deleted line. Standard
+Findings anchored to an added, modified or deleted line become inline review
+comments; ones already posted on an earlier run are skipped. The rest go to a
+single conversation comment that is edited in place on every run. Standard
 library only.
 
 Usage: post_review.py <findings.json>
 Env:   GITHUB_TOKEN, GITHUB_REPOSITORY, PR_NUMBER, HEAD_SHA
 """
+import hashlib
 import json
 import os
 import re
@@ -36,6 +39,8 @@ CATEGORIES = {
     "other": "Other",
 }
 HUNK = re.compile(r"^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@")
+SUMMARY_MARKER = "<!-- codex-review:outside-diff -->"
+NO_OUTSIDE_FINDINGS = "No findings outside the changed lines."
 MAX_TITLE_LENGTH = 80
 MAX_BODY_LENGTH = 10_000
 MAX_SUGGESTION_LENGTH = 5_000
@@ -196,18 +201,18 @@ def changed_lines(repo, pr_number):
         page += 1
 
 
-def valid_anchors(findings, diff_lines):
-    """Drops findings that are not anchored entirely to changed diff lines."""
-    valid = []
+def split_anchors(findings, diff_lines):
+    """Splits findings into those anchored entirely to changed diff lines and the rest."""
+    anchored, unanchored = [], []
     for finding in findings:
         side = finding.get("side", "right")
         start, end = finding["line"], finding.get("end_line", finding["line"])
         lines = diff_lines.get(finding["file"], {}).get(side, set())
         if all(line in lines for line in range(start, end + 1)):
-            valid.append(finding)
+            anchored.append(finding)
         else:
-            print(f"::warning::Dropping finding outside changed lines: {finding}")
-    return valid
+            unanchored.append(finding)
+    return anchored, unanchored
 
 
 def render(finding, with_suggestion=False):
@@ -219,19 +224,64 @@ def render(finding, with_suggestion=False):
     return text
 
 
-def summarize(findings, rejected=0):
-    if not findings and not rejected:
-        text = "**Automated review complete.** No findings from this review."
-    elif not findings:
-        text = "**Review incomplete.**"
-    else:
-        counts = {severity: sum(f["severity"] == severity for f in findings) for severity in SEVERITIES}
-        text = "**Codex review:** " + ", ".join(
-            f"{count} {severity}" for severity, count in counts.items() if count
-        ) + "."
+def fingerprint(finding):
+    """Returns a stable hidden marker identifying a finding across runs."""
+    key = "\0".join(
+        str(part)
+        for part in (
+            finding["file"],
+            finding.get("side", "right"),
+            finding["line"],
+            finding.get("end_line", finding["line"]),
+            finding["title"],
+        )
+    )
+    return f"<!-- codex-review:{hashlib.sha256(key.encode()).hexdigest()[:16]} -->"
+
+
+def paginate(path):
+    """Returns every item of a paginated GitHub list endpoint."""
+    items, page = [], 1
+    separator = "&" if "?" in path else "?"
+    while True:
+        batch = request("GET", f"{path}{separator}per_page=100&page={page}")
+        items.extend(batch)
+        if len(batch) < 100:
+            return items
+        page += 1
+
+
+def is_bot(comment):
+    """Only trust markers written by an Actions bot, never by a human."""
+    return (comment.get("user") or {}).get("type") == "Bot"
+
+
+def upsert_summary(repo, pr_number, comments, body):
+    """Creates or edits the single conversation comment for out-of-diff findings."""
+    existing = next((c for c in comments if is_bot(c) and SUMMARY_MARKER in c["body"]), None)
+    if not body and existing is None:
+        return
+    text = f"{SUMMARY_MARKER}\n{body or NO_OUTSIDE_FINDINGS}"
+    if existing is None:
+        request("POST", f"/repos/{repo}/issues/{pr_number}/comments", {"body": text})
+    elif existing["body"] != text:
+        request("PATCH", f"/repos/{repo}/issues/comments/{existing['id']}", {"body": text})
+
+
+def summarize(unanchored, rejected=0):
+    """Builds the summary comment, which is only for what cannot be an inline comment."""
+    parts = []
+    if unanchored:
+        parts.append("**Findings outside the changed lines:**")
+        for finding in unanchored:
+            location = f"`{finding['file']}:{finding['line']}`"
+            parts.append(f"{location}\n\n{render(finding)}")
     if rejected:
-        text += f"\n\n⚠️ {rejected} finding(s) had an invalid format and were not posted, so this review may be incomplete."
-    return text
+        parts.append(
+            f"⚠️ {rejected} finding(s) had an invalid format and were not posted, "
+            "so this review may be incomplete."
+        )
+    return "\n\n".join(parts)
 
 
 def main():
@@ -239,34 +289,41 @@ def main():
     pr_number = os.environ["PR_NUMBER"]
     findings, rejected = load_output(sys.argv[1])
     diff_lines = changed_lines(repo, pr_number)
-    anchored = valid_anchors(findings, diff_lines)
-    rejected += len(findings) - len(anchored)
-    findings = anchored
+    findings, unanchored = split_anchors(findings, diff_lines)
+
+    posted = "\n".join(
+        c["body"] for c in paginate(f"/repos/{repo}/pulls/{pr_number}/comments") if is_bot(c)
+    )
+    fresh = [finding for finding in findings if fingerprint(finding) not in posted]
+    print(f"Skipping {len(findings) - len(fresh)} finding(s) already posted.")
+
+    upsert_summary(
+        repo,
+        pr_number,
+        paginate(f"/repos/{repo}/issues/{pr_number}/comments"),
+        summarize(unanchored, rejected),
+    )
 
     comments = []
-    for finding in findings:
+    for finding in fresh:
         start, end = finding["line"], finding.get("end_line", finding["line"])
         side = "LEFT" if finding.get("side") == "left" else "RIGHT"
         comment = {
             "path": finding["file"],
             "line": end,
             "side": side,
-            "body": render(finding, side == "RIGHT"),
+            "body": f"{render(finding, side == 'RIGHT')}\n\n{fingerprint(finding)}",
         }
         if end > start:
             comment.update({"start_line": start, "start_side": side})
         comments.append(comment)
 
-    request(
-        "POST",
-        f"/repos/{repo}/pulls/{pr_number}/reviews",
-        {
-            "commit_id": os.environ["HEAD_SHA"],
-            "event": "COMMENT",
-            "body": summarize(findings, rejected),
-            "comments": comments,
-        },
-    )
+    if not comments:
+        print("No new inline findings; skipping review.")
+        return
+
+    review = {"commit_id": os.environ["HEAD_SHA"], "event": "COMMENT", "comments": comments}
+    request("POST", f"/repos/{repo}/pulls/{pr_number}/reviews", review)
     print(f"Posted review with {len(comments)} inline comment(s).")
 
 

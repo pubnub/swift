@@ -10,7 +10,7 @@ The release bot (`@pubnub-release-bot`) builds the changelog and picks the next 
 ## Rules
 
 - The title is free-form: no `type(scope):` prefix, about 60 characters, summarizing the net change against `master`.
-- The description holds one entry per user-visible change, separated by blank lines, and nothing else. Put reviewer context in a PR comment.
+- The description holds one entry per user-visible change, separated by blank lines, and nothing else. Do not add reviewer context, and do not post any PR comment.
 - Write each entry as `<type>(<scope>): <subject>`.
 - `type` is exactly one of `build`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `style`, `test`. It picks the changelog section and the bump: `feat` is minor, `fix` and `perf` are patch, the rest are not user-visible.
 - `scope` is an optional short lowercase area name (`crypto`, `subscribe`); omit the parentheses when none fits.

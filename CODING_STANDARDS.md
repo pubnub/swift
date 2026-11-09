@@ -4,13 +4,13 @@ This document is the source of truth for production Swift library code quality a
 
 ## Production Swift Library Code
 
-Apply these rules to production Swift library code:
+Apply these rules to production Swift library code. They set the target for new and changed code; existing code is migrated gradually. Do not rewrite existing code to conform unless the task is about it, and never change the behavior of a public API to satisfy a rule.
 
 - Use `struct` or `enum` unless the type needs identity, inheritance, or Objective-C interoperability. State the reason in a comment on any new `class`.
 - Use `let` unless the value is mutated after initialization.
 - Default to `internal`. Use `private` for helpers used by a single type or file. Use `public` only for API that SDK consumers call or implement. Do not widen the access level of an existing declaration without noting it in the PR description.
-- Do not use force unwraps (`!`), `try!`, `as!`, implicitly unwrapped optionals, `fatalError`, or `preconditionFailure`.
+- Do not introduce force unwraps (`!`), `try!`, `as!`, implicitly unwrapped optionals, `fatalError`, or `preconditionFailure`.
 - Do not introduce a new protocol or generic parameter unless at least two production types conform to it or use it, or a test double requires it.
 - Name types, functions, and properties so they read at the call site without a comment; follow the Swift API Design Guidelines.
-- Do not discard errors with `try?` or an empty `catch`. When converting an error into another type, keep the original as the underlying or associated error.
+- Do not introduce `try?` or an empty `catch` that discards an error the caller or user would need to know about. When converting an error into another type, keep the original as the underlying or associated error.
 - Split long or complex code to fit the limits in `.swiftlint.yml` instead of disabling a rule.

@@ -45,12 +45,9 @@ class PresenceTransition: TransitionProtocol {
   private func onEntry(to state: State) -> [EffectInvocation<Invocation>] {
     switch state {
     case is Presence.Heartbeating:
-      return [.regular(.heartbeat(
-        channels: state.channels,
-        groups: state.input.groups
-      ))]
+      return [.heartbeat(channels: state.channels, groups: state.input.groups)]
     case is Presence.HeartbeatCooldown:
-      return [.managed(.wait)]
+      return [.wait]
     default:
       return []
     }
@@ -124,11 +121,8 @@ fileprivate extension PresenceTransition {
       channels: leaving.channels,
       groups: leaving.groups
     )
-    let invocations = configuration.supressLeaveEvents ? [] : [
-      EffectInvocation.regular(Presence.Invocation.leave(
-        channels: leaving.channels,
-        groups: leaving.groups
-      ))
+    let invocations: [EffectInvocation<Invocation>] = configuration.supressLeaveEvents ? [] : [
+      .leave(channels: leaving.channels, groups: leaving.groups)
     ]
 
     if state is Presence.HeartbeatStopped {
@@ -181,17 +175,17 @@ fileprivate extension PresenceTransition {
   func heartbeatStoppedTransition(from state: State) -> TransitionResult<State, Invocation> {
     return TransitionResult(
       state: Presence.HeartbeatStopped(input: state.input),
-      invocations: [.regular(.leave(channels: state.input.channels, groups: state.input.groups))]
+      invocations: [.leave(channels: state.input.channels, groups: state.input.groups)]
     )
   }
 }
 
 fileprivate extension PresenceTransition {
   func heartbeatInactiveTransition(from state: State) -> TransitionResult<State, Invocation> {
-    let leaveInvocation = EffectInvocation.regular(Presence.Invocation.leave(
+    let leaveInvocation: EffectInvocation<Invocation> = .leave(
       channels: state.input.channels,
       groups: state.input.groups
-    ))
+    )
     return TransitionResult(
       state: Presence.HeartbeatInactive(),
       invocations: configuration.supressLeaveEvents ? []: [leaveInvocation]

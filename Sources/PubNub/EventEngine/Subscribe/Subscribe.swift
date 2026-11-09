@@ -253,3 +253,23 @@ extension Subscribe {
     }
   }
 }
+
+// MARK: - Subscribe Effect Invocation Factories
+
+extension EffectInvocation where Invocation == Subscribe.Invocation {
+  static func handshakeRequest(channels: [String], groups: [String]) -> Self {
+    .managed(.handshakeRequest(channels: channels, groups: groups))
+  }
+
+  static func receiveMessages(channels: [String], groups: [String], cursor: SubscribeCursor) -> Self {
+    .managed(.receiveMessages(channels: channels, groups: groups, cursor: cursor))
+  }
+
+  static func emitMessages(_ events: [SubscribeMessagePayload], forCursor cursor: SubscribeCursor) -> Self {
+    .managed(.emitMessages(events: events, forCursor: cursor))
+  }
+
+  static func emitStatus(from oldStatus: ConnectionStatus, to newStatus: ConnectionStatus, error: PubNubError? = nil) -> Self {
+    .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(oldStatus: oldStatus, newStatus: newStatus, error: error)))
+  }
+}

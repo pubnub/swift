@@ -156,3 +156,19 @@ extension Presence {
     }
   }
 }
+
+// MARK: - Presence Effect Invocation Factories
+
+extension EffectInvocation where Invocation == Presence.Invocation {
+  static func heartbeat(channels: [String], groups: [String]) -> Self {
+    .regular(.heartbeat(channels: channels, groups: groups))
+  }
+
+  static func leave(channels: [String], groups: [String]) -> Self {
+    .regular(.leave(channels: channels, groups: groups))
+  }
+
+  static var wait: Self {
+    .managed(.wait)
+  }
+}

@@ -117,9 +117,13 @@ def valid_findings(findings):
             and type(end_line) is int
             and line <= end_line <= MAX_LINE_NUMBER
             and end_line - line < MAX_RANGE_LENGTH
-            and side in {None, "left"}
-            and finding.get("severity") in SEVERITIES
-            and finding.get("category") in CATEGORIES
+            # Type checks come first: membership tests hash their operand and
+            # raise TypeError on lists and dicts.
+            and (side is None or side == "left")
+            and isinstance(finding.get("severity"), str)
+            and finding["severity"] in SEVERITIES
+            and isinstance(finding.get("category"), str)
+            and finding["category"] in CATEGORIES
             and valid_text(title, MAX_TITLE_LENGTH, single_line=True)
             and title.endswith(".")
             and valid_text(body, MAX_BODY_LENGTH)

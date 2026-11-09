@@ -757,8 +757,6 @@
 /* Begin PBXFileReference section */
 		DA7C5C500000000000000001 /* REVIEW.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = REVIEW.md; sourceTree = "<group>"; };
 		DA7C5C500000000000000002 /* code-review.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "code-review.yml"; sourceTree = "<group>"; };
-		DA7C5C500000000000000003 /* post_review.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = post_review.py; sourceTree = "<group>"; };
-		DA7C5C500000000000000005 /* review_thread.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = review_thread.py; sourceTree = "<group>"; };
 		01B74E96C4C209D0D810E15D /* subscription_dataSyncEntityUpdate_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = subscription_dataSyncEntityUpdate_success.json; path = Tests/PubNubUnitTests/Support/Responses/Subscribe/subscription_dataSyncEntityUpdate_success.json; sourceTree = SOURCE_ROOT; };
 		01BFE10F1FA3723DE2556979 /* DataSyncMembershipRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncMembershipRouter.swift; sourceTree = "<group>"; };
 		01F80D9221FA218C6E7D5572 /* Pods-PubNubContractTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTests.release.xcconfig"; path = "Target Support Files/Pods-PubNubContractTests/Pods-PubNubContractTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -2445,19 +2443,9 @@
 			path = workflows;
 			sourceTree = "<group>";
 		};
-		DA7C5C500000000000000004 /* scripts */ = {
-			isa = PBXGroup;
-			children = (
-				DA7C5C500000000000000003 /* post_review.py */,
-				DA7C5C500000000000000005 /* review_thread.py */,
-			);
-			path = scripts;
-			sourceTree = "<group>";
-		};
 		3D3686792F7C0A5300918788 /* .github */ = {
 			isa = PBXGroup;
 			children = (
-				DA7C5C500000000000000004 /* scripts */,
 				3D3686772F7C0A5300918788 /* workflows */,
 				3D3686782F7C0A5300918788 /* CODEOWNERS */,
 			);

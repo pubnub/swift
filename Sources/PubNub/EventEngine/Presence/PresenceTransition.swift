@@ -103,15 +103,12 @@ fileprivate extension PresenceTransition {
       channels: joining.channels,
       groups: joining.groups
     )
-    if state is Presence.HeartbeatStopped {
-      if configuration.heartbeatInterval > 0 {
-        return TransitionResult(state: Presence.HeartbeatStopped(input: newInput))
-      } else {
-        // When heartbeat interval is 0 (no recurring heartbeat loop), we still need to
-        // transition to Heartbeating state to ensure the server properly registers
-        // presence on these channels with a one-time heartbeat call
-        return TransitionResult(state: Presence.Heartbeating(input: newInput))
-      }
+    // A stopped state stays stopped while a recurring heartbeat loop is configured.
+    // When heartbeat interval is 0 (no recurring heartbeat loop), we still need to
+    // transition to Heartbeating state to ensure the server properly registers
+    // presence on these channels with a one-time heartbeat call
+    if state is Presence.HeartbeatStopped && configuration.heartbeatInterval > 0 {
+      return TransitionResult(state: Presence.HeartbeatStopped(input: newInput))
     } else {
       return TransitionResult(state: Presence.Heartbeating(input: newInput))
     }

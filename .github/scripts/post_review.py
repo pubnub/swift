@@ -2,11 +2,8 @@
 
 """Posts Codex review findings (findings.json) to a pull request as one review.
 
-Findings on lines visible in the PR diff become inline comments. The rest go
-into the review summary. Each finding gets an ID (R1, R2, ...) and the review
-summary carries a hidden ledger of every finding so far. The next run reads it
-back, so a finding is posted once, and the model can report it as fixed or
-discarded. Standard library only.
+Every finding must be anchored to an added, modified or deleted line. Standard
+library only.
 
 Usage: post_review.py <findings.json>
 Env:   GITHUB_TOKEN, GITHUB_REPOSITORY, PR_NUMBER, HEAD_SHA
@@ -15,13 +12,9 @@ import json
 import os
 import re
 import sys
-import urllib.error
-from functools import lru_cache
+import urllib.request
 
-# -I leaves the script directory off sys.path; the sibling module is needed.
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from review_thread import STATUSES, GraphQLError, fetch_state, graphql, human_signals, request  # noqa: E402
-
+API = "https://api.github.com"
 SEVERITIES = {
     "critical": "🔴 Critical",
     "high": "🟠 High",
@@ -29,15 +22,52 @@ SEVERITIES = {
     "minor": "🔵 Minor",
     "nitpick": "⚪ Nitpick",
 }
-CATEGORIES = {"correctness", "concurrency", "public-api", "performance", "security", "tests", "docs", "other"}
-FINDING_ID = re.compile(r"R[1-9]\d*")
-HUNK = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@")
-RESOLVE = "mutation($id: ID!) { resolveReviewThread(input: {threadId: $id}) { thread { id } } }"
+CATEGORIES = {
+    "correctness": "Correctness",
+    "concurrency": "Concurrency",
+    "public-api": "Public API",
+    "compatibility": "Compatibility",
+    "performance": "Performance",
+    "security": "Security",
+    "tests": "Tests",
+    "docs": "Docs",
+    "build": "Build",
+    "release": "Release",
+    "other": "Other",
+}
+HUNK = re.compile(r"^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@")
 MAX_TITLE_LENGTH = 80
 MAX_BODY_LENGTH = 10_000
-MAX_SUGGESTION_LENGTH = 50_000
+MAX_SUGGESTION_LENGTH = 5_000
+MAX_SUGGESTION_LINES = 5
 MAX_LINE_NUMBER = 10_000_000
 MAX_RANGE_LENGTH = 1_000
+FINDING_FIELDS = {
+    "file",
+    "line",
+    "side",
+    "end_line",
+    "severity",
+    "category",
+    "title",
+    "body",
+    "suggestion",
+}
+
+
+def request(method, path, body=None):
+    http_request = urllib.request.Request(
+        f"{API}{path}",
+        method=method,
+        data=json.dumps(body).encode() if body is not None else None,
+        headers={
+            "Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}",
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+        },
+    )
+    with urllib.request.urlopen(http_request) as response:
+        return json.load(response)
 
 
 def load_output(path):
@@ -51,14 +81,14 @@ def load_output(path):
         sys.exit(f"::error::Codex output is not valid JSON: {error}")
     if not isinstance(parsed, dict):
         sys.exit("::error::Codex output must be a JSON object.")
+    if set(parsed) != {"findings"}:
+        sys.exit('::error::Codex output must contain only the "findings" array.')
     findings = parsed.get("findings")
     if not isinstance(findings, list):
         # A broken run must fail, not pass as a clean review.
         sys.exit('::error::Codex output has no "findings" array.')
-    updates = parsed.get("updates", [])
-    if not isinstance(updates, list):
-        sys.exit('::error::Codex output has a malformed "updates" array.')
-    return valid_findings(findings), valid_updates(updates)
+    valid = valid_findings(findings)
+    return valid, len(findings) - len(valid)
 
 
 def valid_findings(findings):
@@ -67,26 +97,41 @@ def valid_findings(findings):
         if not isinstance(finding, dict):
             print(f"::warning::Dropping malformed finding: {finding}")
             continue
+        # The prompt says to omit these; a model that writes null means omitted.
+        for optional in ("side", "end_line", "suggestion"):
+            if finding.get(optional) is None:
+                finding.pop(optional, None)
         file = finding.get("file")
         line = finding.get("line")
         end_line = finding.get("end_line", line)
         title = finding.get("title")
         body = finding.get("body")
         suggestion = finding.get("suggestion")
+        side = finding.get("side")
+        suggestion_lines = suggestion.count("\n") + 1 if isinstance(suggestion, str) else 0
         if (
-            valid_path(file)
+            set(finding) <= FINDING_FIELDS
+            and valid_path(file)
             and type(line) is int
             and 0 < line <= MAX_LINE_NUMBER
             and type(end_line) is int
             and line <= end_line <= MAX_LINE_NUMBER
             and end_line - line < MAX_RANGE_LENGTH
+            and side in {None, "left"}
             and finding.get("severity") in SEVERITIES
             and finding.get("category") in CATEGORIES
             and valid_text(title, MAX_TITLE_LENGTH, single_line=True)
             and title.endswith(".")
             and valid_text(body, MAX_BODY_LENGTH)
-            and ("suggestion" not in finding or isinstance(suggestion, str))
-            and (suggestion is None or len(suggestion) <= MAX_SUGGESTION_LENGTH)
+            and (
+                suggestion is None
+                or (
+                    side is None
+                    and end_line - line < MAX_SUGGESTION_LINES
+                    and valid_text(suggestion, MAX_SUGGESTION_LENGTH)
+                    and suggestion_lines <= MAX_SUGGESTION_LINES
+                )
+            )
         ):
             valid.append(finding)
         else:
@@ -118,169 +163,107 @@ def valid_text(text, limit, single_line=False):
     )
 
 
-def valid_updates(updates):
-    valid = []
-    for update in updates:
-        if (
-            isinstance(update, dict)
-            and isinstance(update.get("id"), str)
-            and FINDING_ID.fullmatch(update["id"])
-            and update.get("status") in STATUSES
-        ):
-            valid.append(update)
-        else:
-            print(f"::warning::Dropping malformed update: {update}")
-    return valid
-
-
-@lru_cache(maxsize=None)
-def can_write(repo, login):
-    try:
-        permission = request("GET", f"/repos/{repo}/collaborators/{login}/permission")["permission"]
-    except urllib.error.HTTPError:
-        return False
-    return permission in {"admin", "maintain", "write"}
-
-
-def apply_updates(repo, ledger, threads, updates):
-    """Applies the model's status updates to open findings; returns threads to resolve.
-
-    Only open findings change. A discard also needs a human with write access
-    to have replied to, 👎'd or resolved the finding's thread, because the model
-    reads that thread as untrusted data and could be talked into hiding a finding.
-    """
-    to_resolve = []
-    for update in updates:
-        entry = ledger.get(update["id"])
-        if entry is None or entry["status"] != "open" or update["status"] == "open":
-            continue
-        thread = threads.get(update["id"])
-        if update["status"] == "fixed":
-            entry["status"] = "fixed"
-            if thread and not thread["isResolved"]:
-                to_resolve.append(thread["id"])
-            continue
-        decline = next((s for s in human_signals(thread) if can_write(repo, s[0])), None) if thread else None
-        if decline is None:
-            print(f"::warning::{update['id']} discarded without a human decline; keeping it open.")
-            continue
-        entry.update(status="discarded", by=f"@{decline[0]}", via=decline[1], url=decline[2])
-    return to_resolve
-
-
-def drop_repeats(findings, ledger):
-    """Drops findings that restate an open or discarded one; a fixed one may come back."""
-    known = {(e.get("file"), e.get("title", "").lower()) for e in ledger.values() if e["status"] != "fixed"}
-    fresh = []
-    for finding in findings:
-        if (finding["file"], finding["title"][:80].lower()) in known:
-            print(f"::notice::Dropping a repeat of an earlier finding: {finding['title']}")
-        else:
-            fresh.append(finding)
-    return fresh
-
-
-def commentable_lines(repo, pr_number):
-    """Maps each changed file to the set of new-side lines the diff shows."""
+def changed_lines(repo, pr_number):
+    """Maps each changed file to its added/modified and deleted line numbers."""
     result, page = {}, 1
     while True:
         files = request("GET", f"/repos/{repo}/pulls/{pr_number}/files?per_page=100&page={page}")
         for entry in files:
-            lines, current = set(), None
+            lines = {"right": set(), "left": set()}
+            old_line, new_line = None, None
             for row in entry.get("patch", "").splitlines():
                 hunk = HUNK.match(row)
                 if hunk:
-                    current = int(hunk.group(1))
-                elif current is not None and not row.startswith("-"):
-                    lines.add(current)
-                    current += 1
+                    old_line, new_line = int(hunk.group(1)), int(hunk.group(2))
+                elif old_line is None or row.startswith("\\"):
+                    continue
+                elif row.startswith("+"):
+                    lines["right"].add(new_line)
+                    new_line += 1
+                elif row.startswith("-"):
+                    lines["left"].add(old_line)
+                    old_line += 1
+                else:
+                    old_line += 1
+                    new_line += 1
             result[entry["filename"]] = lines
         if len(files) < 100:
             return result
         page += 1
 
 
+def valid_anchors(findings, diff_lines):
+    """Drops findings that are not anchored entirely to changed diff lines."""
+    valid = []
+    for finding in findings:
+        side = finding.get("side", "right")
+        start, end = finding["line"], finding.get("end_line", finding["line"])
+        lines = diff_lines.get(finding["file"], {}).get(side, set())
+        if all(line in lines for line in range(start, end + 1)):
+            valid.append(finding)
+        else:
+            print(f"::warning::Dropping finding outside changed lines: {finding}")
+    return valid
+
+
 def render(finding, with_suggestion=False):
-    text = f"{SEVERITIES[finding['severity']]} · {finding['id']}\n\n<b>{finding['title']}</b>\n\n{finding['body']}"
+    header = f"{SEVERITIES[finding['severity']]} | {CATEGORIES[finding['category']]}"
+    text = f"{header}\n\n**{finding['title']}**\n\n{finding['body']}"
     if with_suggestion and "suggestion" in finding:
         # GitHub renders this fence as a diff with a "Commit suggestion" button.
         text += f"\n\n```suggestion\n{finding['suggestion']}\n```"
-    # Keep the trusted marker last so model-controlled text cannot impersonate it.
-    return text + f"\n\n<!-- id:{finding['id']} -->"
+    return text
 
 
-def render_ledger(ledger):
-    # < and > are escaped so no title can close the HTML comment.
-    payload = json.dumps(ledger, ensure_ascii=False).replace("<", "\\u003c").replace(">", "\\u003e")
-    return f"<!-- review-ledger:v1 {payload} -->"
-
-
-def summarize(new, before, ledger):
-    """Headlines the review: what is new, what is still open and what changed."""
-    changed = {s: sum(ledger[k]["status"] == s and before[k] == "open" for k in before) for s in ("fixed", "discarded")}
-    still_open = sum(e["status"] == "open" for k, e in ledger.items() if k in before)
-    if not new and not still_open:
-        text = "**Ready to merge.** No open findings."
+def summarize(findings, rejected=0):
+    if not findings and not rejected:
+        text = "**Automated review complete.** No findings from this review."
+    elif not findings:
+        text = "**Review incomplete.**"
     else:
-        counts = {s: sum(f["severity"] == s for f in new) for s in SEVERITIES}
-        parts = []
-        if new:
-            parts.append(", ".join(f"{n} {s}" for s, n in counts.items() if n) + " new")
-        if still_open:
-            parts.append(f"{still_open} earlier still open")
-        text = "**Codex review:** " + "; ".join(parts) + "."
-    closed = [f"{n} {s}" for s, n in changed.items() if n]
-    return text + (f" Since the last review: {', '.join(closed)}." if closed else "")
+        counts = {severity: sum(f["severity"] == severity for f in findings) for severity in SEVERITIES}
+        text = "**Codex review:** " + ", ".join(
+            f"{count} {severity}" for severity, count in counts.items() if count
+        ) + "."
+    if rejected:
+        text += f"\n\n⚠️ {rejected} finding(s) had an invalid format and were not posted, so this review may be incomplete."
+    return text
 
 
 def main():
     repo = os.environ["GITHUB_REPOSITORY"]
     pr_number = os.environ["PR_NUMBER"]
-    findings, updates = load_output(sys.argv[1])
-    ledger, threads = fetch_state(repo, pr_number)
-    before = {key: entry["status"] for key, entry in ledger.items()}
+    findings, rejected = load_output(sys.argv[1])
+    diff_lines = changed_lines(repo, pr_number)
+    anchored = valid_anchors(findings, diff_lines)
+    rejected += len(findings) - len(anchored)
+    findings = anchored
 
-    to_resolve = apply_updates(repo, ledger, threads, updates)
-    new = drop_repeats(findings, ledger)
-    next_id = max((int(key[1:]) for key in ledger), default=0) + 1
-    for offset, finding in enumerate(new):
-        finding["id"] = f"R{next_id + offset}"
-        ledger[finding["id"]] = {"status": "open", "title": finding["title"][:80], "file": finding["file"]}
-
-    comments, leftover = [], []
-    if new:
-        visible = commentable_lines(repo, pr_number)
-        for finding in new:
-            start, end = finding["line"], finding.get("end_line", finding["line"])
-            visible_lines = visible.get(finding["file"], set())
-            if all(line in visible_lines for line in range(start, end + 1)):
-                comment = {"path": finding["file"], "line": end, "side": "RIGHT", "body": render(finding, True)}
-                if end > start:
-                    comment.update({"start_line": start, "start_side": "RIGHT"})
-                comments.append(comment)
-            else:
-                leftover.append(finding)
-
-    summary = summarize(new, before, ledger)
-    if leftover:
-        summary += "\n\nFindings outside the diff:\n\n" + "\n\n".join(
-            f"- `{f['file']}:{f['line']}`\n\n{render(f)}" for f in leftover
-        )
-    summary += f"\n\n{render_ledger(ledger)}"
+    comments = []
+    for finding in findings:
+        start, end = finding["line"], finding.get("end_line", finding["line"])
+        side = "LEFT" if finding.get("side") == "left" else "RIGHT"
+        comment = {
+            "path": finding["file"],
+            "line": end,
+            "side": side,
+            "body": render(finding, side == "RIGHT"),
+        }
+        if end > start:
+            comment.update({"start_line": start, "start_side": side})
+        comments.append(comment)
 
     request(
         "POST",
         f"/repos/{repo}/pulls/{pr_number}/reviews",
-        {"commit_id": os.environ["HEAD_SHA"], "event": "COMMENT", "body": summary, "comments": comments},
+        {
+            "commit_id": os.environ["HEAD_SHA"],
+            "event": "COMMENT",
+            "body": summarize(findings, rejected),
+            "comments": comments,
+        },
     )
     print(f"Posted review with {len(comments)} inline comment(s).")
-
-    # After posting, so a failed post leaves the threads open for the next run.
-    for thread_id in to_resolve:
-        try:
-            graphql(RESOLVE, {"id": thread_id})
-        except (GraphQLError, urllib.error.URLError) as error:
-            print(f"::warning::Could not resolve thread {thread_id}: {error}")
 
 
 if __name__ == "__main__":

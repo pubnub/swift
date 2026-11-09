@@ -32,6 +32,12 @@ jobs:
       id-token: write
       pull-requests: read
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
       # The model can read the workspace, so the token must not stay in the checked out repository's git config.
       - name: Checkout review action
         uses: actions/checkout@v4

@@ -123,8 +123,11 @@ Place router tests in `Tests/PubNubUnitTests/Networking/Routers/`. Build the rou
 func test_TimeRouter_WithValidConfiguration_BuildsExpectedRequest() throws {
   let router = TimeRouter(.time, configuration: TestPubNubFactory.makeConfig())
 
-  XCTAssertEqual(try router.path.get(), "/time/0")
-  XCTAssertEqual(try router.queryItems.get(), router.defaultQueryItems)
+  let path = try router.path.get()
+  let queryItems = try router.queryItems.get()
+
+  XCTAssertEqual(path, "/time/0")
+  XCTAssertEqual(queryItems, router.defaultQueryItems)
   XCTAssertNil(router.validationError)
 }
 ```

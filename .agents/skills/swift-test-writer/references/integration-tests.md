@@ -18,7 +18,8 @@ Define the externally observable service behavior before writing the test. Keep 
 ```swift
 func test_CreateChannel_WithValidPayload_ReturnsCreatedChannel() throws {
   let createChannelExpect = XCTestExpectation(description: "Channel created")
-  let client = PubNub(configuration: try dataSyncConfiguration(from: Bundle(for: DataSyncChannelEndpointIntegrationTests.self)))
+  let bundle = Bundle(for: DataSyncChannelEndpointIntegrationTests.self)
+  let client = PubNub(configuration: try dataSyncConfiguration(from: bundle))
   let channelId = randomString()
 
   defer {

@@ -74,12 +74,16 @@ CI does not catch these.
 
 ### Tests
 
+Test rules are in `.agents/skills/swift-test-writer/SKILL.md` (read its references for unit or integration tests). Enforce only the rules below; leave naming, Arrange/Act/Assert layout and other style rules to the author.
+
 - A bug fix or behavior change comes with a test that would fail without it. A miss is `major`.
 - New helpers that encode behavior need coverage; existing higher-level tests can provide it.
 - A new Router or ResponseDecoder has a router test and an endpoint test with a fixture.
-- Unit tests use `MockURLSession`, remain deterministic, cover new failure and boundary paths, assert exact error reasons, and keep mutable/reference state local rather than in `setUp()` or class-level `var` properties.
-- Async tests assert inside the real completion, fail the unexpected `Result` case and fulfill expectations last.
-- Integration tests cover only what the live service can prove and do not duplicate unit tests. They import `PubNubSDK`, not `@testable`.
+- Tests must not use `sleep`, fixed delays or wall-clock comparisons, depend on execution order, or share mutable state through class-level `var` properties or `setUp()`.
+- Failure tests assert the exact `PubNubError` reason, not only that the call failed. Async tests assert inside the real completion and fail the unexpected `Result` case.
+- Expected values are written inline, not derived from the fixture or the production result under test.
+- Production access is not widened and no test-only behavior is added to production code to enable a test.
+- Integration tests cover only what the live service can prove and do not duplicate unit tests.
 
 ### Snippets
 
@@ -91,9 +95,11 @@ CI does not catch these.
 
 ### Documentation comments
 
+DocC rules are in `.agents/skills/swift-docc-author/SKILL.md`. Enforce only the rules below; leave wording preferences to the author.
+
 - Comment claims match the code: parameter names, defaults (check public initializers), callback queue, `nil` and empty-value behavior.
-- Public DocC describes observable purpose, constraints, lifecycle and special values, not internal implementation. Put shared callback policy on the nearest common abstraction.
-- Make the first sentence useful in Quick Help. Verify symbol links. Promise ordering, retries, persistence, thread safety or delivery only when source and tests establish them.
+- Ordering, retries, persistence, thread safety or delivery are promised only when source and tests establish them.
+- Public comments describe what callers observe, not routers, locks or other internals.
 - User-facing comments, snippets and messages name no unreleased or internal feature, ticket ID or internal URL.
 - Wording and punctuation problems in shipped docs are `nitpick`.
 

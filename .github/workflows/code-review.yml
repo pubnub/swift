@@ -1,4 +1,4 @@
-name: Code Review
+name: Code Review (Codex via Bedrock)
 
 on:
   pull_request:
@@ -17,10 +17,7 @@ permissions:
 
 jobs:
   review:
-    name: Code Review (Codex)
-    # Skips fork PRs:
-    # - they get no OIDC token, so they can't assume the Bedrock role
-    # - only authors with write access can trigger model spend
+    name: Run review
     if: github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name == github.repository
     runs-on:
       group: macos-gh
@@ -32,13 +29,11 @@ jobs:
       id-token: write
       pull-requests: read
     steps:
-      - name: Checkout repository
+      - name: Checkout PR code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           persist-credentials: false
-
-      # The model can read the workspace, so the token must not stay in the checked out repository's git config.
       - name: Checkout review action
         uses: actions/checkout@v4
         with:
@@ -47,12 +42,11 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
           path: .github/.release/actions
           persist-credentials: false
-
-      - name: Set up Node
+      - name: Set up Node 24
         uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Review pull request
+      - name: Run review
         id: review
         uses: ./.github/.release/actions/actions/code-review/review
         with:
@@ -61,16 +55,12 @@ jobs:
           model: ${{ secrets.CODEX_MODEL }}
 
   post:
-    name: Post review comments
+    name: Post findings as PR review comments
     needs: review
     if: needs.review.outputs.findings != ''
     runs-on:
       group: macos-gh
     timeout-minutes: 10
-    # The only job with the write token:
-    #
-    # - it never runs a model
-    # - it only posts the validated findings
     permissions:
       contents: read
       pull-requests: write

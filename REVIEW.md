@@ -10,6 +10,10 @@ and the handling of earlier findings; this file only holds what is specific to t
 - Trace production changes from the public entry point through request construction, decoding and tests.
 - Search for related declarations, overloads, fixtures, snippets and distribution metadata outside the diff.
 
+## Writing findings
+
+Write the way a helpful teammate would in a code review: plain words, say what you noticed and why it matters, then suggest a fix. Explain, don't just assert.
+
 ## Review checklist
 
 ### Public API

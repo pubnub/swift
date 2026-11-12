@@ -2239,27 +2239,6 @@
 			path = Objects;
 			sourceTree = "<group>";
 		};
-		35EA73F622B1916800D97BF0 /* Deployment */ = {
-			isa = PBXGroup;
-			children = (
-				3DD6AB152F879C05004196D1 /* .claude */,
-				3D3686792F7C0A5300918788 /* .github */,
-				3D3686832F7C0B4200918788 /* fastlane */,
-				3DD6AB102F879B34004196D1 /* AGENTS.md */,
-				3DD6AB112F879B34004196D1 /* CLAUDE.md */,
-				3DAB88AF2FB4729A00E2982F /* CODING_STANDARDS.md */,
-				DA7C5C500000000000000001 /* REVIEW.md */,
-				OBJ_21 /* LICENSE */,
-				35DA9AAC2331674000867989 /* .swiftformat */,
-				35DA9AAB2331674000867989 /* .swiftlint.yml */,
-				359287D0232881AD0046F7A2 /* .pubnub.yml */,
-				359F778A22B7FDDB00B6B46F /* Gemfile */,
-				OBJ_6 /* Package.swift */,
-				OBJ_24 /* PubNubSwift.podspec */,
-			);
-			name = Deployment;
-			sourceTree = "<group>";
-		};
 		35EA73F722B199EA00D97BF0 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
@@ -3348,6 +3327,7 @@
 				3DD6AB152F879C05004196D1 /* .claude */,
 				3DD6AB102F879B34004196D1 /* AGENTS.md */,
 				3DAB88AF2FB4729A00E2982F /* CODING_STANDARDS.md */,
+				DA7C5C500000000000000001 /* REVIEW.md */,
 			);
 			name = "AI Tooling";
 			sourceTree = "<group>";

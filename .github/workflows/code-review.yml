@@ -57,7 +57,7 @@ jobs:
   post:
     name: Post findings as PR review comments
     needs: review
-    if: needs.review.outputs.findings != ''
+    if: needs.review.result == 'success'
     runs-on:
       group: macos-gh
     timeout-minutes: 10

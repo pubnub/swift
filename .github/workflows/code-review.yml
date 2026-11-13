@@ -20,7 +20,7 @@ jobs:
     name: Run review
     if: github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name == github.repository
     runs-on:
-      group: macos-gh
+      group: organization/Default
     timeout-minutes: 20
     outputs:
       findings: ${{ steps.review.outputs.findings }}
@@ -59,7 +59,7 @@ jobs:
     needs: review
     if: needs.review.result == 'success'
     runs-on:
-      group: macos-gh
+      group: organization/Default
     timeout-minutes: 10
     permissions:
       contents: read

@@ -31,6 +31,8 @@ extension Presence.Invocation.Cancellable: ContractTestIdentifiable {
     switch self {
     case .wait:
       return "CANCEL_WAIT"
+    case .heartbeat:
+      return "CANCEL_HEARTBEAT"
     }
   }
 }

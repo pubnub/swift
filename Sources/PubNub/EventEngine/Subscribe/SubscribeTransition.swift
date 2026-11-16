@@ -38,10 +38,7 @@ class SubscribeTransition: TransitionProtocol {
         state is Subscribe.UnsubscribedState
       )
     case .reconnect:
-      return (
-        state is Subscribe.HandshakeStoppedState || state is Subscribe.HandshakeFailedState ||
-        state is Subscribe.ReceiveFailedState || state is Subscribe.ReceiveStoppedState
-      )
+      return !(state is Subscribe.UnsubscribedState)
     }
   }
 
@@ -99,7 +96,11 @@ class SubscribeTransition: TransitionProtocol {
     case .unsubscribeAll:
       results = setUnsubscribedState(from: state)
     case let .reconnect(cursor):
-      results = setHandshakingState(from: state, cursor: cursor)
+      if state is Subscribe.ReceivingState {
+        results = restartReceivingState(from: state, cursor: cursor)
+      } else {
+        results = setHandshakingState(from: state, cursor: cursor)
+      }
     }
 
     return TransitionResult(
@@ -193,6 +194,26 @@ fileprivate extension SubscribeTransition {
       state: Subscribe.HandshakingState(
         input: state.input,
         cursor: cursor ?? state.cursor
+      )
+    )
+  }
+}
+
+fileprivate extension SubscribeTransition {
+  // Restarts the long-poll without emitting any status
+  func restartReceivingState(from state: State, cursor: SubscribeCursor?) -> TransitionResult<State, Invocation> {
+    // A timetoken passed with RECONNECT has no region, so it is merged with the region of the current cursor
+    let resolvedCursor = if let cursor {
+      SubscribeCursor(timetoken: cursor.timetoken, region: state.cursor.region)
+    } else {
+      state.cursor
+    }
+
+    return TransitionResult(
+      state: Subscribe.ReceivingState(
+        input: state.input,
+        cursor: resolvedCursor,
+        connectionStatus: state.connectionStatus
       )
     )
   }

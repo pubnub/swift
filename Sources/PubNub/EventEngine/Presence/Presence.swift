@@ -111,16 +111,21 @@ extension Presence {
 
     // swiftlint:disable:next nesting
     enum Cancellable: AnyCancellableInvocation, CustomStringConvertible {
+      case heartbeat
       case wait
 
       var id: String {
         switch self {
+        case .heartbeat:
+          return "Presence.Heartbeat"
         case .wait:
           return "Presence.ScheduleNextHeartbeat"
         }
       }
       var description: String {
         switch self {
+        case .heartbeat:
+          return "Presence.Invocation.Cancellable.Heartbeat"
         case .wait:
           return "Presence.Invocation.Cancellable.Wait"
         }
@@ -130,7 +135,7 @@ extension Presence {
     var id: String {
       switch self {
       case .heartbeat:
-        return "Presence.Heartbeat"
+        return Cancellable.heartbeat.id
       case .wait:
         return Cancellable.wait.id
       case .leave:
@@ -161,7 +166,7 @@ extension Presence {
 
 extension EffectInvocation where Invocation == Presence.Invocation {
   static func heartbeat(channels: [String], groups: [String]) -> Self {
-    .regular(.heartbeat(channels: channels, groups: groups))
+    .managed(.heartbeat(channels: channels, groups: groups))
   }
 
   static func leave(channels: [String], groups: [String]) -> Self {

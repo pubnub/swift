@@ -38,7 +38,10 @@ class PresenceTransition: TransitionProtocol {
     case .disconnect:
       return !(state is Presence.HeartbeatInactive)
     case .reconnect:
-      return state is Presence.HeartbeatStopped || state is Presence.HeartbeatFailed
+      return (
+        state is Presence.HeartbeatStopped || state is Presence.HeartbeatFailed ||
+        state is Presence.Heartbeating || state is Presence.HeartbeatCooldown
+      )
     }
   }
 
@@ -55,6 +58,8 @@ class PresenceTransition: TransitionProtocol {
 
   private func onExit(from state: State) -> [EffectInvocation<Invocation>] {
     switch state {
+    case is Presence.Heartbeating:
+      return [.cancel(.heartbeat)]
     case is Presence.HeartbeatCooldown:
       return [.cancel(.wait)]
     default:

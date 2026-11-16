@@ -896,3 +896,105 @@ private let secondMessage = SubscribeMessagePayload(
   meta: nil,
   error: nil
 )
+
+// MARK: - Reconnect (Receiving / Handshaking)
+
+extension SubscribeTransitionTests {
+  func test_Reconnect_FromHandshakeFailedStateWithStoredCursor_KeepsStoredCursor() {
+    let results = transition.transition(
+      from: Subscribe.HandshakeFailedState(
+        input: input,
+        cursor: SubscribeCursor(timetoken: 123, region: 456),
+        error: PubNubError(.unknown)
+      ),
+      event: .reconnect(cursor: nil)
+    )
+
+    XCTAssertTrue(results.state.isEqual(to: Subscribe.HandshakingState(
+      input: input,
+      cursor: SubscribeCursor(timetoken: 123, region: 456)
+    )))
+  }
+
+  func test_Reconnect_FromHandshakingState_RestartsHandshake() {
+    let results = transition.transition(
+      from: Subscribe.HandshakingState(input: input, cursor: SubscribeCursor(timetoken: 123, region: 456)),
+      event: .reconnect(cursor: nil)
+    )
+    let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
+      .cancel(.handshakeRequest),
+      .managed(
+        .handshakeRequest(
+          channels: input.channelNames(withPresence: true),
+          groups: input.channelGroupNames(withPresence: true)
+        )
+      )
+    ]
+
+    XCTAssertTrue(results.state.isEqual(to: Subscribe.HandshakingState(
+      input: input,
+      cursor: SubscribeCursor(timetoken: 123, region: 456)
+    )))
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
+  }
+
+  func test_Reconnect_FromReceivingState_RestartsReceiveFromCurrentCursorWithoutStatus() {
+    let results = transition.transition(
+      from: Subscribe.ReceivingState(
+        input: input,
+        cursor: SubscribeCursor(timetoken: 123, region: 456),
+        connectionStatus: .connected
+      ),
+      event: .reconnect(cursor: nil)
+    )
+    let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
+      .cancel(.receiveMessages),
+      .managed(
+        .receiveMessages(
+          channels: input.channelNames(withPresence: true),
+          groups: input.channelGroupNames(withPresence: true),
+          cursor: SubscribeCursor(timetoken: 123, region: 456)
+        )
+      )
+    ]
+
+    XCTAssertTrue(results.state.isEqual(to: Subscribe.ReceivingState(
+      input: input,
+      cursor: SubscribeCursor(timetoken: 123, region: 456),
+      connectionStatus: .connected
+    )))
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
+  }
+
+  func test_Reconnect_FromReceivingStateWithTimetoken_MergesTimetokenWithCurrentRegion() {
+    let results = transition.transition(
+      from: Subscribe.ReceivingState(
+        input: input,
+        cursor: SubscribeCursor(timetoken: 123, region: 456),
+        connectionStatus: .connected
+      ),
+      event: .reconnect(cursor: SubscribeCursor(timetoken: 789, region: 0))
+    )
+    let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
+      .cancel(.receiveMessages),
+      .managed(
+        .receiveMessages(
+          channels: input.channelNames(withPresence: true),
+          groups: input.channelGroupNames(withPresence: true),
+          cursor: SubscribeCursor(timetoken: 789, region: 456)
+        )
+      )
+    ]
+
+    XCTAssertTrue(results.state.isEqual(to: Subscribe.ReceivingState(
+      input: input,
+      cursor: SubscribeCursor(timetoken: 789, region: 456),
+      connectionStatus: .connected
+    )))
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
+  }
+
+  func test_Reconnect_FromUnsubscribedState_IsIgnored() {
+    XCTAssertFalse(transition.canTransition(from: Subscribe.UnsubscribedState(), dueTo: .reconnect(cursor: nil)))
+  }
+}

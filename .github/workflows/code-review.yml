@@ -1,4 +1,4 @@
-name: Code Review (Codex via Bedrock)
+name: Code Review
 
 on:
   pull_request:

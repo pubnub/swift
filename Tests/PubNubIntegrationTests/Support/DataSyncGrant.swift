@@ -54,8 +54,8 @@ extension DataSyncGrant {
     meta: [
       "pn-projections": [
         "pat": [
-          "^datasync:entities:\(Constants.prefix).*": "admin",
-          "^datasync:relationships:\(Constants.prefix).*": "admin"
+          "datasync:entities:^\(Constants.prefix).*": "admin",
+          "datasync:relationships:^\(Constants.prefix).*": "admin"
         ]
       ]
     ]

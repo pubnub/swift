@@ -32,8 +32,8 @@ struct DataSyncGrant {
 // MARK: - Suite grants
 
 extension DataSyncGrant {
-  private static let testPattern = "^\(Constants.prefix).*$"
-  private static let projectionChannelPattern = "^__admin__\(Constants.prefix).*$"
+  private static let testPattern = "^\(Constants.prefix).*"
+  private static let projectionChannelPattern = "^__admin__\(Constants.prefix).*"
   private static let crud: PAMPermission = [.get, .create, .update, .delete]
 
   /// Authorizes the DataSync User, Channel, and Membership integration test suites.
@@ -54,8 +54,8 @@ extension DataSyncGrant {
     meta: [
       "pn-projections": [
         "pat": [
-          "datasync:entities:\(Constants.prefix).*": "admin",
-          "datasync:relationships:\(Constants.prefix).*": "admin"
+          "^datasync:entities:\(Constants.prefix).*": "admin",
+          "^datasync:relationships:\(Constants.prefix).*": "admin"
         ]
       ]
     ]

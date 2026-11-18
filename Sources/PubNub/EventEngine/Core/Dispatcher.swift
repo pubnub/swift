@@ -77,9 +77,12 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Di
     storageId id: String,
     notify listener: DispatcherListener<Event>
   ) {
+    let token = UUID()
+
     effectsCache.put(
       effect: effect,
-      with: id
+      with: id,
+      token: token
     )
     logger.trace(
       .customObject(
@@ -92,7 +95,9 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Di
       category: .eventEngine
     )
     effect.performTask { [weak effectsCache] results in
-      effectsCache?.removeEffect(id: id)
+      guard effectsCache?.removeEffect(id: id, ifToken: token) == true else {
+        return
+      }
       listener.onAnyInvocationCompleted(results)
     }
   }
@@ -107,8 +112,8 @@ private class EffectsCache<Event> {
     managedEffects.lockedRead { $0[id] } != nil
   }
 
-  func put(effect: some EffectHandler<Event>, with id: String) {
-    managedEffects.lockedWrite { $0[id] = EffectWrapper<Event>(id: id, effect: effect) }
+  func put(effect: some EffectHandler<Event>, with id: String, token: UUID) {
+    managedEffects.lockedWrite { $0[id] = EffectWrapper<Event>(id: id, token: token, effect: effect) }
   }
 
   func getEffect(with id: String) -> (any EffectHandler<Event>)? {
@@ -118,11 +123,24 @@ private class EffectsCache<Event> {
   func removeEffect(id: String) {
     managedEffects.lockedWrite { $0[id] = nil }
   }
+
+  func removeEffect(id: String, ifToken token: UUID) -> Bool {
+    managedEffects.lockedWrite {
+      guard $0[id]?.token == token else {
+        return false
+      }
+
+      $0[id] = nil
+
+      return true
+    }
+  }
 }
 
 // MARK: - EffectWrapper
 
 private struct EffectWrapper<Action> {
   let id: String
+  let token: UUID
   let effect: any EffectHandler<Action>
 }

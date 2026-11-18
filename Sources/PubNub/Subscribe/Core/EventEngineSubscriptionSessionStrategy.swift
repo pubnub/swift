@@ -174,6 +174,7 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
 
   func reconnect(at cursor: SubscribeCursor?) {
     sendSubscribeEvent(event: .reconnect(cursor: cursor))
+    sendPresenceEvent(event: .reconnect)
   }
 
   func disconnect() {

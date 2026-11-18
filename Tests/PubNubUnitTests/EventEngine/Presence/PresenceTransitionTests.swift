@@ -563,7 +563,10 @@ class PresenceTransitionTests: XCTestCase {
   }
 
   func test_Reconnect_FromHeartbeatCooldownState_CancelsWaitAndSendsHeartbeat() {
-    let input = PresenceInput(channels: ["c1", "c2"], groups: ["g1", "g2"])
+    let input = PresenceInput(
+      channels: ["c1", "c2"],
+      groups: ["g1", "g2"]
+    )
 
     let results = transition.transition(
       from: Presence.HeartbeatCooldown(input: input),
@@ -575,6 +578,13 @@ class PresenceTransitionTests: XCTestCase {
       .cancel(.wait),
       .managed(.heartbeat(channels: ["c1", "c2"], groups: ["g1", "g2"]))
     ]))
+  }
+
+  func test_Reconnect_FromHeartbeatingAndCooldownStates_IsAccepted() {
+    let input = PresenceInput(channels: ["c1", "c2"], groups: ["g1", "g2"])
+
+    XCTAssertTrue(transition.canTransition(from: Presence.Heartbeating(input: input), dueTo: .reconnect))
+    XCTAssertTrue(transition.canTransition(from: Presence.HeartbeatCooldown(input: input), dueTo: .reconnect))
   }
 
   func test_Reconnect_FromHeartbeatInactiveState_IsIgnored() {

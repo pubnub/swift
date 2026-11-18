@@ -8,6 +8,8 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
+// swiftlint:disable file_length
+
 import XCTest
 
 @testable import PubNubSDK
@@ -992,6 +994,23 @@ extension SubscribeTransitionTests {
       connectionStatus: .connected
     )))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
+  }
+
+  func test_Reconnect_FromHandshakingAndReceivingStates_IsAccepted() {
+    let cursor = SubscribeCursor(timetoken: 123, region: 456)
+
+    XCTAssertTrue(transition.canTransition(
+      from: Subscribe.HandshakeFailedState(input: input, cursor: cursor, error: PubNubError(.unknown)),
+      dueTo: .reconnect(cursor: nil)
+    ))
+    XCTAssertTrue(transition.canTransition(
+      from: Subscribe.HandshakingState(input: input, cursor: cursor),
+      dueTo: .reconnect(cursor: nil)
+    ))
+    XCTAssertTrue(transition.canTransition(
+      from: Subscribe.ReceivingState(input: input, cursor: cursor, connectionStatus: .connected),
+      dueTo: .reconnect(cursor: nil)
+    ))
   }
 
   func test_Reconnect_FromUnsubscribedState_IsIgnored() {

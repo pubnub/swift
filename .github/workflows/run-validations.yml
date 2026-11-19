@@ -112,9 +112,18 @@ jobs:
       - name: Cancel workflow runs for commit on error
         if: failure()
         uses: ./.github/.release/actions/actions/utils/fast-jobs-failure
+  swiftlint:
+    name: SwiftLint
+    runs-on:
+      group: macos-gh
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run SwiftLint
+        run: swiftlint lint --strict --quiet
   all-validations:
     name: Validations
-    needs: [pubnub-yml, package-managers-validation, demo-app-validation]
+    needs: [pubnub-yml, swiftlint, package-managers-validation, demo-app-validation]
     runs-on:
       group: organization/Default
     steps:

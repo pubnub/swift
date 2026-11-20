@@ -172,6 +172,59 @@ class DispatcherTests: XCTestCase {
 
     wait(for: [notifiedExpectation], timeout: 0.2)
   }
+
+  func test_Dispatcher_CancelInvocation_CancelsPendingEffect() throws {
+    let factory = MockDeferredEffectHandlerFactory()
+    let dispatcher = EffectDispatcher(factory: factory, logger: PubNubLogger.defaultLogger())
+    let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { _ in })
+
+    dispatcher.dispatch(
+      invocations: [.managed(.first), .cancel(.firstCancellable)],
+      with: EventEngineDependencies(value: Void()),
+      notify: listener
+    )
+
+    let effect = try XCTUnwrap(factory.effects.first)
+
+    XCTAssertEqual(effect.cancelCount, 1)
+    XCTAssertFalse(dispatcher.hasPendingInvocation(.first))
+  }
+
+  func test_Dispatcher_ReplacingManagedEffect_CancelsOnlyTheReplacedEffect() throws {
+    let factory = MockDeferredEffectHandlerFactory()
+    let dispatcher = EffectDispatcher(factory: factory, logger: PubNubLogger.defaultLogger())
+    let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { _ in })
+
+    dispatcher.dispatch(
+      invocations: [.managed(.first), .cancel(.firstCancellable), .managed(.first)],
+      with: EventEngineDependencies(value: Void()),
+      notify: listener
+    )
+
+    let staleEffect = try XCTUnwrap(factory.effects.first)
+    let replacementEffect = try XCTUnwrap(factory.effects.last)
+
+    XCTAssertEqual(staleEffect.cancelCount, 1)
+    XCTAssertEqual(replacementEffect.cancelCount, 0)
+    XCTAssertTrue(dispatcher.hasPendingInvocation(.first))
+  }
+
+  func test_Dispatcher_CancelInvocationForUnknownId_DoesNotCancelOtherEffects() throws {
+    let factory = MockDeferredEffectHandlerFactory()
+    let dispatcher = EffectDispatcher(factory: factory, logger: PubNubLogger.defaultLogger())
+    let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { _ in })
+
+    dispatcher.dispatch(
+      invocations: [.managed(.first), .cancel(.secondCancellable)],
+      with: EventEngineDependencies(value: Void()),
+      notify: listener
+    )
+
+    let effect = try XCTUnwrap(factory.effects.first)
+
+    XCTAssertEqual(effect.cancelCount, 0)
+    XCTAssertTrue(dispatcher.hasPendingInvocation(.first))
+  }
 }
 
 private enum TestEvent: Equatable {
@@ -260,9 +313,14 @@ private class MockDeferredEffectHandlerFactory: EffectHandlerFactory {
 
 private class MockDeferredEffectHandler: EffectHandler {
   private var completionBlock: (([TestEvent]) -> Void)?
+  private(set) var cancelCount = 0
 
   func performTask(completionBlock: @escaping ([TestEvent]) -> Void) {
     self.completionBlock = completionBlock
+  }
+
+  func cancelTask() {
+    cancelCount += 1
   }
 
   func complete(with events: [TestEvent]) {

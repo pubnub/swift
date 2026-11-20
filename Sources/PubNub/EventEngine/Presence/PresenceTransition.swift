@@ -38,19 +38,19 @@ class PresenceTransition: TransitionProtocol {
     case .disconnect:
       return !(state is Presence.HeartbeatInactive)
     case .reconnect:
-      return state is Presence.HeartbeatStopped || state is Presence.HeartbeatFailed
+      return (
+        state is Presence.HeartbeatStopped || state is Presence.HeartbeatFailed ||
+        state is Presence.Heartbeating || state is Presence.HeartbeatCooldown
+      )
     }
   }
 
   private func onEntry(to state: State) -> [EffectInvocation<Invocation>] {
     switch state {
     case is Presence.Heartbeating:
-      return [.regular(.heartbeat(
-        channels: state.channels,
-        groups: state.input.groups
-      ))]
+      return [.heartbeat(channels: state.channels, groups: state.input.groups)]
     case is Presence.HeartbeatCooldown:
-      return [.managed(.wait)]
+      return [.wait]
     default:
       return []
     }
@@ -58,6 +58,8 @@ class PresenceTransition: TransitionProtocol {
 
   private func onExit(from state: State) -> [EffectInvocation<Invocation>] {
     switch state {
+    case is Presence.Heartbeating:
+      return [.cancel(.heartbeat)]
     case is Presence.HeartbeatCooldown:
       return [.cancel(.wait)]
     default:
@@ -103,15 +105,12 @@ fileprivate extension PresenceTransition {
       channels: joining.channels,
       groups: joining.groups
     )
-    if state is Presence.HeartbeatStopped {
-      if configuration.heartbeatInterval > 0 {
-        return TransitionResult(state: Presence.HeartbeatStopped(input: newInput))
-      } else {
-        // When heartbeat interval is 0 (no recurring heartbeat loop), we still need to
-        // transition to Heartbeating state to ensure the server properly registers
-        // presence on these channels with a one-time heartbeat call
-        return TransitionResult(state: Presence.Heartbeating(input: newInput))
-      }
+    // A stopped state stays stopped while a recurring heartbeat loop is configured.
+    // When heartbeat interval is 0 (no recurring heartbeat loop), we still need to
+    // transition to Heartbeating state to ensure the server properly registers
+    // presence on these channels with a one-time heartbeat call
+    if state is Presence.HeartbeatStopped && configuration.heartbeatInterval > 0 {
+      return TransitionResult(state: Presence.HeartbeatStopped(input: newInput))
     } else {
       return TransitionResult(state: Presence.Heartbeating(input: newInput))
     }
@@ -127,11 +126,8 @@ fileprivate extension PresenceTransition {
       channels: leaving.channels,
       groups: leaving.groups
     )
-    let invocations = configuration.supressLeaveEvents ? [] : [
-      EffectInvocation.regular(Presence.Invocation.leave(
-        channels: leaving.channels,
-        groups: leaving.groups
-      ))
+    let invocations: [EffectInvocation<Invocation>] = configuration.supressLeaveEvents ? [] : [
+      .leave(channels: leaving.channels, groups: leaving.groups)
     ]
 
     if state is Presence.HeartbeatStopped {
@@ -184,17 +180,17 @@ fileprivate extension PresenceTransition {
   func heartbeatStoppedTransition(from state: State) -> TransitionResult<State, Invocation> {
     return TransitionResult(
       state: Presence.HeartbeatStopped(input: state.input),
-      invocations: [.regular(.leave(channels: state.input.channels, groups: state.input.groups))]
+      invocations: [.leave(channels: state.input.channels, groups: state.input.groups)]
     )
   }
 }
 
 fileprivate extension PresenceTransition {
   func heartbeatInactiveTransition(from state: State) -> TransitionResult<State, Invocation> {
-    let leaveInvocation = EffectInvocation.regular(Presence.Invocation.leave(
+    let leaveInvocation: EffectInvocation<Invocation> = .leave(
       channels: state.input.channels,
       groups: state.input.groups
-    ))
+    )
     return TransitionResult(
       state: Presence.HeartbeatInactive(),
       invocations: configuration.supressLeaveEvents ? []: [leaveInvocation]

@@ -106,9 +106,128 @@ class DispatcherTests: XCTestCase {
     XCTAssertFalse(dispatcher.hasPendingInvocation(.third))
     XCTAssertFalse(dispatcher.hasPendingInvocation(.fourth))
   }
+
+  func test_Dispatcher_StaleCompletionAfterReplacement_KeepsReplacementPendingAndDoesNotNotifyListener() throws {
+    let staleNotifiedExpectation = XCTestExpectation(description: "Stale completion notified")
+    staleNotifiedExpectation.isInverted = true
+
+    let factory = MockDeferredEffectHandlerFactory()
+    let dispatcher = EffectDispatcher(factory: factory, logger: PubNubLogger.defaultLogger())
+    let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { _ in
+      staleNotifiedExpectation.fulfill()
+    })
+
+    dispatcher.dispatch(
+      invocations: [.managed(.first), .cancel(.firstCancellable), .managed(.first)],
+      with: EventEngineDependencies(value: Void()),
+      notify: listener
+    )
+    let staleEffect = try XCTUnwrap(factory.effects.first)
+    staleEffect.complete(with: [.event1])
+
+    wait(for: [staleNotifiedExpectation], timeout: 0.2)
+    XCTAssertTrue(dispatcher.hasPendingInvocation(.first))
+  }
+
+  func test_Dispatcher_CompletionOfReplacementEffect_NotifiesListenerAndRemovesEffect() throws {
+    let notifiedExpectation = XCTestExpectation(description: "Replacement completion notified")
+    notifiedExpectation.assertForOverFulfill = true
+
+    let factory = MockDeferredEffectHandlerFactory()
+    let dispatcher = EffectDispatcher(factory: factory, logger: PubNubLogger.defaultLogger())
+    let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { events in
+      XCTAssertEqual(events, [.event2])
+      notifiedExpectation.fulfill()
+    })
+
+    dispatcher.dispatch(
+      invocations: [.managed(.first), .cancel(.firstCancellable), .managed(.first)],
+      with: EventEngineDependencies(value: Void()),
+      notify: listener
+    )
+    let replacementEffect = try XCTUnwrap(factory.effects.last)
+    replacementEffect.complete(with: [.event2])
+
+    wait(for: [notifiedExpectation], timeout: 1.0)
+    XCTAssertFalse(dispatcher.hasPendingInvocation(.first))
+  }
+
+  func test_Dispatcher_CompletionAfterCancellation_DoesNotNotifyListener() throws {
+    let notifiedExpectation = XCTestExpectation(description: "Cancelled completion notified")
+    notifiedExpectation.isInverted = true
+
+    let factory = MockDeferredEffectHandlerFactory()
+    let dispatcher = EffectDispatcher(factory: factory, logger: PubNubLogger.defaultLogger())
+    let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { _ in
+      notifiedExpectation.fulfill()
+    })
+
+    dispatcher.dispatch(
+      invocations: [.managed(.first), .cancel(.firstCancellable)],
+      with: EventEngineDependencies(value: Void()),
+      notify: listener
+    )
+    let cancelledEffect = try XCTUnwrap(factory.effects.first)
+    cancelledEffect.complete(with: [.event1])
+
+    wait(for: [notifiedExpectation], timeout: 0.2)
+  }
+
+  func test_Dispatcher_CancelInvocation_CancelsPendingEffect() throws {
+    let factory = MockDeferredEffectHandlerFactory()
+    let dispatcher = EffectDispatcher(factory: factory, logger: PubNubLogger.defaultLogger())
+    let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { _ in })
+
+    dispatcher.dispatch(
+      invocations: [.managed(.first), .cancel(.firstCancellable)],
+      with: EventEngineDependencies(value: Void()),
+      notify: listener
+    )
+
+    let effect = try XCTUnwrap(factory.effects.first)
+
+    XCTAssertEqual(effect.cancelCount, 1)
+    XCTAssertFalse(dispatcher.hasPendingInvocation(.first))
+  }
+
+  func test_Dispatcher_ReplacingManagedEffect_CancelsOnlyTheReplacedEffect() throws {
+    let factory = MockDeferredEffectHandlerFactory()
+    let dispatcher = EffectDispatcher(factory: factory, logger: PubNubLogger.defaultLogger())
+    let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { _ in })
+
+    dispatcher.dispatch(
+      invocations: [.managed(.first), .cancel(.firstCancellable), .managed(.first)],
+      with: EventEngineDependencies(value: Void()),
+      notify: listener
+    )
+
+    let staleEffect = try XCTUnwrap(factory.effects.first)
+    let replacementEffect = try XCTUnwrap(factory.effects.last)
+
+    XCTAssertEqual(staleEffect.cancelCount, 1)
+    XCTAssertEqual(replacementEffect.cancelCount, 0)
+    XCTAssertTrue(dispatcher.hasPendingInvocation(.first))
+  }
+
+  func test_Dispatcher_CancelInvocationForUnknownId_DoesNotCancelOtherEffects() throws {
+    let factory = MockDeferredEffectHandlerFactory()
+    let dispatcher = EffectDispatcher(factory: factory, logger: PubNubLogger.defaultLogger())
+    let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { _ in })
+
+    dispatcher.dispatch(
+      invocations: [.managed(.first), .cancel(.secondCancellable)],
+      with: EventEngineDependencies(value: Void()),
+      notify: listener
+    )
+
+    let effect = try XCTUnwrap(factory.effects.first)
+
+    XCTAssertEqual(effect.cancelCount, 0)
+    XCTAssertTrue(dispatcher.hasPendingInvocation(.first))
+  }
 }
 
-private enum TestEvent {
+private enum TestEvent: Equatable {
   case event1
   case event2
   case event3
@@ -176,5 +295,35 @@ private class StubEffectHandlerFactory: EffectHandlerFactory {
 private class StubEffectHandler: EffectHandler {
   func performTask(completionBlock: @escaping ([TestEvent]) -> Void) {
     completionBlock([.event1, .event3])
+  }
+}
+
+private class MockDeferredEffectHandlerFactory: EffectHandlerFactory {
+  private(set) var effects: [MockDeferredEffectHandler] = []
+
+  func effect(
+    for invocation: TestInvocation,
+    with dependencies: EventEngineDependencies<Void>
+  ) -> any EffectHandler<TestEvent> {
+    let effect = MockDeferredEffectHandler()
+    effects.append(effect)
+    return effect
+  }
+}
+
+private class MockDeferredEffectHandler: EffectHandler {
+  private var completionBlock: (([TestEvent]) -> Void)?
+  private(set) var cancelCount = 0
+
+  func performTask(completionBlock: @escaping ([TestEvent]) -> Void) {
+    self.completionBlock = completionBlock
+  }
+
+  func cancelTask() {
+    cancelCount += 1
+  }
+
+  func complete(with events: [TestEvent]) {
+    completionBlock?(events)
   }
 }

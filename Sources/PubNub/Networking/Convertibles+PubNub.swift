@@ -16,7 +16,7 @@ public protocol URLConvertible {
   var asURL: Result<URL, Error> { get }
 }
 
-/// An `Error` that occured when generating an `URL` from an `URLConvertible`
+/// An `Error` that occurred when generating an `URL` from an `URLConvertible`
 public enum URLConvertibleError: Error {
   case urlComponents
 }

@@ -13,7 +13,7 @@ import Foundation
 // MARK: - DispatcherListener
 
 struct DispatcherListener<Event> {
-  let onAnyInvocationCompleted: (([Event]) -> Void)
+  let onEffectCompleted: (_ results: [Event], _ isCurrent: () -> Bool) -> Void
 }
 
 // MARK: - Dispatcher
@@ -95,10 +95,9 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Di
       category: .eventEngine
     )
     effect.performTask { [weak effectsCache] results in
-      guard effectsCache?.removeEffect(id: id, ifToken: token) == true else {
-        return
+      listener.onEffectCompleted(results) {
+        effectsCache?.removeEffect(id: id, ifToken: token) == true
       }
-      listener.onAnyInvocationCompleted(results)
     }
   }
 }

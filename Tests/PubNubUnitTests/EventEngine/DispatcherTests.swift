@@ -12,6 +12,18 @@ import XCTest
 
 @testable import PubNubSDK
 
+extension DispatcherListener {
+  /// Test convenience that mimics the engine: events are delivered only if the effect is still current.
+  /// It does not take any lock, since tests using it have no concurrent transitions.
+  init(onAnyInvocationCompleted handler: @escaping ([Event]) -> Void) {
+    self.init(onEffectCompleted: { results, isCurrent in
+      if isCurrent() {
+        handler(results)
+      }
+    })
+  }
+}
+
 class DispatcherTests: XCTestCase {
   func testDispatcher_FinishingAnyInvocationNotifiesListener() {
     let onResultReceivedExpectation = XCTestExpectation(description: "onResultReceived")
@@ -126,6 +138,31 @@ class DispatcherTests: XCTestCase {
     staleEffect.complete(with: [.event1])
 
     wait(for: [staleNotifiedExpectation], timeout: 0.2)
+    XCTAssertTrue(dispatcher.hasPendingInvocation(.first))
+  }
+
+  func test_Dispatcher_ReplacementDispatchedBetweenCompletionAndClaim_DropsStaleEvents() throws {
+    let factory = MockDeferredEffectHandlerFactory()
+    let dispatcher = EffectDispatcher(factory: factory, logger: PubNubLogger.defaultLogger())
+    let dependencies = EventEngineDependencies(value: Void())
+    var deliveredEvents: [TestEvent] = []
+
+    let listener = DispatcherListener<TestEvent>(onEffectCompleted: { results, isCurrent in
+      dispatcher.dispatch(
+        invocations: [.managed(.first)],
+        with: dependencies,
+        notify: DispatcherListener<TestEvent>(onAnyInvocationCompleted: { _ in })
+      )
+      if isCurrent() {
+        deliveredEvents += results
+      }
+    })
+
+    dispatcher.dispatch(invocations: [.managed(.first)], with: dependencies, notify: listener)
+    let staleEffect = try XCTUnwrap(factory.effects.first)
+    staleEffect.complete(with: [.event1])
+
+    XCTAssertTrue(deliveredEvents.isEmpty)
     XCTAssertTrue(dispatcher.hasPendingInvocation(.first))
   }
 

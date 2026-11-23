@@ -145,7 +145,7 @@ private struct StubDispatcher: Dispatcher {
       case .managed:
         // Simulates that a hypothethical Effect returns an event back to EventEngine.
         // The result of processing this event might be the new State, see implementation for Transition function
-        listener.onAnyInvocationCompleted([.event3])
+        listener.onEffectCompleted([.event3]) { true }
       default:
         fatalError("Unexpected test condition")
       }

@@ -366,8 +366,13 @@ public extension PubNub {
     subscription.disconnect()
   }
 
-  /// Reconnets to a stopped subscription with the previous subscribed channels and channel groups
-  /// - Parameter at: The timetoken value used to reconnect or nil to use the previous stored value
+  /// Resumes or restarts subscriptions to the current channels and channel groups.
+  ///
+  /// When the event engine is enabled, reconnecting restarts an active subscription request.
+  /// Restarting a request that is receiving events does not itself emit a connection status event.
+  /// Reconnecting also sends a presence heartbeat if presence is active.
+  ///
+  /// - Parameter at: The timetoken from which to receive events.
   func reconnect(at timetoken: Timetoken? = nil) {
     logger.debug(
       .customObject(

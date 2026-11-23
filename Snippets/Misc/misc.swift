@@ -57,7 +57,7 @@ pubnub.disconnect()
 // snippet.end
 
 // snippet.pubnub-reconnect
-// Reconnets to a stopped subscription with the previous subscribed channels and channel groups
+// Resumes or restarts subscriptions to the current channels and channel groups
 pubnub.reconnect()
 // snippet.end
 

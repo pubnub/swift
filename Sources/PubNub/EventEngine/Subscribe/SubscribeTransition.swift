@@ -38,10 +38,7 @@ class SubscribeTransition: TransitionProtocol {
         state is Subscribe.UnsubscribedState
       )
     case .reconnect:
-      return (
-        state is Subscribe.HandshakeStoppedState || state is Subscribe.HandshakeFailedState ||
-        state is Subscribe.ReceiveFailedState || state is Subscribe.ReceiveStoppedState
-      )
+      return !(state is Subscribe.UnsubscribedState)
     }
   }
 
@@ -60,21 +57,17 @@ class SubscribeTransition: TransitionProtocol {
     switch state {
     case let state as Subscribe.HandshakingState:
       return [
-        .managed(
-          .handshakeRequest(
-            channels: state.input.channelNames(withPresence: true),
-            groups: state.input.channelGroupNames(withPresence: true)
-          )
+        .handshakeRequest(
+          channels: state.input.channelNames(withPresence: true),
+          groups: state.input.channelGroupNames(withPresence: true)
         )
       ]
     case let state as Subscribe.ReceivingState:
       return [
-        .managed(
-          .receiveMessages(
-            channels: state.input.channelNames(withPresence: true),
-            groups: state.input.channelGroupNames(withPresence: true),
-            cursor: state.cursor
-          )
+        .receiveMessages(
+          channels: state.input.channelNames(withPresence: true),
+          groups: state.input.channelGroupNames(withPresence: true),
+          cursor: state.cursor
         )
       ]
     default:
@@ -103,7 +96,11 @@ class SubscribeTransition: TransitionProtocol {
     case .unsubscribeAll:
       results = setUnsubscribedState(from: state)
     case let .reconnect(cursor):
-      results = setHandshakingState(from: state, cursor: cursor)
+      if state is Subscribe.ReceivingState {
+        results = restartReceivingState(from: state, cursor: cursor)
+      } else {
+        results = setHandshakingState(from: state, cursor: cursor)
+      }
     }
 
     return TransitionResult(
@@ -142,32 +139,21 @@ fileprivate extension SubscribeTransition {
       return setUnsubscribedState(from: state)
     }
 
-    let invocations: [EffectInvocation<Invocation>] = state is Subscribe.ReceivingState ? [
-      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: state.connectionStatus,
-        newStatus: .subscriptionChanged(
-          channels: newInput.channelNames(withPresence: true),
-          groups: newInput.channelGroupNames(withPresence: true)
-        ),
-        error: nil
-      )))
-    ] : []
-
     switch state {
     case is Subscribe.HandshakingState:
       return TransitionResult(
         state: Subscribe.HandshakingState(input: newInput, cursor: cursor),
-        invocations: invocations
+        invocations: []
       )
     case is Subscribe.HandshakeStoppedState:
       return TransitionResult(
         state: Subscribe.HandshakeStoppedState(input: newInput, cursor: cursor),
-        invocations: invocations
+        invocations: []
       )
     case is Subscribe.HandshakeFailedState:
       return TransitionResult(
         state: Subscribe.HandshakingState(input: newInput, cursor: cursor),
-        invocations: invocations
+        invocations: []
       )
     case is Subscribe.ReceivingState:
       let newStatus: ConnectionStatus = .subscriptionChanged(
@@ -176,27 +162,27 @@ fileprivate extension SubscribeTransition {
       )
       return TransitionResult(
         state: Subscribe.ReceivingState(input: newInput, cursor: cursor, connectionStatus: newStatus),
-        invocations: invocations
+        invocations: [.emitStatus(from: state.connectionStatus, to: newStatus)]
       )
     case is Subscribe.ReceiveStoppedState:
       return TransitionResult(
         state: Subscribe.ReceiveStoppedState(input: newInput, cursor: cursor),
-        invocations: invocations
+        invocations: []
       )
     case is Subscribe.ReceiveFailedState:
       return TransitionResult(
         state: Subscribe.HandshakingState(input: newInput, cursor: cursor),
-        invocations: invocations
+        invocations: []
       )
     case is Subscribe.UnsubscribedState:
       return TransitionResult(
         state: Subscribe.HandshakingState(input: newInput, cursor: cursor),
-        invocations: invocations
+        invocations: []
       )
     default:
       return TransitionResult(
         state: state,
-        invocations: invocations
+        invocations: []
       )
     }
   }
@@ -214,6 +200,26 @@ fileprivate extension SubscribeTransition {
 }
 
 fileprivate extension SubscribeTransition {
+  // Restarts the long-poll without emitting any status
+  func restartReceivingState(from state: State, cursor: SubscribeCursor?) -> TransitionResult<State, Invocation> {
+    // A timetoken passed with RECONNECT has no region, so it is merged with the region of the current cursor
+    let resolvedCursor = if let cursor {
+      SubscribeCursor(timetoken: cursor.timetoken, region: state.cursor.region)
+    } else {
+      state.cursor
+    }
+
+    return TransitionResult(
+      state: Subscribe.ReceivingState(
+        input: state.input,
+        cursor: resolvedCursor,
+        connectionStatus: state.connectionStatus
+      )
+    )
+  }
+}
+
+fileprivate extension SubscribeTransition {
   func setHandshakeFailedState(
     from state: State,
     error: PubNubError
@@ -224,11 +230,7 @@ fileprivate extension SubscribeTransition {
         cursor: state.cursor,
         error: error
       ), invocations: [
-        .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
-          oldStatus: state.connectionStatus,
-          newStatus: .connectionError(error),
-          error: error
-        )))
+        .emitStatus(from: state.connectionStatus, to: .connectionError(error), error: error)
       ]
     )
   }
@@ -240,30 +242,21 @@ fileprivate extension SubscribeTransition {
     cursor: SubscribeCursor,
     messages: [SubscribeMessagePayload] = []
   ) -> TransitionResult<State, Invocation> {
-    let emitMessagesInvocation = EffectInvocation.managed(
-      Subscribe.Invocation.emitMessages(
-        events: messages,
-        forCursor: cursor
-      )
-    )
+    var invocations: [EffectInvocation<Invocation>] = []
+    var connectionStatus = state.connectionStatus
+
+    if !messages.isEmpty {
+      invocations.append(.emitMessages(messages, forCursor: cursor))
+    }
 
     if state is Subscribe.HandshakingState {
-      let emitStatusInvocation = EffectInvocation.regular(
-        Subscribe.Invocation.emitStatus(change: Subscribe.ConnectionStatusChange(
-          oldStatus: state.connectionStatus,
-          newStatus: .connected,
-          error: nil
-        ))
-      )
-      return TransitionResult(
-        state: Subscribe.ReceivingState(input: state.input, cursor: cursor, connectionStatus: .connected),
-        invocations: [messages.isEmpty ? nil : emitMessagesInvocation, emitStatusInvocation].compactMap { $0 }
-      )
+      invocations.append(.emitStatus(from: connectionStatus, to: .connected))
+      connectionStatus = .connected
     }
 
     return TransitionResult(
-      state: Subscribe.ReceivingState(input: state.input, cursor: cursor, connectionStatus: state.connectionStatus),
-      invocations: [messages.isEmpty ? nil : emitMessagesInvocation].compactMap { $0 }
+      state: Subscribe.ReceivingState(input: state.input, cursor: cursor, connectionStatus: connectionStatus),
+      invocations: invocations
     )
   }
 }
@@ -279,11 +272,7 @@ fileprivate extension SubscribeTransition {
         cursor: state.cursor,
         error: error
       ), invocations: [
-        .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
-          oldStatus: state.connectionStatus,
-          newStatus: .disconnectedUnexpectedly(error),
-          error: error
-        )))
+        .emitStatus(from: state.connectionStatus, to: .disconnectedUnexpectedly(error), error: error)
       ]
     )
   }
@@ -292,11 +281,7 @@ fileprivate extension SubscribeTransition {
 fileprivate extension SubscribeTransition {
   func setStoppedState(from state: State) -> TransitionResult<State, Invocation> {
     let invocations: [EffectInvocation<Invocation>] = [
-      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: state.connectionStatus,
-        newStatus: .disconnected,
-        error: nil
-      )))
+      .emitStatus(from: state.connectionStatus, to: .disconnected)
     ]
     let handshakeStoppedTransition: TransitionResult<State, Invocation> = TransitionResult(
       state: Subscribe.HandshakeStoppedState(input: state.input, cursor: state.cursor),
@@ -322,13 +307,7 @@ fileprivate extension SubscribeTransition {
   func setUnsubscribedState(from state: State) -> TransitionResult<State, Invocation> {
     return TransitionResult(
       state: Subscribe.UnsubscribedState(),
-      invocations: [
-        .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
-          oldStatus: state.connectionStatus,
-          newStatus: .disconnected,
-          error: nil
-        )))
-      ]
+      invocations: [.emitStatus(from: state.connectionStatus, to: .disconnected)]
     )
   }
 }

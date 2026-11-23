@@ -110,10 +110,17 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
     onStateUpdated?(newState)
 
     let listener = DispatcherListener<Event>(
-      onAnyInvocationCompleted: { [weak self] results in
-        results.forEach {
-          self?.send(event: $0)
-        }
+      onEffectCompleted: { [weak self] results, isCurrent in
+        // Drop the completion if the engine has already been deallocated
+        guard let self else { return }
+        // Take the same lock `send` holds during transitions, so no replacement can be dispatched mid-check
+        self.recursiveLock.lock()
+        // Release the lock on every exit path
+        defer { self.recursiveLock.unlock() }
+        // Discard the events if the effect was cancelled or replaced
+        guard isCurrent() else { return }
+        // Deliver the events now, while the lock still guarantees the state they were produced for
+        results.forEach { self.send(event: $0) }
       }
     )
     dispatcher.dispatch(

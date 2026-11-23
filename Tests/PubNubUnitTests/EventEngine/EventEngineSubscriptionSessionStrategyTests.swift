@@ -63,6 +63,39 @@ class EventEngineSubscriptionSessionStrategyTests: XCTestCase {
   }
 }
 
+extension EventEngineSubscriptionSessionStrategyTests {
+  func test_Reconnect_FromHeartbeatCooldown_SendsImmediateHeartbeat() {
+    let config = PubNubConfiguration(publishKey: "pubKey", subscribeKey: "subKey", userId: "userId", heartbeatInterval: 30)
+    let presenceFactory = RecordingPresenceEffectFactory()
+
+    let subscribeEngine = SubscribeEngine(
+      state: Subscribe.UnsubscribedState(),
+      transition: SubscribeTransition(),
+      dispatcher: EffectDispatcher(factory: NoOpSubscribeEffectFactory(), logger: PubNubLogger.defaultLogger()),
+      dependencies: EventEngineDependencies(value: Subscribe.Dependencies(configuration: config)),
+      logger: PubNubLogger.defaultLogger()
+    )
+    let presenceEngine = PresenceEngine(
+      state: Presence.HeartbeatCooldown(input: PresenceInput(channels: ["c1"], groups: ["g1"])),
+      transition: PresenceTransition(configuration: config),
+      dispatcher: EffectDispatcher(factory: presenceFactory, logger: PubNubLogger.defaultLogger()),
+      dependencies: EventEngineDependencies(value: Presence.Dependencies(configuration: config)),
+      logger: PubNubLogger.defaultLogger()
+    )
+    let strategy = EventEngineSubscriptionSessionStrategy(
+      configuration: config,
+      subscribeEngine: subscribeEngine,
+      presenceEngine: presenceEngine,
+      presenceStateContainer: .init()
+    )
+
+    strategy.reconnect(at: nil)
+
+    XCTAssertTrue(presenceEngine.state is Presence.Heartbeating)
+    XCTAssertEqual(presenceFactory.heartbeatCount, 1)
+  }
+}
+
 // MARK: - No-op effect factories (prevent any network activity)
 
 private struct NoOpSubscribeEffectFactory: EffectHandlerFactory {
@@ -80,6 +113,20 @@ private struct NoOpPresenceEffectFactory: EffectHandlerFactory {
     with dependencies: EventEngineDependencies<Presence.Dependencies>
   ) -> any EffectHandler<Presence.Event> {
     NoOpEffectHandler()
+  }
+}
+
+private class RecordingPresenceEffectFactory: EffectHandlerFactory {
+  private(set) var heartbeatCount = 0
+
+  func effect(
+    for invocation: Presence.Invocation,
+    with dependencies: EventEngineDependencies<Presence.Dependencies>
+  ) -> any EffectHandler<Presence.Event> {
+    if case .heartbeat = invocation {
+      heartbeatCount += 1
+    }
+    return NoOpEffectHandler()
   }
 }
 

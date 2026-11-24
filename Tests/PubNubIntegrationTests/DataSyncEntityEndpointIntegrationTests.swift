@@ -203,6 +203,74 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     wait(for: [replaceExpect], timeout: 10.0)
   }
 
+  func testSetEntityCreatesAbsentEntityWhenClassNameIsGiven() throws {
+    let setExpect = expectation(description: "Set Entity Creates Expectation")
+    let client = PubNub(configuration: try dataSyncHealthcareConfiguration(from: testsBundle))
+    let patientId = randomString()
+
+    client.dataSync.setEntity(
+      id: patientId,
+      classVersion: patientClass.version,
+      className: patientClass.name,
+      status: "active",
+      payload: TestPatientPayload.standard(mrn: "MRN-100010")
+    ) { result in
+      switch result {
+      case let .success(entity):
+        XCTAssertEqual(entity.id, patientId)
+        XCTAssertEqual(entity.className, self.patientClass.name)
+      case let .failure(error):
+        XCTFail("Failed due to error: \(error)")
+      }
+      setExpect.fulfill()
+    }
+
+    defer {
+      removeEntities(client: client, ids: [patientId])
+    }
+
+    wait(for: [setExpect], timeout: 10.0)
+  }
+
+  func testSetEntityWithMismatchingClassNameFails() throws {
+    let replaceExpect = expectation(description: "Set Entity Mismatch Expectation")
+    let client = PubNub(configuration: try dataSyncHealthcareConfiguration(from: testsBundle))
+    let patientId = randomString()
+
+    client.dataSync.createEntity(
+      className: patientClass.name,
+      classVersion: patientClass.version,
+      id: patientId,
+      payload: TestPatientPayload.standard(mrn: "MRN-100011")
+    ) { [unowned client] createResult in
+      switch createResult {
+      case .success:
+        client.dataSync.setEntity(
+          id: patientId,
+          classVersion: self.patientClass.version,
+          className: "not-the-stored-class"
+        ) { replaceResult in
+          switch replaceResult {
+          case .success:
+            XCTFail("Test should fail")
+          case let .failure(error):
+            XCTAssertEqual(error.pubNubError?.reason, .badRequest)
+          }
+          replaceExpect.fulfill()
+        }
+      case let .failure(error):
+        XCTFail("Failed due to error: \(error)")
+        replaceExpect.fulfill()
+      }
+    }
+
+    defer {
+      removeEntities(client: client, ids: [patientId])
+    }
+
+    wait(for: [replaceExpect], timeout: 10.0)
+  }
+
   func testCreateEntityWithDuplicateIdFails() throws {
     let duplicateExpect = expectation(description: "Duplicate Entity Expectation")
     let client = PubNub(configuration: try dataSyncHealthcareConfiguration(from: testsBundle))

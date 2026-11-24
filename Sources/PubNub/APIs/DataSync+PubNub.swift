@@ -286,7 +286,9 @@ public extension PubNub.DataSyncAPI {
     }
   }
 
-  /// Replaces an entity in full.
+  /// Creates or replaces an entity in full.
+  ///
+  /// If the entity does not exist, it is created, and `className` is required. If it exists, it is replaced and `className` and `classLevel` are optional: when supplied they must match the stored class and level, otherwise the request fails.
   ///
   /// Every mutable field is overwritten. Omitting `status` or `payload` clears the stored value rather than preserving it, so a read-modify-write
   /// must send back every field it wants to keep. Use ``updateEntity(id:operations:ifMatchesEtag:custom:completion:)`` to change
@@ -295,6 +297,8 @@ public extension PubNub.DataSyncAPI {
   /// - Parameters:
   ///   - id: The unique identifier of the entity
   ///   - classVersion: The version of the class the payload conforms to
+  ///   - className: The name of the class the entity belongs to. When replacing, it must match the stored class
+  ///   - classLevel: The level to resolve the class name at. When replacing, it must match the stored level
   ///   - status: An arbitrary status to store with the entity
   ///   - payload: The replacement entity fields
   ///   - ifMatchesEtag: The entity's last known ``PubNubDataSyncEntity/eTag``, used to prevent modifying a newer revision
@@ -305,6 +309,8 @@ public extension PubNub.DataSyncAPI {
   func setEntity(
     id: String,
     classVersion: Int,
+    className: String? = nil,
+    classLevel: PubNubDataSyncClassLevel? = nil,
     status: String? = nil,
     payload: JSONCodable? = nil,
     ifMatchesEtag: String? = nil,
@@ -317,6 +323,8 @@ public extension PubNub.DataSyncAPI {
       arguments: [
         ("id", id),
         ("classVersion", classVersion),
+        ("className", className),
+        ("classLevel", classLevel?.stringValue),
         ("status", status),
         ("payload", payload),
         ("ifMatchesEtag", ifMatchesEtag),
@@ -327,7 +335,13 @@ public extension PubNub.DataSyncAPI {
     let router = DataSyncEntityRouter(
       .replace(
         id: id,
-        body: .init(status: status, entityClassVersion: classVersion, payload: payload?.codableValue),
+        body: .init(
+          entityClass: className,
+          entityClassVersion: classVersion,
+          entityClassLevel: classLevel?.stringValue,
+          status: status,
+          payload: payload?.codableValue
+        ),
         ifMatch: ifMatchesEtag
       ),
       configuration: configuration(from: requestConfig)
@@ -344,7 +358,7 @@ public extension PubNub.DataSyncAPI {
 
   /// Applies a set of JSON Patch operations to an entity.
   ///
-  /// Unlike ``setEntity(id:classVersion:status:payload:ifMatchesEtag:custom:completion:)``, fields not addressed by an operation
+  /// Unlike ``setEntity(id:classVersion:className:classLevel:status:payload:ifMatchesEtag:custom:completion:)``, fields not addressed by an operation
   /// are left untouched. The operations are applied atomically: if any one of them fails, the entity is left unchanged.
   ///
   /// - Parameters:
@@ -596,7 +610,9 @@ public extension PubNub.DataSyncAPI {
     }
   }
 
-  /// Replaces a user in full.
+  /// Creates or replaces a user in full.
+  ///
+  /// If the user does not exist, it is created, and `className` defaults to the global `User` class. If it exists, it is replaced and `className` and `classLevel` are optional: when supplied they must match the stored class and level, otherwise the request fails.
   ///
   /// Every mutable field is overwritten. Omitting `status` or `payload` clears the stored value rather than preserving it, so a read-modify-write
   /// must send back every field it wants to keep. Use ``updateUser(id:operations:ifMatchesEtag:custom:completion:)`` to change
@@ -605,6 +621,8 @@ public extension PubNub.DataSyncAPI {
   /// - Parameters:
   ///   - id: The unique identifier of the user
   ///   - classVersion: The version of the `User` class the payload conforms to
+  ///   - className: The name of the class the user belongs to. When replacing, it must match the stored class
+  ///   - classLevel: The level to resolve the class name at. When replacing, it must match the stored level
   ///   - status: An arbitrary status to store with the user
   ///   - payload: The replacement user fields
   ///   - ifMatchesEtag: The user's last known ``PubNubDataSyncUser/eTag``, used to prevent modifying a newer revision
@@ -615,6 +633,8 @@ public extension PubNub.DataSyncAPI {
   func setUser(
     id: String,
     classVersion: Int,
+    className: String? = nil,
+    classLevel: PubNubDataSyncClassLevel? = nil,
     status: String? = nil,
     payload: JSONCodable? = nil,
     ifMatchesEtag: String? = nil,
@@ -627,6 +647,8 @@ public extension PubNub.DataSyncAPI {
       arguments: [
         ("id", id),
         ("classVersion", classVersion),
+        ("className", className),
+        ("classLevel", classLevel?.stringValue),
         ("status", status),
         ("payload", payload),
         ("ifMatchesEtag", ifMatchesEtag),
@@ -637,7 +659,13 @@ public extension PubNub.DataSyncAPI {
     let router = DataSyncUserRouter(
       .replace(
         id: id,
-        body: .init(status: status, entityClassVersion: classVersion, payload: payload?.codableValue),
+        body: .init(
+          entityClass: className,
+          entityClassVersion: classVersion,
+          entityClassLevel: classLevel?.stringValue,
+          status: status,
+          payload: payload?.codableValue
+        ),
         ifMatch: ifMatchesEtag
       ),
       configuration: configuration(from: requestConfig)
@@ -654,7 +682,7 @@ public extension PubNub.DataSyncAPI {
 
   /// Applies a set of JSON Patch operations to a user.
   ///
-  /// Unlike ``setUser(id:classVersion:status:payload:ifMatchesEtag:custom:completion:)``, fields not addressed by an operation
+  /// Unlike ``setUser(id:classVersion:className:classLevel:status:payload:ifMatchesEtag:custom:completion:)``, fields not addressed by an operation
   /// are left untouched. The operations are applied atomically: if any one of them fails, the user is left unchanged.
   ///
   /// - Parameters:
@@ -906,7 +934,9 @@ public extension PubNub.DataSyncAPI {
     }
   }
 
-  /// Replaces a channel in full.
+  /// Creates or replaces a channel in full.
+  ///
+  /// If the channel does not exist, it is created, and `className` defaults to the global `Channel` class. If it exists, it is replaced and `className` and `classLevel` are optional: when supplied they must match the stored class and level, otherwise the request fails.
   ///
   /// Every mutable field is overwritten. Omitting `status` or `payload` clears the stored value rather than preserving it, so a read-modify-write
   /// must send back every field it wants to keep. Use ``updateChannel(id:operations:ifMatchesEtag:custom:completion:)`` to change
@@ -915,6 +945,8 @@ public extension PubNub.DataSyncAPI {
   /// - Parameters:
   ///   - id: The unique identifier of the channel
   ///   - classVersion: The version of the `Channel` class the payload conforms to
+  ///   - className: The name of the class the channel belongs to. When replacing, it must match the stored class
+  ///   - classLevel: The level to resolve the class name at. When replacing, it must match the stored level
   ///   - status: An arbitrary status to store with the channel
   ///   - payload: The replacement channel fields
   ///   - ifMatchesEtag: The channel's last known ``PubNubDataSyncChannel/eTag``, used to prevent modifying a newer revision
@@ -925,6 +957,8 @@ public extension PubNub.DataSyncAPI {
   func setChannel(
     id: String,
     classVersion: Int,
+    className: String? = nil,
+    classLevel: PubNubDataSyncClassLevel? = nil,
     status: String? = nil,
     payload: JSONCodable? = nil,
     ifMatchesEtag: String? = nil,
@@ -937,6 +971,8 @@ public extension PubNub.DataSyncAPI {
       arguments: [
         ("id", id),
         ("classVersion", classVersion),
+        ("className", className),
+        ("classLevel", classLevel?.stringValue),
         ("status", status),
         ("payload", payload),
         ("ifMatchesEtag", ifMatchesEtag),
@@ -947,7 +983,13 @@ public extension PubNub.DataSyncAPI {
     let router = DataSyncChannelRouter(
       .replace(
         id: id,
-        body: .init(status: status, entityClassVersion: classVersion, payload: payload?.codableValue),
+        body: .init(
+          entityClass: className,
+          entityClassVersion: classVersion,
+          entityClassLevel: classLevel?.stringValue,
+          status: status,
+          payload: payload?.codableValue
+        ),
         ifMatch: ifMatchesEtag
       ),
       configuration: configuration(from: requestConfig)
@@ -964,7 +1006,7 @@ public extension PubNub.DataSyncAPI {
 
   /// Applies a set of JSON Patch operations to a channel.
   ///
-  /// Unlike ``setChannel(id:classVersion:status:payload:ifMatchesEtag:custom:completion:)``, fields not addressed by an operation
+  /// Unlike ``setChannel(id:classVersion:className:classLevel:status:payload:ifMatchesEtag:custom:completion:)``, fields not addressed by an operation
   /// are left untouched. The operations are applied atomically: if any one of them fails, the channel is left unchanged.
   ///
   /// - Parameters:

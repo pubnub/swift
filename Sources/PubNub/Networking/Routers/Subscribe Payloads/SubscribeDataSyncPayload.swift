@@ -103,6 +103,10 @@ extension SubscribeDataSyncPayload: Decodable {
     let data = try container.nestedContainer(keyedBy: DataCodingKeys.self, forKey: .data)
     let identifier = try data.decode(String.self, forKey: .id)
 
+    // A membership frames its two sides as `channelId` and `userId`
+    let entityAKey: DataCodingKeys = type == .membership ? .channelId : .entityAId
+    let entityBKey: DataCodingKeys = type == .membership ? .userId : .entityBId
+
     switch (type, action) {
     case (.entity, .create), (.entity, .update), (.user, .create), (.user, .update), (.channel, .create), (.channel, .update):
       let entity = PubNubDataSyncEntity(
@@ -129,8 +133,8 @@ extension SubscribeDataSyncPayload: Decodable {
         id: identifier,
         className: className,
         classVersion: classVersion,
-        entityAId: try data.decode(String.self, forKey: type.entityAKey),
-        entityBId: try data.decode(String.self, forKey: type.entityBKey),
+        entityAId: try data.decode(String.self, forKey: entityAKey),
+        entityBId: try data.decode(String.self, forKey: entityBKey),
         createdAt: try data.decode(Date.self, forKey: .createdAt),
         updatedAt: try data.decode(Date.self, forKey: .updatedAt),
         eTag: try data.decode(String.self, forKey: .eTag),
@@ -169,8 +173,8 @@ extension SubscribeDataSyncPayload: Decodable {
             className: className,
             classLevel: classLevel,
             classVersion: classVersion,
-            entityAId: try data.decode(String.self, forKey: type.entityAKey),
-            entityBId: try data.decode(String.self, forKey: type.entityBKey),
+            entityAId: try data.decode(String.self, forKey: entityAKey),
+            entityBId: try data.decode(String.self, forKey: entityBKey),
             deletedAt: try data.decode(Date.self, forKey: .deletedAt)
           )
         )
@@ -191,15 +195,6 @@ private extension SubscribeDataSyncPayload.ObjectType {
     case .relationship, .membership:
       preconditionFailure("A relationship type cannot be converted to an entity kind")
     }
-  }
-
-  // A membership frames its two sides as `channelId` and `userId`
-  var entityAKey: SubscribeDataSyncPayload.DataCodingKeys {
-    self == .membership ? .channelId : .entityAId
-  }
-
-  var entityBKey: SubscribeDataSyncPayload.DataCodingKeys {
-    self == .membership ? .userId : .entityBId
   }
 
   var relationshipKind: PubNubDataSyncRelationshipKind {

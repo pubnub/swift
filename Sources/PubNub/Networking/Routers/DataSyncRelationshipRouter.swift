@@ -70,13 +70,26 @@ struct DataSyncRelationshipRouter: DataSyncRouting {
   }
 
   struct ReplaceBody: JSONCodable, Equatable {
-    let status: String?
+    let entityAId: String?
+    let entityBId: String?
+    let relationshipClass: String?
     let relationshipClassVersion: Int
+    let status: String?
     let payload: AnyJSON?
 
-    init(status: String? = nil, relationshipClassVersion: Int, payload: AnyJSON? = nil) {
-      self.status = status
+    init(
+      entityAId: String? = nil,
+      entityBId: String? = nil,
+      relationshipClass: String? = nil,
+      relationshipClassVersion: Int,
+      status: String? = nil,
+      payload: AnyJSON? = nil
+    ) {
+      self.entityAId = entityAId
+      self.entityBId = entityBId
+      self.relationshipClass = relationshipClass
       self.relationshipClassVersion = relationshipClassVersion
+      self.status = status
       self.payload = payload
     }
   }

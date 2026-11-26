@@ -1559,7 +1559,9 @@ public extension PubNub.DataSyncAPI {
     }
   }
 
-  /// Replaces a relationship in full.
+  /// Creates or replaces a relationship in full.
+  ///
+  /// If the relationship does not exist, it is created, and `className`, `entityAId` and `entityBId` are required. If it exists, it is replaced and all three are optional: when supplied they must match the stored class and participants, otherwise the request fails.
   ///
   /// Every mutable field is overwritten. Omitting `status` or `payload` clears the stored value rather than preserving it, so a read-modify-write
   /// must send back every field it wants to keep. Use ``updateRelationship(id:operations:ifMatchesEtag:custom:completion:)`` to change
@@ -1568,6 +1570,9 @@ public extension PubNub.DataSyncAPI {
   /// - Parameters:
   ///   - id: The unique identifier of the relationship
   ///   - classVersion: The version of the class the payload conforms to
+  ///   - className: The name of the class the relationship belongs to. When replacing, it must match the stored class
+  ///   - entityAId: The unique identifier of the entity on side A. When replacing, it must match the stored participant
+  ///   - entityBId: The unique identifier of the entity on side B. When replacing, it must match the stored participant
   ///   - status: An arbitrary status to store with the relationship
   ///   - payload: The replacement relationship fields
   ///   - ifMatchesEtag: The relationship's last known ``PubNubDataSyncRelationship/eTag``, used to prevent modifying a newer revision
@@ -1578,6 +1583,9 @@ public extension PubNub.DataSyncAPI {
   func setRelationship(
     id: String,
     classVersion: Int,
+    className: String? = nil,
+    entityAId: String? = nil,
+    entityBId: String? = nil,
     status: String? = nil,
     payload: JSONCodable? = nil,
     ifMatchesEtag: String? = nil,
@@ -1590,6 +1598,9 @@ public extension PubNub.DataSyncAPI {
       arguments: [
         ("id", id),
         ("classVersion", classVersion),
+        ("className", className),
+        ("entityAId", entityAId),
+        ("entityBId", entityBId),
         ("status", status),
         ("payload", payload),
         ("ifMatchesEtag", ifMatchesEtag),
@@ -1601,8 +1612,11 @@ public extension PubNub.DataSyncAPI {
       .replace(
         id: id,
         body: .init(
-          status: status,
+          entityAId: entityAId,
+          entityBId: entityBId,
+          relationshipClass: className,
           relationshipClassVersion: classVersion,
+          status: status,
           payload: payload?.codableValue
         ),
         ifMatch: ifMatchesEtag
@@ -1621,7 +1635,7 @@ public extension PubNub.DataSyncAPI {
 
   /// Applies a set of JSON Patch operations to a relationship.
   ///
-  /// Unlike ``setRelationship(id:classVersion:status:payload:ifMatchesEtag:custom:completion:)``, fields not addressed by an operation
+  /// Unlike ``setRelationship(id:classVersion:className:entityAId:entityBId:status:payload:ifMatchesEtag:custom:completion:)``, fields not addressed by an operation
   /// are left untouched. The operations are applied atomically: if any one of them fails, the relationship is left unchanged.
   ///
   /// - Parameters:

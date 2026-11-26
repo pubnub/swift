@@ -143,4 +143,46 @@ final class DataSyncRelationshipAPITests: DataSyncAPITestCase {
 
     wait(for: [expectation], timeout: 1.0)
   }
+
+  func test_Relationship_SetWithClassAndParticipants_SendsAll() throws {
+    let expectation = self.expectation(description: "setRelationship class and participants")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_relationship_fetch_success"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.dataSync.setRelationship(
+      id: "rel-alice-treats-bob",
+      classVersion: 1,
+      className: "Treats",
+      entityAId: "hcn-doctor-alice",
+      entityBId: "hcn-patient-bob"
+    ) { _ in
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+
+    let body = try requestBody(sessions.mockSession)
+
+    XCTAssertEqual(body["relationshipClass"]?.stringOptional, "Treats")
+    XCTAssertEqual(body["entityAId"]?.stringOptional, "hcn-doctor-alice")
+    XCTAssertEqual(body["entityBId"]?.stringOptional, "hcn-patient-bob")
+  }
+
+  func test_Relationship_SetWithoutIdentityFields_OmitsAllKeys() throws {
+    let expectation = self.expectation(description: "setRelationship no identity")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_relationship_fetch_success"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.dataSync.setRelationship(id: "rel-alice-treats-bob", classVersion: 1) { _ in
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+
+    let body = try requestBody(sessions.mockSession)
+
+    XCTAssertNil(body["relationshipClass"])
+    XCTAssertNil(body["entityAId"])
+    XCTAssertNil(body["entityBId"])
+  }
 }

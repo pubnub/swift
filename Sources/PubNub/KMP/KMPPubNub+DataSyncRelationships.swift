@@ -104,6 +104,9 @@ public extension KMPPubNub {
   func setDataSyncRelationship(
     id relationshipId: String,
     classVersion: Int,
+    className: String?,
+    entityAId: String?,
+    entityBId: String?,
     status: String?,
     payload: Any?,
     ifMatchesEtag: String?,
@@ -113,6 +116,9 @@ public extension KMPPubNub {
     pubnub.dataSync.setRelationship(
       id: relationshipId,
       classVersion: classVersion,
+      className: className,
+      entityAId: entityAId,
+      entityBId: entityBId,
       status: status,
       payload: asOptionalCodable(payload),
       ifMatchesEtag: ifMatchesEtag

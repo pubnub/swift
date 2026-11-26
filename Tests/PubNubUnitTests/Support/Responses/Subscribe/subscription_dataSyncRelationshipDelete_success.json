@@ -28,6 +28,8 @@
           },
           "data": {
             "id": "hcn-rel-attending-tanaka-dubois",
+            "entityAId": "hcn-physician-tanaka",
+            "entityBId": "hcn-patient-dubois",
             "deletedAt": "2026-07-28T09:07:47.243657Z"
           }
         },

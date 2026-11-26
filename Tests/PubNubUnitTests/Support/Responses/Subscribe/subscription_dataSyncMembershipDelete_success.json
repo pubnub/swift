@@ -28,6 +28,8 @@
           },
           "data": {
             "id": "general__alice",
+            "channelId": "general",
+            "userId": "alice",
             "deletedAt": "2026-08-13T16:05:15.029431Z"
           }
         }

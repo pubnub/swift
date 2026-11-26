@@ -197,6 +197,10 @@ public struct PubNubDataSyncRemovedRelationship: Hashable {
   public let classLevel: PubNubDataSyncClassLevel
   /// The version of the deleted relationship's class
   public let classVersion: Int
+  /// The unique identifier of the entity on side A of the relationship
+  public let entityAId: String
+  /// The unique identifier of the entity on side B of the relationship
+  public let entityBId: String
   /// The date the relationship was deleted
   public let deletedAt: Date
 }

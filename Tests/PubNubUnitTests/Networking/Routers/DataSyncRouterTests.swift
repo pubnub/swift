@@ -668,8 +668,8 @@ extension DataSyncRouterTests {
       .replace(
         id: "r-1",
         body: .init(
-          status: "active",
           relationshipClassVersion: 1,
+          status: "active",
           payload: RelationshipPayload(since: "2026-01-01").codableValue
         ),
         ifMatch: "\"3\""

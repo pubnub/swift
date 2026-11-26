@@ -613,6 +613,7 @@
 		DA7A5C000000000000000009 /* datasync_entity_all_last_page.json in Resources */ = {isa = PBXBuildFile; fileRef = DA7A5C00000000000000000A /* datasync_entity_all_last_page.json */; };
 		DA7A5C00000000000000000B /* datasync_entity_all_success.json in Resources */ = {isa = PBXBuildFile; fileRef = DA7A5C00000000000000000C /* datasync_entity_all_success.json */; };
 		DA7A5C00000000000000000D /* datasync_entity_fetch_success.json in Resources */ = {isa = PBXBuildFile; fileRef = DA7A5C00000000000000000E /* datasync_entity_fetch_success.json */; };
+		DA7A5C0000000000000FF01 /* datasync_entity_put_created_201.json in Resources */ = {isa = PBXBuildFile; fileRef = DA7A5C0000000000000FF02 /* datasync_entity_put_created_201.json */; };
 		DA7A5C00000000000000000F /* datasync_error_400.json in Resources */ = {isa = PBXBuildFile; fileRef = DA7A5C000000000000000010 /* datasync_error_400.json */; };
 		DA7A5C000000000000000011 /* datasync_error_404.json in Resources */ = {isa = PBXBuildFile; fileRef = DA7A5C000000000000000012 /* datasync_error_404.json */; };
 		DA7A5C000000000000000013 /* datasync_error_409.json in Resources */ = {isa = PBXBuildFile; fileRef = DA7A5C000000000000000014 /* datasync_error_409.json */; };
@@ -1381,6 +1382,7 @@
 		DA7A5C00000000000000000A /* datasync_entity_all_last_page.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = datasync_entity_all_last_page.json; path = Tests/PubNubUnitTests/Support/Responses/DataSync/datasync_entity_all_last_page.json; sourceTree = SOURCE_ROOT; };
 		DA7A5C00000000000000000C /* datasync_entity_all_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = datasync_entity_all_success.json; path = Tests/PubNubUnitTests/Support/Responses/DataSync/datasync_entity_all_success.json; sourceTree = SOURCE_ROOT; };
 		DA7A5C00000000000000000E /* datasync_entity_fetch_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = datasync_entity_fetch_success.json; path = Tests/PubNubUnitTests/Support/Responses/DataSync/datasync_entity_fetch_success.json; sourceTree = SOURCE_ROOT; };
+		DA7A5C0000000000000FF02 /* datasync_entity_put_created_201.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = datasync_entity_put_created_201.json; path = Tests/PubNubUnitTests/Support/Responses/DataSync/datasync_entity_put_created_201.json; sourceTree = SOURCE_ROOT; };
 		DA7A5C000000000000000010 /* datasync_error_400.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = datasync_error_400.json; path = Tests/PubNubUnitTests/Support/Responses/DataSync/datasync_error_400.json; sourceTree = SOURCE_ROOT; };
 		DA7A5C000000000000000012 /* datasync_error_404.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = datasync_error_404.json; path = Tests/PubNubUnitTests/Support/Responses/DataSync/datasync_error_404.json; sourceTree = SOURCE_ROOT; };
 		DA7A5C000000000000000014 /* datasync_error_409.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = datasync_error_409.json; path = Tests/PubNubUnitTests/Support/Responses/DataSync/datasync_error_409.json; sourceTree = SOURCE_ROOT; };
@@ -3226,6 +3228,7 @@
 				DA7A5C00000000000000000A /* datasync_entity_all_last_page.json */,
 				DA7A5C00000000000000000C /* datasync_entity_all_success.json */,
 				DA7A5C00000000000000000E /* datasync_entity_fetch_success.json */,
+				DA7A5C0000000000000FF02 /* datasync_entity_put_created_201.json */,
 				DA7A5C000000000000000010 /* datasync_error_400.json */,
 				DA7A5C000000000000000012 /* datasync_error_404.json */,
 				DA7A5C000000000000000014 /* datasync_error_409.json */,
@@ -3939,6 +3942,7 @@
 				DA7A5C000000000000000009 /* datasync_entity_all_last_page.json in Resources */,
 				DA7A5C00000000000000000B /* datasync_entity_all_success.json in Resources */,
 				DA7A5C00000000000000000D /* datasync_entity_fetch_success.json in Resources */,
+				DA7A5C0000000000000FF01 /* datasync_entity_put_created_201.json in Resources */,
 				DA7A5C00000000000000000F /* datasync_error_400.json in Resources */,
 				DA7A5C000000000000000011 /* datasync_error_404.json in Resources */,
 				DA7A5C000000000000000013 /* datasync_error_409.json in Resources */,

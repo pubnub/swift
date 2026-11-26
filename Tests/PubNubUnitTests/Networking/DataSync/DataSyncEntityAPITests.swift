@@ -277,4 +277,92 @@ final class DataSyncEntityAPITests: DataSyncAPITestCase {
 
     wait(for: [expectation], timeout: 1.0)
   }
+
+  func test_Entity_SetWithClassNameAndLevel_SendsBoth() throws {
+    let expectation = self.expectation(description: "setEntity class and level")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_entity_fetch_success"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.dataSync.setEntity(id: "hcn-patient-alice", classVersion: 1, className: "patient", classLevel: .subKey) { _ in
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+
+    let body = try requestBody(sessions.mockSession)
+
+    XCTAssertEqual(body["entityClass"]?.stringOptional, "patient")
+    XCTAssertEqual(body["entityClassLevel"]?.stringOptional, "SubKey")
+  }
+
+  func test_Entity_SetWithOnlyClassName_OmitsLevel() throws {
+    let expectation = self.expectation(description: "setEntity class only")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_entity_fetch_success"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.dataSync.setEntity(id: "hcn-patient-alice", classVersion: 1, className: "patient") { _ in
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+
+    let body = try requestBody(sessions.mockSession)
+
+    XCTAssertEqual(body["entityClass"]?.stringOptional, "patient")
+    XCTAssertNil(body["entityClassLevel"])
+  }
+
+  func test_Entity_SetWithoutClassFields_OmitsBothKeys() throws {
+    let expectation = self.expectation(description: "setEntity no class")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_entity_fetch_success"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.dataSync.setEntity(id: "hcn-patient-alice", classVersion: 1) { _ in
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+
+    let body = try requestBody(sessions.mockSession)
+
+    XCTAssertNil(body["entityClass"])
+    XCTAssertNil(body["entityClassLevel"])
+  }
+
+  func test_SetEntity_WhenCreated201_DecodesEntity() throws {
+    let expectation = self.expectation(description: "setEntity created")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_entity_put_created_201"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.dataSync.setEntity(id: "hcn-patient-alice", classVersion: 1, className: "patient") { result in
+      switch result {
+      case let .success(entity):
+        XCTAssertEqual(entity.id, "hcn-patient-alice")
+        XCTAssertEqual(entity.className, "patient")
+      case let .failure(error):
+        XCTFail("Request failed with \(error.localizedDescription)")
+      }
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func test_SetEntity_WhenClassMismatches_SurfacesBadRequest() throws {
+    let expectation = self.expectation(description: "setEntity class mismatch")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_error_400"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.dataSync.setEntity(id: "hcn-patient-alice", classVersion: 1, className: "other", classLevel: .global) { result in
+      switch result {
+      case .success:
+        XCTFail("Request should not succeed")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError?.reason, .badRequest)
+      }
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
 }

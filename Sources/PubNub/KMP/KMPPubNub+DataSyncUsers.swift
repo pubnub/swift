@@ -100,6 +100,8 @@ public extension KMPPubNub {
   func setDataSyncUser(
     id userId: String,
     classVersion: Int,
+    className: String?,
+    classLevel: String?,
     status: String?,
     payload: Any?,
     ifMatchesEtag: String?,
@@ -109,6 +111,8 @@ public extension KMPPubNub {
     pubnub.dataSync.setUser(
       id: userId,
       classVersion: classVersion,
+      className: className,
+      classLevel: dataSyncClassLevel(from: classLevel),
       status: status,
       payload: asOptionalCodable(payload),
       ifMatchesEtag: ifMatchesEtag

@@ -161,4 +161,55 @@ final class DataSyncUserAPITests: DataSyncAPITestCase {
 
     wait(for: [expectation], timeout: 1.0)
   }
+
+  func test_User_SetWithClassNameAndLevel_SendsBoth() throws {
+    let expectation = self.expectation(description: "setUser class and level")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_entity_fetch_success"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.dataSync.setUser(id: "hcn-patient-alice", classVersion: 1, className: "User", classLevel: .subKey) { _ in
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+
+    let body = try requestBody(sessions.mockSession)
+
+    XCTAssertEqual(body["entityClass"]?.stringOptional, "User")
+    XCTAssertEqual(body["entityClassLevel"]?.stringOptional, "SubKey")
+  }
+
+  func test_User_SetWithOnlyClassName_OmitsLevel() throws {
+    let expectation = self.expectation(description: "setUser class only")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_entity_fetch_success"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.dataSync.setUser(id: "hcn-patient-alice", classVersion: 1, className: "User") { _ in
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+
+    let body = try requestBody(sessions.mockSession)
+
+    XCTAssertEqual(body["entityClass"]?.stringOptional, "User")
+    XCTAssertNil(body["entityClassLevel"])
+  }
+
+  func test_User_SetWithoutClassFields_OmitsBothKeys() throws {
+    let expectation = self.expectation(description: "setUser no class")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_entity_fetch_success"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.dataSync.setUser(id: "hcn-patient-alice", classVersion: 1) { _ in
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+
+    let body = try requestBody(sessions.mockSession)
+
+    XCTAssertNil(body["entityClass"])
+    XCTAssertNil(body["entityClassLevel"])
+  }
 }

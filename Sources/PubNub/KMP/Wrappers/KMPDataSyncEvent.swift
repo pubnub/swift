@@ -177,6 +177,8 @@ public class KMPDataSyncRemovedRelationship: NSObject {
   @objc public let objectClass: String
   @objc public let classLevel: String
   @objc public let classVersion: Int
+  @objc public let entityAId: String
+  @objc public let entityBId: String
   @objc public let deletedAt: Date
 
   init(removedRelationship: PubNubDataSyncRemovedRelationship) {
@@ -184,6 +186,8 @@ public class KMPDataSyncRemovedRelationship: NSObject {
     self.objectClass = removedRelationship.className
     self.classLevel = removedRelationship.classLevel.stringValue
     self.classVersion = removedRelationship.classVersion
+    self.entityAId = removedRelationship.entityAId
+    self.entityBId = removedRelationship.entityBId
     self.deletedAt = removedRelationship.deletedAt
   }
 }

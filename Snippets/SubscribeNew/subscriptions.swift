@@ -266,6 +266,8 @@ dataSyncSubscription.onDataSync = { dataSyncEvent in
   case let .relationshipDeleted(relationshipEvent):
     let removedRelationship = relationshipEvent.removed
     print("Relationship \(removedRelationship.id) was deleted.")
+    // Identify who left a channel: side A is the channel, side B is the user
+    print("Entity \(removedRelationship.entityBId) was removed from \(removedRelationship.entityAId).")
     print("Relationship kind: \(relationshipEvent.kind)")
   case let .unknown(unknownEvent):
     // An object type or action this SDK version doesn't recognize

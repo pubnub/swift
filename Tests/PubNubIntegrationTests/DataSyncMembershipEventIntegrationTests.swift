@@ -201,6 +201,8 @@ final class DataSyncMembershipEventIntegrationTests: XCTestCase {
 
       let removed = relationshipEvent.removed
       XCTAssertEqual(relationshipEvent.kind, .membership)
+      XCTAssertEqual(removed.entityAId, channelId)
+      XCTAssertEqual(removed.entityBId, userId)
       XCTAssertEqual(removed.className, "Membership")
       XCTAssertEqual(removed.classVersion, self.membershipClassVersion)
       // The envelope reports a class level for relationships, even though the REST model has none

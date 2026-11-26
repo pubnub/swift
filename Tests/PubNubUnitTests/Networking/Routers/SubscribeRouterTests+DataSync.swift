@@ -197,6 +197,8 @@ extension SubscribeRouterTests {
       className: "attending-physician",
       classLevel: .subKey,
       classVersion: 1,
+      entityAId: "hcn-physician-tanaka",
+      entityBId: "hcn-patient-dubois",
       deletedAt: try XCTUnwrap(DateFormatter.iso8601.date(from: "2026-07-28T09:07:47.243657Z"))
     )
 
@@ -273,6 +275,23 @@ extension SubscribeRouterTests {
       data.removeValue(forKey: missingField)
 
       XCTAssertNil(mockDataSyncPayload(data: data).asPubNubEvent())
+    }
+  }
+
+  func test_Subscribe_WithDataSyncDeleteMissingEntityIds_ReturnsNilEvent() {
+    for type in ["relationship", "membership"] {
+      let idKeys = type == "membership" ? ["channelId", "userId"] : ["entityAId", "entityBId"]
+
+      for missingKey in idKeys {
+        var data: [String: Any] = [
+          "id": "rel-1",
+          "deletedAt": "2026-07-28T09:07:47.243657Z"
+        ]
+        idKeys.forEach { data[$0] = "value" }
+        data.removeValue(forKey: missingKey)
+
+        XCTAssertNil(mockDataSyncPayload(event: "delete", type: type, data: data).asPubNubEvent())
+      }
     }
   }
 
@@ -641,6 +660,8 @@ extension SubscribeRouterTests {
         className: "Membership",
         classLevel: .global,
         classVersion: 1,
+        entityAId: "general",
+        entityBId: "alice",
         deletedAt: try XCTUnwrap(DateFormatter.iso8601.date(from: "2026-08-13T16:05:15.029431Z"))
       )
     )
